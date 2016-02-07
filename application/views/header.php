@@ -25,9 +25,9 @@
       <div id="mws-logo-container">
         
           <!-- Logo Wrapper, images put within this wrapper will always be vertically centered -->
-          <div id="mws-logo-wrap">
+          <div id="mws-logo-wrap" onclick="window.location='<?= site_url() ?>'">
               <img src="<?= base_url("assets/images/mws-logo.png") ?>" alt="mws admin">
-      </div>
+          </div>
         </div>
         
         <!-- User Tools (notifications, logout, profile, change password) -->

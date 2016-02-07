@@ -20,7 +20,7 @@
                       <!-- <span><i class="icon-table"></i> Data Table with Numbered Pagination</span> -->
                     </div>
                     <div class="mws-panel-body no-padding">
-                        <table class="mws-datatable-fn mws-table">
+                        <table class="mws-datatable-fn mws-table <?= $entity ?>">
                             <thead>
                                 <tr>
                                   <th>NO</th>
