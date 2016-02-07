@@ -36,4 +36,38 @@ class penjualan extends my_controller {
 		$this->loadview($tpl, $data);
 	}
 
+  public function outlet ($tpl='table', $id=null) {
+    $data = array('entity' => 'outlet');
+    $post = $this->input->post();
+    $this->load->model('outlet');
+
+    $data['thead'] = $this->outlet->getTHead();
+    $data['fields'] = $this->outlet->getInputFields();
+    $data['tbody'] = $this->outlet->find();
+    $data['tablePage'] = $this->outlet->getTablePage($id);
+
+    if ($tpl == 'delete') {
+      $this->outlet->delete($id);
+      redirect($data['tablePage']);
+    }
+
+    if ($tpl == 'form' && $post) {
+      $outlet = array();
+      foreach ($data['fields'] as $input) {
+        $field = $input[0];
+        $outlet[$field] = $post[$field];
+      }
+      if (!is_null($id)) $outlet['id'] = $id;
+      $this->outlet->save($outlet);
+
+      redirect($data['tablePage']);
+    }
+
+    if (!is_null($id)) {
+      $data['form'] = $this->outlet->findOne($id);
+    }
+
+    $this->loadview($tpl, $data);
+  }
+
 }
