@@ -6,6 +6,7 @@
   text-align: center;
 }
 
-table.baranggudang tr td:last-child{
+table.baranggudang tr td:last-child,
+table.produk tr td:last-child{
   text-align: right;
 }
