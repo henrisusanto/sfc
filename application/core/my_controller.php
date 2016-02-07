@@ -42,6 +42,7 @@ Class my_controller extends CI_Controller {
     $data['menu'][] = array('Barang Gudang', 'belanja/baranggudang', 'food');
     $data['menu'][] = array('Produk', 'penjualan/produk', 'bag');
     $data['menu'][] = array('Outlet', 'penjualan/outlet', 'business-card');
+    $data['menu'][] = array('Debitur', 'keuangan/debitur', 'official');
 
     $this->load->view('header', $data);
     $this->load->view('menu', $data);
