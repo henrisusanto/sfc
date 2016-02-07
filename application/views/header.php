@@ -12,7 +12,7 @@
 
 <?php foreach ($css as $c): ?><link rel="stylesheet" type="text/css" href="<?= $c ?>" media="screen"><?php endforeach ?>
 
-<title>MWS Admin - Table</title>
+<title>SFC - Super Fried Chicken</title>
 
 </head>
 

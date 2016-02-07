@@ -23,16 +23,19 @@
                         <table class="mws-datatable-fn mws-table">
                             <thead>
                                 <tr>
+                                  <th>NO</th>
                                   <?php foreach ($thead as $th): ?>
-                                    <th><?= $th ?></th>
+                                    <th><?= $th[1] ?></th>
                                   <?php endforeach ?>
                                 </tr>
                             </thead>
                             <tbody>
-                              <?php foreach ($tbody as $tb): ?>
-                                <tr>
-                                  <td></td>
-                                  <td></td>
+                              <?php $no = 0; foreach ($tbody as $tb): $no++ ?>
+                                <tr onclick="window.location='<?= current_url() . "/form/$tb->id" ?>'">
+                                  <td><?= $no ?></td>
+                                  <?php foreach ($thead as $th): ?>
+                                  <td><?= $tb->$th[0] ?></td>
+                                  <?php endforeach ?>
                                 </tr>
                               <?php endforeach ?>
                             </tbody>

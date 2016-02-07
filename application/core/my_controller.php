@@ -32,7 +32,8 @@ Class my_controller extends CI_Controller {
       'plugins/datatables/jquery.dataTables.min.js',
       'bootstrap/js/bootstrap.min.js',
       'js/core/mws.js',
-      'js/demo/demo.table.js'
+      'js/demo/demo.table.js',
+      'js/henrisusanto.js'
     );
     foreach ($js as $j) $data['js'][] = base_url("assets/$j");
 
