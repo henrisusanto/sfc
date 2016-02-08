@@ -134,7 +134,9 @@
             });
 
             if( $.fn.timepicker ) {
-                $(".mws-dtpicker").datetimepicker();
+                $(".mws-dtpicker").datetimepicker({
+                  dateFormat: 'yy-mm-dd'
+                }).datetimepicker('setDate', new Date);
 
                 $(".mws-tpicker").timepicker({});
             }

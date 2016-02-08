@@ -1,6 +1,6 @@
 
               <!-- Statistics Button Container -->
-              <div class="mws-stat-container clearfix text-right">
+              <div class="mws-stat-container clearfix text-right table-panel">
                   
                     <!-- Statistic Item -->
                     

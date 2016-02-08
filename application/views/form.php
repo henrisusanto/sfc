@@ -27,7 +27,7 @@
                     </div>
                     <?php endif ?>
 
-                    <a class="mws-stat" href="javascript:$('form').submit()">
+                    <a class="mws-stat" href="javascript:sfcSubmitForm()">
                       <span class="mws-stat-icon icol32-accept"></span>
                         <span class="mws-stat-content">
                           <h4>SIMPAN</h4>
@@ -64,7 +64,7 @@
                                 <label class="mws-form-label"><?= $field[1] ?></label>
                                 <div class="mws-form-item">
                                   <input type="text" 
-                                    class="small" 
+                                    class="small <?= $field[0]=='waktu'?'mws-dtpicker':'' ?>" 
                                     name="<?= $field[0] ?>" 
                                     value="<?= isset($form)?$form[$field[0]]:'' ?>">
                                 </div>

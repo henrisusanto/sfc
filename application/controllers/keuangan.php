@@ -2,6 +2,40 @@
 
 class keuangan extends my_controller {
 
+  public function cashflow ($tpl='table', $id=null) {
+    $data = array('entity' => 'cashflow');
+    $post = $this->input->post();
+    $this->load->model('cashflow');
+
+    $data['thead'] = $this->cashflow->getTHead();
+    $data['fields'] = $this->cashflow->getInputFields();
+    $data['tbody'] = $this->cashflow->find();
+    $data['tablePage'] = $this->cashflow->getTablePage($id);
+
+    if ($tpl == 'delete') {
+      $this->cashflow->delete($id);
+      redirect($data['tablePage']);
+    }
+
+    if ($tpl == 'form' && $post) {
+      $cashflow = array();
+      foreach ($data['fields'] as $input) {
+        $field = $input[0];
+        $cashflow[$field] = $post[$field];
+      }
+      if (!is_null($id)) $cashflow['id'] = $id;
+      $this->cashflow->save($cashflow);
+
+      redirect($data['tablePage']);
+    }
+
+    if (!is_null($id)) {
+      $data['form'] = $this->cashflow->findOne($id);
+    }
+
+    $this->loadview($tpl, $data);
+  }
+
 	public function debitur ($tpl='table', $id=null) {
 	  $data = array('entity' => 'debitur');
     $post = $this->input->post();

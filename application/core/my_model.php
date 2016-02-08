@@ -5,6 +5,7 @@ Class my_model extends CI_Model {
   function __construct () {
     parent::__construct();
     $this->load->database();
+    date_default_timezone_set('Asia/Jakarta');
   }
 
   function getTHead () {
@@ -13,6 +14,10 @@ Class my_model extends CI_Model {
 
   function getInputFields () {
     return $this->inputFields;
+  }
+
+  function getSubFields () {
+    return $this->subFields;
   }
 
   function getTablePage ($id) {
@@ -24,6 +29,7 @@ Class my_model extends CI_Model {
   }
 
   function find ($where = array()) {
+    $this->db->where($where);
     return $this->db->get($this->table)->result();
   }
 
@@ -43,5 +49,18 @@ Class my_model extends CI_Model {
 
   function delete ($id) {
     return $this->db->where('id', $id)->delete($this->table);
+  }
+
+  function findAnother ($table, $where = array()) {
+    $this->db->where($where);
+    return $this->db->get($table)->result();
+  }
+
+  function cashFlowGetSaldo ($cash, $flow) {
+    $cashflow = $this->db->get('cashflow')->result();
+    $last = end($cashflow);
+    $saldo = isset($last->saldo) ? $last->saldo : 0;
+    if ($flow == 'MASUK') return $saldo + $cash;
+    else if ($flow == 'KELUAR') return $saldo - $cash;
   }
 }
