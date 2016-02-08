@@ -44,14 +44,19 @@ Class my_controller extends CI_Controller {
     foreach ($js as $j) $data['js'][] = base_url("assets/$j");
 
     $data['menu'] = array();
+
+    $data['menu'][] = array('DATA TRANSAKSI', '', '');
     $data['menu'][] = array('Cash Flow', 'keuangan/cashflow', 'retweet');
     $data['menu'][] = array('Belanja', 'belanja/harian', 'shopping-cart');
-    $data['menu'][] = array('Distributor', 'belanja/distributor', 'truck');
+    $data['menu'][] = array('Setoran Outlet', 'keuangan/setoran', 'cloudy');
+
+    $data['menu'][] = array('DATA MASTER', '', '');
     $data['menu'][] = array('Barang Gudang', 'belanja/baranggudang', 'food');
     $data['menu'][] = array('Produk', 'penjualan/produk', 'bag');
     $data['menu'][] = array('Komposisi', '', 'chemical');
     $data['menu'][] = array('Outlet', 'penjualan/outlet', 'business-card');
     $data['menu'][] = array('Karyawan', 'personal/karyawan', 'users');
+    $data['menu'][] = array('Distributor', 'belanja/distributor', 'truck');
     $data['menu'][] = array('Debitur', 'keuangan/debitur', 'official');
 
     $this->load->view('header', $data);

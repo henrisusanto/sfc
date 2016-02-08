@@ -10,6 +10,7 @@ table.baranggudang tr td:last-child,
 table.cashflow tr td:nth-child(5),
 table.cashflow tr td:nth-child(6),
 table.produk tr td:last-child,
+table.setoran tr td:last-child,
 table.belanjaharian tr td:last-child{
   text-align: right;
 }
