@@ -1,0 +1,16 @@
+<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+
+class sirkulasi extends my_controller {
+
+  public function keuangan ($tpl='table', $id=null) {
+    $this->crud ('cashflow', $tpl, $id);
+  }
+
+  public function barang ($tpl='table', $id=null) {
+    $this->crud ('sirkulasibarang', $tpl, $id);
+  }
+
+  public function produk ($tpl='table', $id=null) {
+    $this->crud ('sirkulasiproduk', $tpl, $id);
+  }
+}

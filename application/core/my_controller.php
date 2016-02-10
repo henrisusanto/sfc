@@ -45,25 +45,84 @@ Class my_controller extends CI_Controller {
 
     $data['menu'] = array();
 
-    $data['menu'][] = array('DATA TRANSAKSI', '', '');
-    $data['menu'][] = array('Cash Flow', 'keuangan/cashflow', 'retweet');
-    $data['menu'][] = array('Belanja', 'belanja/harian', 'shopping-cart');
-    $data['menu'][] = array('Setoran Outlet', 'keuangan/setoran', 'cloudy');
+    $data['menu'][] = array('SIRKULASI', '#', 'refresh', array(
+      array('KEUANGAN', 'sirkulasi/keuangan'),
+      array('GUDANG', 'sirkulasi/barang'),
+      array('PRODUK', 'sirkulasi/produk'),
+    ));
 
-    $data['menu'][] = array('DATA MASTER', '', '');
-    $data['menu'][] = array('Barang Gudang', 'belanja/baranggudang', 'food');
-    $data['menu'][] = array('Produk', 'penjualan/produk', 'bag');
-    $data['menu'][] = array('Komposisi', '', 'chemical');
-    $data['menu'][] = array('Outlet', 'penjualan/outlet', 'business-card');
-    $data['menu'][] = array('Karyawan', 'personal/karyawan', 'users');
-    $data['menu'][] = array('Distributor', 'belanja/distributor', 'truck');
-    $data['menu'][] = array('Debitur', 'keuangan/debitur', 'official');
+    $data['menu'][] = array('TRANSAKSI', '#', 'shopping-cart', array(
+      array('BELANJA GUDANG', 'pengeluaran/belanja'),
+      array('BELANJA AYAM', 'pengeluaran/belanjaayam'),
+      array('PENGELUARAN', 'pengeluaran/gudang'),
+      array('PEMASUKAN', 'pemasukan/gudang'),
+      array('PENGEMBALIAN PINJAMAN', 'pengeluaran/pengembalian'),
+    ));
+
+    $data['menu'][] = array('PRODUKSI', '#', 'cogs', array(
+      array('PEMOTONGAN AYAM', 'produksi/pemotongan'),
+      array('PRODUKSI GUDANG', 'produksi/gudang'),
+    ));
+
+    $data['menu'][] = array('OUTLET', '#', 'home-2', array(
+      array('BAWAAN OUTLET', 'produksi/bawaan'),
+      array('TRANSAKSI ANTAR OUTLET', 'produksi/transaksiinternal'),
+      array('SETORAN OUTLET', 'pemasukan/setoran'),
+      array('PENGELUARAN OUTLET', 'pengeluaran/outlet'),
+      array('PEMASUKAN OUTLET', 'pemasukan/outlet'),
+      array('STOK OUTLET', 'entitas/produkoutlet'),
+    ));
+
+    $data['menu'][] = array('MASTER &AMP; STOK', '#', 'key', array(
+      array('BARANG GUDANG', 'entitas/baranggudang'),
+      array('PRODUK GUDANG', 'entitas/produk'),
+      array('KOMPOSISI', 'entitas/komposisi'),
+      array('DAFTAR OUTLET', 'entitas/outlet'),
+      array('DATA KARYAWAN', 'entitas/karyawan'),
+      array('DATA DISTRIBUTOR', 'entitas/distributor'),
+      array('DATA DEBITUR', 'entitas/debitur'),
+    ));
 
     $this->load->view('header', $data);
     $this->load->view('menu', $data);
     if (!is_null($viewer)) $this->load->view($viewer, $data);
     if (isset($data['viewers'])) foreach ($data['viewers'] as $viewer) $this->load->view($viewer);
+    
     $this->load->view('footer', $data);
+  }
+
+  function crud ($model, $tpl, $id) {
+    $data = array('entity' => $model);
+    $post = $this->input->post();
+    $this->load->model($model);
+
+    $data['thead'] = $this->$model->getTHead();
+    $data['fields'] = $this->$model->getInputFields();
+    $data['tbody'] = $this->$model->find();
+    $data['tablePage'] = $this->$model->getTablePage($id);
+
+    if ($tpl == 'delete') {
+      $this->$model->delete($id);
+      redirect($data['tablePage']);
+    }
+
+    if ($tpl == 'form' && $post) {
+      $entity = array();
+      foreach ($data['fields'] as $input) {
+        $field = $input[0];
+        $entity[$field] = $post[$field];
+      }
+      if (!is_null($id)) $entity['id'] = $id;
+      $this->$model->save($entity);
+
+      redirect($data['tablePage']);
+    }
+
+    if (!is_null($id)) {
+      $data['form'] = $this->$model->findOne($id);
+    }
+
+    $this->loadview($tpl, $data);
   }
 
 }

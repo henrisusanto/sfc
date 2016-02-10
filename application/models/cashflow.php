@@ -12,15 +12,16 @@ Class cashflow extends my_model {
       array('nominal','CASH'),
       array('saldo','SALDO'),
     );
-    $this->inputFields = array(
-      0 => array('waktu', 'TANGGAL'),
-      1 => array('type', 'FLOW', array(
-        'MASUK' => 'MASUK',
-        'KELUAR' => 'KELUAR'
-      )),
-      2 => array('transaksi', 'TRANSAKSI'),
-      3 => array('nominal', 'NOMINAL'),
-    );
+    $this->inputFields = null;
+    // array(
+      // 0 => array('waktu', 'TANGGAL'),
+      // 1 => array('type', 'FLOW', array(
+        // 'MASUK' => 'MASUK',
+        // 'KELUAR' => 'KELUAR'
+      // )),
+      // 2 => array('transaksi', 'TRANSAKSI'),
+      // 3 => array('nominal', 'NOMINAL'),
+    // );
   }
 
   function save ($data) {

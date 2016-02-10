@@ -1,16 +1,16 @@
                 <div class="mws-panel grid_8">
                   <div class="mws-panel-header">
                       <span class="text-right">
-                        <a class="btn btn-success tambah-barang">+ TAMBAH BARANG</a>
+                        <a class="btn btn-success tambah-produk">+ TAMBAH PRODUK</a>
                       </span>
                     </div>
                     <div class="mws-panel-body no-padding">
-                      <form class="mws-form form-belanja-detail" action="" method="POST">
+                      <form class="mws-form form-bawaan-produk" action="" method="POST">
 
-                        <?php if (isset($subform)): foreach ($subform as $brg) : ?>
+                        <?php if (isset($subform2)): foreach ($subform as $brg) : ?>
                             <div class="mws-form-row">
                                 <div class="mws-form-cols">
-                                  <?php foreach ($subfields as $sub): 
+                                  <?php foreach ($subfields2 as $sub): 
                                     $field = str_replace('[]', '', $sub[0]);
                                     $name = str_replace('[]', "[$brg->id]", $sub[0]);
                                   ?>
@@ -40,7 +40,7 @@
 
                             <div class="mws-form-row">
                                 <div class="mws-form-cols">
-                                  <?php foreach ($subfields as $sub):  ?>
+                                  <?php foreach ($subfields2 as $sub):  ?>
                                     <div class="mws-form-col-2-8">
                                         <label class="mws-form-label"><?= $sub[1] ?></label>
                                         <div class="mws-form-item">
@@ -68,4 +68,3 @@
                       </form>
                     </div>      
                 </div>
-                <h3>BELANJA AYAM PAKE JS AJA</h3>

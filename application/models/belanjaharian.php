@@ -8,16 +8,16 @@ Class belanjaharian extends my_model {
     $this->thead = array(
       array('waktu','TANGGAL'),
       array('id','NO. NOTA'),
-      array('nama','PENANGGUNG JAWAB'),
+      // array('nama','PENANGGUNG JAWAB'),
       array('total','TOTAL')
     );
     $this->inputFields = array(
       0 => array('waktu', 'TANGGAL'),
-      1 => array('karyawan', 'PENANGGUNG JAWAB'),
+      // 1 => array('karyawan', 'PENANGGUNG JAWAB'),
     );
 
-    foreach ($this->findAnother('karyawan') as $karyawan)
-      $this->inputFields[1][2][$karyawan->id] = $karyawan->nama;
+    // foreach ($this->findAnother('karyawan') as $karyawan)
+      // $this->inputFields[1][2][$karyawan->id] = $karyawan->nama;
 
     $this->subFields = array (
       0 => array('barang[]', 'NAMA BARANG'),
@@ -26,9 +26,11 @@ Class belanjaharian extends my_model {
       3 => array('total[]', 'HARGA TOTAL'),
     );
 
+    $this->subFields[0][2][0] = '';
     foreach ($this->findAnother('baranggudang') as $item)
       $this->subFields[0][2][$item->id] = $item->nama;
 
+    $this->subFields[1][2][0] = '';
     foreach ($this->findAnother('distributor') as $item)
       $this->subFields[1][2][$item->id] = $item->nama;
   }

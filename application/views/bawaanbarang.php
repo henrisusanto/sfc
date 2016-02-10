@@ -5,12 +5,12 @@
                       </span>
                     </div>
                     <div class="mws-panel-body no-padding">
-                      <form class="mws-form form-belanja-detail" action="" method="POST">
+                      <form class="mws-form form-bawaan-detail" action="" method="POST">
 
-                        <?php if (isset($subform)): foreach ($subform as $brg) : ?>
+                        <?php if (isset($subform1)): foreach ($subform as $brg) : ?>
                             <div class="mws-form-row">
                                 <div class="mws-form-cols">
-                                  <?php foreach ($subfields as $sub): 
+                                  <?php foreach ($subfields1 as $sub): 
                                     $field = str_replace('[]', '', $sub[0]);
                                     $name = str_replace('[]', "[$brg->id]", $sub[0]);
                                   ?>
@@ -40,7 +40,7 @@
 
                             <div class="mws-form-row">
                                 <div class="mws-form-cols">
-                                  <?php foreach ($subfields as $sub):  ?>
+                                  <?php foreach ($subfields1 as $sub):  ?>
                                     <div class="mws-form-col-2-8">
                                         <label class="mws-form-label"><?= $sub[1] ?></label>
                                         <div class="mws-form-item">
@@ -68,4 +68,4 @@
                       </form>
                     </div>      
                 </div>
-                <h3>BELANJA AYAM PAKE JS AJA</h3>
+                <h3>HEN, BAWAAN PRODUK GOES HERE..</h3>

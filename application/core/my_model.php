@@ -56,11 +56,25 @@ Class my_model extends CI_Model {
     return $this->db->get($table)->result();
   }
 
-  function cashFlowGetSaldo ($cash, $flow) {
+  function sirkulasiKeuangan ($type, $transaksi, $nominal, $foreignKey = null, $waktu = null) {
+    $waktu = null === $waktu ? date('Y-m-d H:i:s') : $waktu;
+    $foreignKey = null === $foreignKey ? time() : $foreignKey;
     $cashflow = $this->db->get('cashflow')->result();
     $last = end($cashflow);
     $saldo = isset($last->saldo) ? $last->saldo : 0;
-    if ($flow == 'MASUK') return $saldo + $cash;
-    else if ($flow == 'KELUAR') return $saldo - $cash;
+    $saldo = $type == 'MASUK' ? $saldo + $nominal : $saldo - $nominal;
+    $cashflow = array (
+      'id' => time(),
+      'waktu' => $waktu,
+      'type' => $type,
+      'transaksi' => $transaksi,
+      'nominal' => $nominal,
+      'saldo' => $saldo,
+    );
+    $this->db->insert('cashflow', $cashflow);
+  }
+
+  function sirkulasiBarang () {
+    
   }
 }

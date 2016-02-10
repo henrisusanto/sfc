@@ -8,6 +8,7 @@ Class produk extends my_model {
     $this->thead = array(
       array('nama','NAMA PRODUK'),
       array('type','JENIS PRODUK'),
+      array('stock','STOK GUDANG'),
       array('harga','HARGA')
     );
     $this->inputFields = array(
@@ -20,6 +21,7 @@ Class produk extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('*')
+      ->select("CONCAT(stock, ' PCs') AS stock", false)
       ->select("CONCAT('Rp ', FORMAT(harga, 2)) AS harga", false);
     return parent::find($where);
   }
