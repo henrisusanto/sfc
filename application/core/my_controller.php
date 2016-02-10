@@ -56,7 +56,7 @@ Class my_controller extends CI_Controller {
       array('BELANJA AYAM', 'pengeluaran/belanjaayam'),
       array('PENGELUARAN', 'pengeluaran/gudang'),
       array('PEMASUKAN', 'pemasukan/gudang'),
-      array('PENGEMBALIAN PINJAMAN', 'pengeluaran/pengembalian'),
+      array('PINJAMAN', 'sirkulasi/pinjaman'),
     ));
 
     $data['menu'][] = array('PRODUKSI', '#', 'cogs', array(
@@ -85,8 +85,15 @@ Class my_controller extends CI_Controller {
 
     $this->load->view('header', $data);
     $this->load->view('menu', $data);
-    if (!is_null($viewer)) $this->load->view($viewer, $data);
-    if (isset($data['viewers'])) foreach ($data['viewers'] as $viewer) $this->load->view($viewer);
+    if (!is_null($viewer)) {
+      if ($viewer != 'form') $this->load->view($viewer, $data);
+      else {
+        $this->load->view('formheader');
+        $this->load->view($viewer, $data);
+        if (isset($data['viewers'])) foreach ($data['viewers'] as $viewer) $this->load->view($viewer);
+        $this->load->view('formfooter');
+      }
+    }
     
     $this->load->view('footer', $data);
   }

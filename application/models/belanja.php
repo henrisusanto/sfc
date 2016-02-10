@@ -1,23 +1,22 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-Class belanjaharian extends my_model {
+Class belanja extends my_model {
 
   function __construct () {
     parent::__construct();
     $this->table = 'belanja';
     $this->thead = array(
       array('waktu','TANGGAL'),
-      array('id','NO. NOTA'),
-      // array('nama','PENANGGUNG JAWAB'),
+      array('nama','PENANGGUNG JAWAB'),
       array('total','TOTAL')
     );
     $this->inputFields = array(
       0 => array('waktu', 'TANGGAL'),
-      // 1 => array('karyawan', 'PENANGGUNG JAWAB'),
+      1 => array('karyawan', 'PENANGGUNG JAWAB'),
     );
 
-    // foreach ($this->findAnother('karyawan') as $karyawan)
-      // $this->inputFields[1][2][$karyawan->id] = $karyawan->nama;
+    foreach ($this->findAnother('karyawan') as $karyawan)
+      $this->inputFields[1][2][$karyawan->id] = $karyawan->nama;
 
     $this->subFields = array (
       0 => array('barang[]', 'NAMA BARANG'),
@@ -116,6 +115,7 @@ Class belanjaharian extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('belanja.*, karyawan.nama')
+      ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->select("CONCAT('Rp ', FORMAT(total, 2)) AS total", false)
       ->join('karyawan', 'karyawan.id = belanja.karyawan');
     return parent::find($where);

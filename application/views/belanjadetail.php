@@ -5,8 +5,6 @@
                       </span>
                     </div>
                     <div class="mws-panel-body no-padding">
-                      <form class="mws-form form-belanja-detail" action="" method="POST">
-
                         <?php if (isset($subform)): foreach ($subform as $brg) : ?>
                             <div class="mws-form-row">
                                 <div class="mws-form-cols">
@@ -65,7 +63,5 @@
                             </div>
                           <?php endif ?>
 
-                      </form>
                     </div>      
                 </div>
-                <h3>BELANJA AYAM PAKE JS AJA</h3>

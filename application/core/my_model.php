@@ -77,4 +77,8 @@ Class my_model extends CI_Model {
   function sirkulasiBarang () {
     
   }
+
+  function sirkulasiProduk () {
+    
+  }
 }
