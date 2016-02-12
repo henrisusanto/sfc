@@ -22,6 +22,10 @@ class entitas extends my_controller {
     $this->crud ('baranggudang', $tpl, $id);
   }
 
+  public function ayam ($tpl='table', $id=null) {
+    $this->crud ('ayam', $tpl, $id);
+  }
+
   public function produk ($tpl='table', $id=null) {
     $this->crud ('produk', $tpl, $id);
   }

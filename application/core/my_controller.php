@@ -48,6 +48,7 @@ Class my_controller extends CI_Controller {
     $data['menu'][] = array('SIRKULASI', '#', 'refresh', array(
       array('KEUANGAN', 'sirkulasi/keuangan'),
       array('GUDANG', 'sirkulasi/barang'),
+      array('AYAM', 'sirkulasi/ayam'),
       array('PRODUK', 'sirkulasi/produk'),
     ));
 
@@ -75,6 +76,7 @@ Class my_controller extends CI_Controller {
 
     $data['menu'][] = array('MASTER &AMP; STOK', '#', 'key', array(
       array('BARANG GUDANG', 'entitas/baranggudang'),
+      array('AYAM', 'entitas/ayam'),
       array('PRODUK GUDANG', 'entitas/produk'),
       array('KOMPOSISI', 'entitas/komposisi'),
       array('DAFTAR OUTLET', 'entitas/outlet'),
@@ -90,7 +92,12 @@ Class my_controller extends CI_Controller {
       else {
         $this->load->view('formheader');
         $this->load->view($viewer, $data);
-        if (isset($data['viewers'])) foreach ($data['viewers'] as $viewer) $this->load->view($viewer);
+        if (isset($data['expandables']))
+          for ($i=0; $i< count ($data['expandables']); $i++) 
+            $this->load->view('subform', array(
+              'label' => $data['expandables'][$i]['label'],
+              'subfields' => $data['expandables'][$i]['fields'],
+            ));
         $this->load->view('formfooter');
       }
     }
@@ -103,9 +110,13 @@ Class my_controller extends CI_Controller {
     $post = $this->input->post();
     $this->load->model($model);
 
-    $data['thead'] = $this->$model->getTHead();
-    $data['fields'] = $this->$model->getInputFields();
-    $data['tbody'] = $this->$model->find();
+    if ($tpl == 'table') {
+      $data['thead'] = $this->$model->getTHead();
+      $data['tbody'] = $this->$model->find();
+    } else if ($tpl == 'form') {
+      $data['fields'] = $this->$model->getInputFields();
+      $data['expandables'] = $this->$model->getExpandables();
+    }
     $data['tablePage'] = $this->$model->getTablePage($id);
 
     if ($tpl == 'delete') {
@@ -119,6 +130,7 @@ Class my_controller extends CI_Controller {
         $field = $input[0];
         $entity[$field] = $post[$field];
       }
+      if (!empty($data['expandables'])) $entity = $post;
       if (!is_null($id)) $entity['id'] = $id;
       $this->$model->save($entity);
 

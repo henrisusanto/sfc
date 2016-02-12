@@ -15,23 +15,42 @@ Class belanja extends my_model {
       1 => array('karyawan', 'PENANGGUNG JAWAB'),
     );
 
-    foreach ($this->findAnother('karyawan') as $karyawan)
-      $this->inputFields[1][2][$karyawan->id] = $karyawan->nama;
+    $this->buildRelation($this->inputFields[1][2], 'karyawan');
 
-    $this->subFields = array (
-      0 => array('barang[]', 'NAMA BARANG'),
-      1 => array('distributor[]', 'TOKO / PENJUAL'),
-      2 => array('qty[]', 'JUMLAH'),
-      3 => array('total[]', 'HARGA TOTAL'),
+    $this->expandables = array();
+    $this->expandables[0] = array(
+      'label' => 'DAFTAR BARANG BELANJA',
+      'fields' => array (
+        0 => array('belanjadetail[barang][]', 'NAMA BARANG'),
+        1 => array('belanjadetail[distributor][]', 'TOKO / PENJUAL'),
+        2 => array('belanjadetail[qty][]', 'JUMLAH'),
+        3 => array('belanjadetail[total][]', 'HARGA TOTAL'),
+      )
     );
 
-    $this->subFields[0][2][0] = '';
-    foreach ($this->findAnother('baranggudang') as $item)
-      $this->subFields[0][2][$item->id] = $item->nama;
+    $this->buildRelation($this->expandables[0]['fields'][0][2], 'baranggudang');
+    $this->buildRelation($this->expandables[0]['fields'][1][2], 'distributor');
+  }
 
-    $this->subFields[1][2][0] = '';
-    foreach ($this->findAnother('distributor') as $item)
-      $this->subFields[1][2][$item->id] = $item->nama;
+  function save ($data) {
+    if (isset($data['id'])) die('durung tak pikir');
+    // belanja, detail, gudang, cashflow, sirkulasibarang
+    $id = time ();
+    $totaljendral = 0;
+    $belanjadetail = $data['belanjadetail'];
+    foreach ($belanjadetail['barang'] as $index => $barang) {
+      $barang = $belanjadetail['barang'][$index];
+      $distributor = $belanjadetail['distributor'][$index];
+      $qty = $belanjadetail['qty'][$index];
+      $total = $belanjadetail['total'][$index];
+      if (empty($barang) || $qty<1 || $total<1) continue;
+      
+    }
+    $belanja = array (
+      'waktu' => $data['waktu'],
+      'karyawan' => $data['karyawan'],
+      'total' => $totaljendral,
+    );
   }
 
   function insert ($data) {
@@ -67,7 +86,7 @@ Class belanja extends my_model {
       'waktu' => $data['waktu'],
       'type' => 'KELUAR',
       'transaksi' => 'BELANJA',
-      'foreignKey' => time(),
+      'fkey' => time(),
       'nominal' => $total,
       'saldo' => parent::cashFlowGetSaldo($total, 'KELUAR'),
     );

@@ -1,13 +1,11 @@
 
               <div class="mws-stat-container clearfix text-right table-panel">
-              <?php if (!is_null($fields)): ?>
                 <a class="mws-stat" href="<?= current_url() . '/form' ?>">
                   <span class="mws-stat-icon icol32-add"></span>
                   <span class="mws-stat-content">
                     <h4>INPUT</h4>
                   </span>
                 </a>
-              <?php endif ?>
               </div>
 
               <div class="mws-panel grid_8">

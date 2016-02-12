@@ -1,5 +1,4 @@
 
-
                         <?php foreach ($fields as $field): ?>
                           <?php if (isset($field[2])): ?>
                             <div class="mws-form-inline">

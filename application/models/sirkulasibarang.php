@@ -19,7 +19,7 @@ Class sirkulasibarang extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('sirkulasibarang.*')
-      ->select('baranggudang.nama')
+      ->select('baranggudang.nama as barang')
       ->select("CONCAT (baranggudang.stock, ' ', baranggudang.satuan) AS stock", false)
       ->join('baranggudang', 'baranggudang.id=sirkulasibarang.barang');
     return parent::find($where);

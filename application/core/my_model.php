@@ -16,8 +16,8 @@ Class my_model extends CI_Model {
     return $this->inputFields;
   }
 
-  function getSubFields () {
-    return $this->subFields;
+  function getExpandables () {
+    return isset($this->expandables) ? $this->expandables: array();
   }
 
   function getTablePage ($id) {
@@ -56,6 +56,13 @@ Class my_model extends CI_Model {
     return $this->db->get($table)->result();
   }
 
+  function buildRelation (&$dropdown, $table, $where = array()) {
+    $dropdown[0] = '';
+    $this->db->where($where);
+    foreach ($this->db->get($table)->result() as $item)
+      $dropdown[$item->id] = $item->nama;
+  }
+
   function sirkulasiKeuangan ($type, $transaksi, $nominal, $foreignKey = null, $waktu = null) {
     $waktu = null === $waktu ? date('Y-m-d H:i:s') : $waktu;
     $foreignKey = null === $foreignKey ? time() : $foreignKey;
@@ -74,8 +81,21 @@ Class my_model extends CI_Model {
     $this->db->insert('cashflow', $cashflow);
   }
 
-  function sirkulasiBarang () {
-    
+  function sirkulasiBarang ($waktu, $barang, $type, $transaksi, $fkey, $qty) {
+    $operator = $type == 'MASUK' ? '+' : '-';
+    $this->db
+      ->where('id', $barang)
+      ->set('stock', "stock $operator " . $qty, false)
+      ->update('baranggudang');
+    $sirkulasi = array(
+      'id' => time(),
+      'barang' => $barang,
+      'type' => $type,
+      'transaksi' => $transaksi,
+      'foreignKey' => $fkey,
+      'qty' => $qty
+    );
+    $this->db->insert('sirkulasibarang', $sirkulasi);
   }
 
   function sirkulasiProduk () {
