@@ -26,7 +26,7 @@ Class pemasukangudang extends my_model {
 
   function save ($data) {
     $foreignKey = isset($data['id']) ? $data['id'] : null;
-    $this->sirkulasiKeuangan ('MASUK', 'PEMASUKAN UMUM', $data['nominal'], $foreignKey, $data['waktu']);
+    $this->sirkulasiKeuangan ('MASUK', 'PEMASUKAN', $data['nominal'], $foreignKey, $data['waktu']);
     return parent::save ($data);
   }
 

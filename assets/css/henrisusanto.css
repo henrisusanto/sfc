@@ -29,6 +29,7 @@ table.belanjaayam tr td:nth-child(7),
 table.sirkulasibarang tr td:nth-child(6),
 table.sirkulasibarang tr td:nth-child(7),
 table.sirkulasibarang tr td:nth-child(8),
+table.pengeluarangudang tr td:last-child,
 table.belanja tr td:last-child{
   text-align: right;
 }

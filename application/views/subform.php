@@ -1,4 +1,11 @@
-                        <h4 class="text-center">= <?= $label ?> =</h4>
+                <div class="mws-panel grid_8">
+                  <div class="mws-panel-header">
+                      <span>
+                        <?= $label ?>
+                        <a class="btn tambah-item pull-right btn-success">TAMBAH ITEM</a>
+                      </span>
+                    </div>
+                    <div class="mws-panel-body no-padding">
 
                         <?php if (isset($subform)): foreach ($subform as $brg) : ?>
                             <div class="mws-form-row">
@@ -47,7 +54,7 @@
                                             </select>
                                           <?php else : ?>
                                             <input type="text" 
-                                            class="small text-right <?= $sub[0]=='waktu'?'mws-dtpicker':'' ?>" 
+                                            class="small <?= $sub[0]=='waktu'?'mws-dtpicker':'' ?>" 
                                             name="<?= $sub[0] ?>" 
                                             value="">
                                           <?php endif ?>
@@ -57,3 +64,6 @@
                                 </div>
                             </div>
                           <?php endif ?>
+
+                    </div>      
+                </div>

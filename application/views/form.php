@@ -1,4 +1,8 @@
-
+                <div class="mws-panel grid_8">
+                  <div class="mws-panel-header">
+                      <!-- <span>Inline Form</span> -->
+                    </div>
+                    <div class="mws-panel-body no-padding">
                         <?php foreach ($fields as $field): ?>
                           <?php if (isset($field[2])): ?>
                             <div class="mws-form-inline">
@@ -34,3 +38,6 @@
                           <!-- <input type="submit" value="Submit" class="btn btn-danger">
                           <input type="reset" value="Reset" class="btn "> -->
                         <!-- </div> -->
+
+                    </div>      
+                </div>

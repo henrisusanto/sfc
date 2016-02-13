@@ -35,9 +35,4 @@
                     </a>
                 </div>
 
-                <div class="mws-panel grid_8">
-                  <div class="mws-panel-header">
-                      <!-- <span>Inline Form</span> -->
-                    </div>
-                    <div class="mws-panel-body no-padding">
-                      <form class="mws-form" action="" method="POST">
+                <form class="mws-form" action="" method="POST">
