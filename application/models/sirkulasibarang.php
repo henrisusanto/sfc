@@ -20,8 +20,10 @@ Class sirkulasibarang extends my_model {
     $this->db
       ->select('sirkulasibarang.*')
       ->select('baranggudang.nama as barang')
-      ->select("CONCAT (baranggudang.stock, ' ', baranggudang.satuan) AS stock", false)
-      ->join('baranggudang', 'baranggudang.id=sirkulasibarang.barang');
+      ->select("CONCAT (sirkulasibarang.qty, ' ', baranggudang.satuan) AS qty", false)
+      ->select("CONCAT (sirkulasibarang.stock, ' ', baranggudang.satuan) AS stock", false)
+      ->join('baranggudang', 'baranggudang.id=sirkulasibarang.barang')
+      ->order_by('id', 'DESC');
     return parent::find($where);
   }
 }

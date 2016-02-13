@@ -87,13 +87,18 @@ Class my_model extends CI_Model {
       ->where('id', $barang)
       ->set('stock', "stock $operator " . $qty, false)
       ->update('baranggudang');
+    $sir = $this->db->get_where('sirkulasibarang', array('barang' => $barang))->result();
+    $last = end($sir);
+    $stock = isset($last->stock) ? $last->stock : 0;
     $sirkulasi = array(
-      'id' => time(),
+      'id' => $fkey,
+      'waktu' => $waktu,
       'barang' => $barang,
       'type' => $type,
       'transaksi' => $transaksi,
-      'foreignKey' => $fkey,
-      'qty' => $qty
+      'fkey' => $fkey,
+      'qty' => $qty,
+      'stock' => $type == 'MASUK' ? $stock + $qty : $stock - $qty
     );
     $this->db->insert('sirkulasibarang', $sirkulasi);
   }
