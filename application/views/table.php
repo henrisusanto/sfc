@@ -10,7 +10,7 @@
 
               <div class="mws-panel grid_8">
                   <div class="mws-panel-header">
-                      <!-- <span><i class="icon-table"></i> Data Table with Numbered Pagination</span> -->
+                      <span id="pagetitle"></span>
                     </div>
                     <div class="mws-panel-body no-padding">
                         <table class="mws-datatable-fn mws-table <?= $entity ?>">

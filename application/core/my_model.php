@@ -103,7 +103,29 @@ Class my_model extends CI_Model {
     $this->db->insert('sirkulasibarang', $sirkulasi);
   }
 
-  function sirkulasiProduk () {
-    
+  function sirkulasiAyam ($id, $waktu, $ayam, $type, $transaksi, $fkey, $pcs, $kg) {
+    $operator = $type == 'MASUK' ? '+' : '-';
+    $this->db
+      ->where('id', $ayam)
+      ->set('pcs', "pcs $operator " . $pcs, false)
+      ->set('kg', "kg $operator " . $kg, false)
+      ->update('ayam');
+    $sir = $this->db->get_where('sirkulasiayam', array('ayam' => $ayam))->result();
+    $last = end($sir);
+    $stockpcs = isset($last->stockpcs) ? $last->stockpcs : 0;
+    $stockkg = isset($last->stockkg) ? $last->stockkg : 0;
+    $sirkulasi = array(
+      'id' => $fkey,
+      'waktu' => $waktu,
+      'ayam' => $ayam,
+      'type' => $type,
+      'transaksi' => $transaksi,
+      'fkey' => $fkey,
+      'pcs' => $pcs,
+      'kg' => $kg,
+      'stockpcs' => $type == 'MASUK' ? $stockpcs + $pcs : $stockpcs - $pcs,
+      'stockkg' => $type == 'MASUK' ? $stockkg + $kg : $stockkg - $kg
+    );
+    $this->db->insert('sirkulasiayam', $sirkulasi);
   }
 }

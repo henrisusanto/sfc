@@ -8,7 +8,7 @@ Class baranggudang extends my_model {
     $this->thead = array(
       array('nama','NAMA BARANG'),
       array('type','GUDANG'),
-      array('stock','STOK NON-AYAM')
+      array('stock','STOK')
     );
     $this->inputFields = array(
       0 => array('nama', 'NAMA BARANG'),

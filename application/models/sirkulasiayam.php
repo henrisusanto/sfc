@@ -10,10 +10,10 @@ Class sirkulasiayam extends my_model {
       array('ayam','JENIS'),
       array('type','FLOW'),
       array('transaksi','TRANSAKSI'),
-      array('qtyPcs','PCS'),
-      array('qtyKg','KG'),
-      array('pcs','STOK PCs'),
-      array('kg','STOK KG')
+      array('pcs','PCs'),
+      array('kg','KG'),
+      array('stockpcs','STOK PCs'),
+      array('stockkg','STOK KG')
     );
     $this->inputFields = null;
   }
@@ -22,10 +22,10 @@ Class sirkulasiayam extends my_model {
     $this->db
       ->select('sirkulasiayam.*')
       ->select('ayam.nama as ayam')
-      ->select("CONCAT(qtyPcs, ' PCs') as qtyPcs", false)
-      ->select("CONCAT(qtyKg, ' KG') as qtyKg", false)
-      ->select("CONCAT (ayam.pcs, ' PCs') AS pcs", false)
-      ->select("CONCAT (ayam.kg, ' KG') AS kg", false)
+      ->select("CONCAT(sirkulasiayam.pcs, ' PCs') as pcs", false)
+      ->select("CONCAT(sirkulasiayam.kg, ' KG') as kg", false)
+      ->select("CONCAT (stockpcs, ' PCs') AS stockpcs", false)
+      ->select("CONCAT (stockkg, ' KG') AS stockkg", false)
       ->join('ayam', 'ayam.id=sirkulasiayam.ayam');
     return parent::find($where);
   }

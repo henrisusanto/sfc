@@ -30,6 +30,12 @@ $(function () {
     $('select').select2()
   }
 
+  $('#mws-navigation ul li ul').addClass('closed')
+  var current_url = window.location.href
+  if (current_url.slice(-1) == '/') current_url = current_url.substring(0, current_url.length - 1)
+  $('a[href="'+current_url+'"]').parent().parent().removeClass('closed')
+  var pagetitle = $('a[href="'+current_url+'"]').text()
+  if ($('#pagetitle').length > 0) $('#pagetitle').html(pagetitle)
   // if (window.location.href.indexOf('sirkulasi') > -1) {
     // $('.table-panel a').remove()
   // }
