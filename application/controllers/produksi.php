@@ -2,4 +2,7 @@
 
 class produksi extends my_controller {
 
+  public function pemotongan ($tpl='table', $id=null) {
+    $this->crud ('pemotongan', $tpl, $id);
+  }
 }

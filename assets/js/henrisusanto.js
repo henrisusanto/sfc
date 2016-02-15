@@ -32,6 +32,7 @@ $(function () {
 
   $('#mws-navigation ul li ul').addClass('closed')
   var current_url = window.location.href
+  if (current_url.indexOf('form') > -1) current_url = current_url.replace('form','')
   if (current_url.slice(-1) == '/') current_url = current_url.substring(0, current_url.length - 1)
   $('a[href="'+current_url+'"]').parent().parent().removeClass('closed')
   var pagetitle = $('a[href="'+current_url+'"]').text()

@@ -7,7 +7,7 @@ Class ayam extends my_model {
     $this->table = 'ayam';
     $this->thead = array(
       array('nama','JENIS AYAM'),
-      array('pcs','STOK PCS / EKOR'),
+      array('pcs','STOK PCS (EKOR)'),
       array('kg','STOK KG')
     );
     $this->inputFields = array(
@@ -18,7 +18,7 @@ Class ayam extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('ayam.*')
-      ->select("CONCAT(pcs, ' PCs / EKOR') AS pcs", false)
+      ->select("CONCAT(pcs, ' PCs') AS pcs", false)
       ->select("CONCAT(kg, ' KG') AS kg", false);
     return parent::find($where);
   }

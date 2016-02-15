@@ -10,7 +10,6 @@ Class pinjaman extends my_model {
       array('type','TRANSAKSI'),
       array('debitur','DEBITUR'),
       array('nominal','NOMINAL'),
-      array('saldo','SISA PINJAMAN'),
     );
     $this->inputFields = array(
       0 => array('waktu', 'TANGGAL'),
@@ -30,7 +29,8 @@ Class pinjaman extends my_model {
     if (isset($data['id'])) die('durung tak pikir');
     $this->sirkulasiKeuangan (
       $data['type'] == 'PEMINJAMAN' ? 'MASUK' : 'KELUAR', 
-      'PINJAMAN', $data['nominal'], 
+      $data['type'] == 'PEMINJAMAN' ? 'PEMINJAMAN' : 'PENGEMBALIAN PINJAMAN',
+      $data['nominal'], 
       isset($data['id']) ? $data['id'] : null, 
       $data['waktu']
     );
@@ -45,9 +45,9 @@ Class pinjaman extends my_model {
     $this->db
       ->select('pinjaman.*')
       ->select('debitur.nama as debitur')
-      ->select("CONCAT('Rp ', FORMAT(debitur.saldo, 2)) AS saldo", false)
       ->select("CONCAT('Rp ', FORMAT(nominal, 2)) AS nominal", false)
-      ->join('debitur', 'debitur.id = pinjaman.debitur');
+      ->join('debitur', 'debitur.id = pinjaman.debitur')
+      ->order_by('id', 'DESC');
     return parent::find($where);
   }
 }

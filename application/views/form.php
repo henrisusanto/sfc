@@ -1,6 +1,6 @@
                 <div class="mws-panel grid_8">
                   <div class="mws-panel-header">
-                      <!-- <span>Inline Form</span> -->
+                      <span id="pagetitle"></span>
                     </div>
                     <div class="mws-panel-body no-padding">
                         <?php foreach ($fields as $field): ?>

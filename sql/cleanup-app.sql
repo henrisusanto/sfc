@@ -13,6 +13,8 @@ TRUNCATE TABLE `setoran`;
 TRUNCATE TABLE `sirkulasibarang`;
 TRUNCATE TABLE `sirkulasiayam`;
 TRUNCATE TABLE `sirkulasiproduk`;
+TRUNCATE TABLE `pemotongan`;
+TRUNCATE TABLE `pemotongandetail`;
 UPDATE `produk` SET stock = 0;
 UPDATE `ayam` SET pcs = 0, kg = 0;
 UPDATE `baranggudang` SET stock = 0;
