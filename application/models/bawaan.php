@@ -43,27 +43,4 @@ Class bawaan extends my_model {
     return $products;
   }
 
-  function insert ($data) {
-    foreach ($data['item'] as $index => $value) {
-      $detail = array (
-        'id' => time () + $index,
-        'bawaan' => time(),
-        'item' => $data['item'][$index],
-        'type' => 'BARANG GUDANG',
-        'qty' => $data['qty'][$index]
-      );
-      $this->db->insert('bawaandetail', $detail);
-      $this->db
-        ->where('id', $data['item'][$index])
-        ->set('stock', 'stock - ' . $data['qty'][$index], false)
-        ->update('baranggudang');
-    }
-
-    $bawaan = array(
-      'waktu' => $data['waktu'],
-      'outlet' => $data['outlet'],
-    );
-
-    return parent::save($bawaan);
-  }
 }

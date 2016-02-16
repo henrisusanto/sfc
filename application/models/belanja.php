@@ -34,29 +34,27 @@ Class belanja extends my_model {
 
   function save ($data) {
     if (isset($data['id'])) die('durung tak pikir');
-    // belanja, detail, gudang, cashflow, sirkulasibarang
-    $id = time ();
     $total = 0;
+    foreach ($data['belanjadetail']['total'] as $hargatotal) $total += $hargatotal;
+    $this->db->insert('belanja', array(
+      'waktu' => $data['waktu'],
+      'karyawan' => $data['karyawan'],
+      'total' => $total
+    ));
+    $belanja = $this->db->insert_id();
     foreach ($data['belanjadetail']['barang'] as $key => $value) {
       $this->db->insert('belanjadetail', array(
-        'id' => $id + $key,
-        'belanja' => $id,
+        'belanja' => $belanja,
         'distributor' => $data['belanjadetail']['distributor'][$key],
         'barang' => $data['belanjadetail']['barang'][$key],
         'qty' => $data['belanjadetail']['qty'][$key],
         'hargasatuan' => $data['belanjadetail']['total'][$key] / $data['belanjadetail']['qty'][$key],
         'total' => $data['belanjadetail']['total'][$key],
       ));
-      $total += $data['belanjadetail']['total'][$key];
-      $this->sirkulasiBarang ($data['waktu'], $data['belanjadetail']['barang'][$key], 'MASUK', 'BELANJA', $id + $key, $data['belanjadetail']['qty'][$key]);
+      $id = $this->db->insert_id();
+      $this->sirkulasiBarang ($data['waktu'], $data['belanjadetail']['barang'][$key], 'MASUK', 'BELANJA', $id, $data['belanjadetail']['qty'][$key]);
     }
-    $this->db->insert('belanja', array(
-      'id' => $id,
-      'waktu' => $data['waktu'],
-      'karyawan' => $data['karyawan'],
-      'total' => $total
-    ));
-    $this->sirkulasiKeuangan ('KELUAR', 'BELANJA', $total, $id, $data['waktu']);
+    $this->sirkulasiKeuangan ('KELUAR', 'BELANJA', $total, $belanja, $data['waktu']);
   }
 
 
@@ -65,7 +63,7 @@ Class belanja extends my_model {
       ->select('belanja.*, karyawan.nama')
       ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->select("CONCAT('Rp ', FORMAT(total, 2)) AS total", false)
-      ->join('karyawan', 'karyawan.id = belanja.karyawan');
+      ->join('karyawan', 'karyawan.id = belanja.karyawan', 'LEFT');
     return parent::find($where);
   }
 }

@@ -39,8 +39,8 @@ Class my_model extends CI_Model {
 
   function save ($data) {
     if (!isset($data['id'])) {
-      $data['id'] = time();
       $this->db->insert($this->table, $data);
+      $data['id'] = $this->db->insert_id();
     } else {
       return $this->db->where('id', $data['id'])->update($this->table, $data);
     }
@@ -51,11 +51,6 @@ Class my_model extends CI_Model {
     return $this->db->where('id', $id)->delete($this->table);
   }
 
-  function findAnother ($table, $where = array()) {
-    $this->db->where($where);
-    return $this->db->get($table)->result();
-  }
-
   function buildRelation (&$dropdown, $table, $where = array()) {
     $dropdown[0] = '';
     $this->db->where($where);
@@ -63,15 +58,12 @@ Class my_model extends CI_Model {
       $dropdown[$item->id] = $item->nama;
   }
 
-  function sirkulasiKeuangan ($type, $transaksi, $nominal, $foreignKey = null, $waktu = null) {
-    $waktu = null === $waktu ? date('Y-m-d H:i:s') : $waktu;
-    $foreignKey = null === $foreignKey ? time() : $foreignKey;
+  function sirkulasiKeuangan ($type, $transaksi, $nominal, $fkey, $waktu) {
     $cashflow = $this->db->get('cashflow')->result();
     $last = end($cashflow);
     $saldo = isset($last->saldo) ? $last->saldo : 0;
     $saldo = $type == 'MASUK' ? $saldo + $nominal : $saldo - $nominal;
     $cashflow = array (
-      'id' => time(),
       'waktu' => $waktu,
       'type' => $type,
       'transaksi' => $transaksi,
@@ -91,7 +83,6 @@ Class my_model extends CI_Model {
     $last = end($sir);
     $stock = isset($last->stock) ? $last->stock : 0;
     $sirkulasi = array(
-      'id' => $fkey,
       'waktu' => $waktu,
       'barang' => $barang,
       'type' => $type,
@@ -115,7 +106,6 @@ Class my_model extends CI_Model {
     $stockpcs = isset($last->stockpcs) ? $last->stockpcs : 0;
     $stockkg = isset($last->stockkg) ? $last->stockkg : 0;
     $sirkulasi = array(
-      'id' => $fkey,
       'waktu' => $waktu,
       'ayam' => $ayam,
       'type' => $type,
