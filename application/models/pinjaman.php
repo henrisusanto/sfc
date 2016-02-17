@@ -21,8 +21,7 @@ Class pinjaman extends my_model {
       3 => array('nominal', 'NOMINAL')
     );
 
-    foreach ($this->findAnother('debitur') as $item)
-      $this->inputFields[2][2][$item->id] = $item->nama;
+    $this->buildRelation($this->inputFields[2][2], 'debitur');
   }
 
   function save ($data) {

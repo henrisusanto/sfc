@@ -30,25 +30,23 @@ Class pengeluarangudang extends my_model {
   function save ($data) {
     if (isset($data['id'])) die('rung tak pikir');
     $total = 0;
-    $id = time();
-    foreach ($data['pengeluarandetail']['item'] as $index => $pd) {
-      $this->db->insert('pengeluarandetail', array(
-        'id' => $id + $index,
-        'pengeluaran' => $id,
-        'item' => $data['pengeluarandetail']['item'][$index],
-        'nominal' => $data['pengeluarandetail']['nominal'][$index],
-      ));
-      $total += $data['pengeluarandetail']['nominal'][$index];
-    }
-
+    foreach ($data['pengeluarandetail']['nominal'] as $nominal) $total += $nominal;
     $this->db->insert('pengeluaran', array(
-      'id' => $id,
       'waktu' => $data['waktu'],
       'karyawan' => $data['karyawan'],
       'total' => $total,
     ));
+    $pengeluaran_id = $this->db->insert_id();
+    
+    foreach ($data['pengeluarandetail']['item'] as $index => $pd) {
+      $this->db->insert('pengeluarandetail', array(
+        'pengeluaran' => $pengeluaran_id,
+        'item' => $data['pengeluarandetail']['item'][$index],
+        'nominal' => $data['pengeluarandetail']['nominal'][$index],
+      ));
+    }
 
-    $this->sirkulasiKeuangan ('KELUAR', 'PENGELUARAN', $total, $id, $data['waktu']);
+    $this->sirkulasiKeuangan ('KELUAR', 'PENGELUARAN', $total, $pengeluaran_id, $data['waktu']);
   }
 
   function find ($where = array()) {
@@ -56,7 +54,7 @@ Class pengeluarangudang extends my_model {
       ->select('pengeluaran.*, karyawan.nama as karyawan')
       ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->select("CONCAT('Rp ', FORMAT(total, 2)) AS total", false)
-      ->join('karyawan', 'karyawan.id = pengeluaran.karyawan');
+      ->join('karyawan', 'karyawan.id = pengeluaran.karyawan', 'LEFT');
     return parent::find($where);
   }
 }

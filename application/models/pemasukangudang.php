@@ -18,15 +18,13 @@ Class pemasukangudang extends my_model {
       3 => array('nominal', 'NOMINAL'),
     );
 
-    $this->inputFields[1][2][0] = '';
-    foreach ($this->findAnother('karyawan') as $item)
-      $this->inputFields[1][2][$item->id] = $item->nama;
-
+    $this->buildRelation($this->inputFields[1][2], 'karyawan');
   }
 
   function save ($data) {
-    $foreignKey = isset($data['id']) ? $data['id'] : null;
-    $this->sirkulasiKeuangan ('MASUK', 'PEMASUKAN', $data['nominal'], $foreignKey, $data['waktu']);
+    if (isset($data['id'])) die('x');
+    $fkey = isset($data['id']) ? $data['id'] : null;
+    $this->sirkulasiKeuangan ('MASUK', 'PEMASUKAN', $data['nominal'], $fkey, $data['waktu']);
     return parent::save ($data);
   }
 
@@ -34,7 +32,7 @@ Class pemasukangudang extends my_model {
     $this->db
       ->select('pemasukan.*, karyawan.nama as karyawan')
       ->select("CONCAT('Rp ', FORMAT(nominal, 2)) AS nominal", false)
-      ->join('karyawan', 'karyawan.id = pemasukan.karyawan');
+      ->join('karyawan', 'karyawan.id = pemasukan.karyawan', 'LEFT');
     return parent::find($where);
   }
 

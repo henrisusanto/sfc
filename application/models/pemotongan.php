@@ -7,11 +7,11 @@ Class pemotongan extends my_model {
     $this->table = 'pemotongan';
     $this->thead = array(
       array('waktu','TANGGAL'),
-      array('bahanpcs','AYAM EKOR'),
-      array('bahankg','AYAM KG'),
-      array('hasilpcs','POTONGAN PCS'),
-      array('hasilkg','POTONGAN KG'),
+      array('ayamhidup','AYAM HIDUP'),
+      array('hasilpemotongan','HASIL PEMOTONGAN'),
+      array('kepasar','KE PASAR'),
       array('avg','RATA-RATA'),
+      array('per5kg','POTONGAN/5KG'),
       array('susud','SUSUD'),
     );
     $this->inputFields = array(
@@ -19,7 +19,7 @@ Class pemotongan extends my_model {
       1 => array('karyawan', 'PENANGGUNG JAWAB'),
       2 => array('bahanpcs', 'JUMLAH AYAM'),
       3 => array('bahankg', 'BERAT TOTAL'),
-      4 => array('pasar', 'KE PASAR (KG)'),
+      4 => array('kepasar', 'KE PASAR (KG)'),
     );
 
     $this->buildRelation($this->inputFields[1][2], 'karyawan');
@@ -46,60 +46,54 @@ Class pemotongan extends my_model {
     $atiayam = $this->db->get_where('ayam', array('nama' => 'ATI'))->row_array();
     if (!isset($atiayam['id'])) die('ATI not found');
 
-    $id = time();
     $hasilpcs = 0;
     $hasilkg = 0;
     $atikg = 0;
-    foreach ($data['pemotongandetail']['ayam'] as $index => $value) {
-      $this->db->insert('pemotongandetail', array(
-        'id' => $id + $index,
-        'pemotongan' => time(),
-        'ayam' => $data['pemotongandetail']['ayam'][$index],
-        'pcs' => $data['pemotongandetail']['pcs'][$index],
-        'kg' => $data['pemotongandetail']['kg'][$index],
-      ));
-      $hasilpcs += $data['pemotongandetail']['pcs'][$index];
-      $hasilkg += $data['pemotongandetail']['kg'][$index];
-      if ($data['pemotongandetail']['ayam'][$index] == $atiayam['id']) 
-        $atikg = $data['pemotongandetail']['kg'][$index]; 
-      $this->sirkulasiAyam (
-        $id + $index, 
-        $data['waktu'], 
-        $data['pemotongandetail']['ayam'][$index], 
-        'MASUK', 
-        'PEMOTONGAN', 
-        $id + $index, 
-        $data['pemotongandetail']['pcs'][$index],
-        $data['pemotongandetail']['kg'][$index]
-      );
+    foreach ($data['pemotongandetail']['ayam'] as $index => $ayam) {
+      if ($ayam == $atiayam['id']) {
+        $atikg += $data['pemotongandetail']['kg'][$index];
+      }else {
+        $hasilpcs += $data['pemotongandetail']['pcs'][$index];
+        $hasilkg += $data['pemotongandetail']['kg'][$index];        
+      }
     }
     $this->db->insert('pemotongan', array(
-      'id' => $id,
       'waktu' => $data['waktu'],
       'karyawan' => $data['karyawan'],
       'bahanpcs' => $data['bahanpcs'],
       'bahankg' => $data['bahankg'],
       'hasilpcs' => $hasilpcs,
       'hasilkg' => $hasilkg,
-      'avg' => $data['bahanpcs'] / $data['bahankg'],
+      'avg' => $data['bahankg'] / $data['bahanpcs'],
       'per5kg' => $hasilpcs / $hasilkg * 5,
-      'susud' => $data['bahanpcs']  - $hasilpcs - $data['pasar'] - $atikg,
-      'pasar' => $data['pasar'],
+      'susud' => $data['bahankg']  - $hasilkg - $data['kepasar'] - $atikg,
+      'kepasar' => $data['kepasar'],
     ));
-    $this->sirkulasiAyam (
-      null,
-      $data['waktu'], 
-      $ayamhidup['id'], 
-      'KELUAR', 
-      'PEMOTONGAN', 
-      $id, 
-      $data['bahanpcs'], 
-      $data['bahankg']
-    );
+    $pemotongan_id = $this->db->insert_id();
+    $this->sirkulasiAyam ($data['waktu'], $ayamhidup['id'], 'KELUAR', 'PEMOTONGAN', $pemotongan_id, $data['bahanpcs'], $data['bahankg']);
+    foreach ($data['pemotongandetail']['ayam'] as $index => $ayam) {
+      $pcs = $data['pemotongandetail']['pcs'][$index];
+      $kg = $data['pemotongandetail']['kg'][$index];
+      $this->db->insert('pemotongandetail', array (
+        'pemotongan' => $pemotongan_id,
+        'ayam' => $ayam,
+        'pcs' => $pcs,
+        'kg' => $kg,
+      ));
+      $pdetail_id = $this->db->insert_id();
+      $this->sirkulasiAyam ($data['waktu'], $ayam, 'MASUK', 'PEMOTONGAN', $pdetail_id, $pcs, $kg);
+    }
   }
 
-
   function find ($where = array()) {
+    $this->db
+      ->select('pemotongan.*')
+      ->select("CONCAT(bahanpcs, ' EKOR / ', bahankg, ' KG') as ayamhidup", false)
+      ->select("CONCAT(hasilpcs, ' PCs / ', hasilkg, ' KG') as hasilpemotongan", false)
+      ->select("CONCAT (kepasar, ' KG') as kepasar", false)
+      ->select("CONCAT (avg, ' KG') as avg", false)
+      ->select("CONCAT (susud, ' KG') as susud", false)
+      ;
     return parent::find($where);
   }
 }

@@ -94,7 +94,7 @@ Class my_model extends CI_Model {
     $this->db->insert('sirkulasibarang', $sirkulasi);
   }
 
-  function sirkulasiAyam ($id, $waktu, $ayam, $type, $transaksi, $fkey, $pcs, $kg) {
+  function sirkulasiAyam ($waktu, $ayam, $type, $transaksi, $fkey, $pcs, $kg) {
     $operator = $type == 'MASUK' ? '+' : '-';
     $this->db
       ->where('id', $ayam)
