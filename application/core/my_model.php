@@ -118,4 +118,60 @@ Class my_model extends CI_Model {
     );
     $this->db->insert('sirkulasiayam', $sirkulasi);
   }
+
+  function sirkulasiProduk ($waktu, $produk, $type, $transaksi, $fkey, $qty) {
+    $operator = $type == 'MASUK' ? '+' : '-';
+    $this->db
+      ->where('id', $produk)
+      ->set('stock', "stock $operator " . $qty, false)
+      ->update('produk');
+    $sir = $this->db->get_where('sirkulasiproduk', array('produk' => $produk))->result();
+    $last = end($sir);
+    $stock = isset($last->stock) ? $last->stock : 0;
+    $sirkulasi = array(
+      'waktu' => $waktu,
+      'produk' => $produk,
+      'type' => $type,
+      'transaksi' => $transaksi,
+      'fkey' => $fkey,
+      'qty' => $qty,
+      'stock' => $type == 'MASUK' ? $stock + $qty : $stock - $qty
+    );
+    $this->db->insert('sirkulasiproduk', $sirkulasi);
+  }
+
+  function updateStockOutlet ($flow, $outlet, $table, $itemId, $qty, $kg = null) {
+    $field = str_replace('outlet', '', $table);
+    $exists = $this->db->get_where($table, array($field => $itemId))->row_array();
+    $stock = isset ($exists['stock']) ? $exists['stock'] : 0 ;
+    $stock = $flow == 'MASUK' ? $stock + $qty : $stock - $qty;
+
+    $pcs = isset ($exists['pcs']) ? $exists['pcs'] : 0 ;
+    $pcs = $flow == 'MASUK' ? $pcs + $qty : $pcs - $qty;
+    $kgs = isset ($exists['kg']) ? $exists['kg'] : 0 ;
+    $kgs = $flow == 'MASUK' ? $kgs + $kg : $kgs - $kg;
+
+    if (isset($exists['id'])) {
+      $this->db->where('id', $exists['id']);
+      if ($table == 'ayamoutlet') {
+        $this->db->set('pcs', $pcs);
+        $this->db->set('kg', $kgs);
+      } else {
+        $this->db->set('stock', $stock);
+      }
+      $this->db->update($table);
+    } else {
+      $record = array(
+        $field => $itemId,
+        'outlet' => $outlet,
+      );
+      if ($table == 'ayamoutlet') {
+        $record['kg'] = $kgs;
+        $record['pcs'] = $pcs;
+      } else {
+        $record['stock'] = $stock;
+      }
+      $this->db->insert($table, $record);
+    }
+  }
 }

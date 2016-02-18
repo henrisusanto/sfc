@@ -11,36 +11,98 @@ Class bawaan extends my_model {
     );
     $this->inputFields = array(
       0 => array('waktu', 'TANGGAL'),
-      1 => array('outlet', 'OUTLET')
-    );
-    $this->subFields = array (
-      0 => array('item[]', 'BAWAAN'),
-      1 => array('qty[]', 'JUMLAH'),
+      1 => array('outlet', 'OUTLET'),
+      2 => array('modal', 'MODAL / RECEH')
     );
 
-    $this->inputFields[1][2][0] = '';
-    foreach ($this->findAnother('outlet') as $item)
-      $this->inputFields[1][2][$item->id] = $item->nama;
-
-    $this->subFields[0][2][0] = '';
-    foreach ($this->findAnother('baranggudang') as $item)
-      $this->subFields[0][2][$item->id] = $item->nama;
-
+    $this->buildRelation($this->inputFields[1][2], 'outlet');
+    $this->expandables = array();
+    $this->expandables[0] = array(
+      'label' => 'DAFTAR BAWAAN BARANG',
+      'fields' => array (
+        0 => array('bawaanbarang[barang][]', 'NAMA BARANG'),
+        1 => array('bawaanbarang[qty][]', 'JUMLAH'),
+      )
+    );
+    $this->buildRelation($this->expandables[0]['fields'][0][2], 'baranggudang');
+    $this->expandables[1] = array(
+      'label' => 'DAFTAR BAWAAN AYAM',
+      'fields' => array (
+        0 => array('bawaanayam[ayam][]', 'AYAM'),
+        1 => array('bawaanayam[pcs][]', 'JUMLAH'),
+        2 => array('bawaanayam[kg][]', 'BERAT'),
+      )
+    );
+    $this->buildRelation($this->expandables[1]['fields'][0][2], 'ayam', array('nama <>' => 'AYAM HIDUP'));
+    $this->expandables[2] = array(
+      'label' => 'DAFTAR BAWAAN PRODUK',
+      'fields' => array (
+        0 => array('bawaanproduk[produk][]', 'PRODUK'),
+        1 => array('bawaanproduk[qty][]', 'JUMLAH'),
+      )
+    );
+    $this->buildRelation($this->expandables[2]['fields'][0][2], 'produk');
   }
 
-  function getSubFields ($index) {
-    if ($index == 1) return parent::getSubFields();
+  function save ($data) {
+    if (isset($data['id'])) die('x');
+    $this->db->insert('bawaan', array(
+      'outlet' => $data['outlet'],
+      'waktu' => $data['waktu'],
+      'modal' => $data['modal'],
+    ));
+    $bawaan_id = $this->db->insert_id();
+    if ($data['modal'] > 0) {
+      $this->sirkulasiKeuangan ('KELUAR', 'BAWAAN', $data['modal'], $bawaan_id, $data['waktu']);
+      $this->db
+        ->where('id', $data['outlet'])
+        ->set("saldo = saldo + " . $data['modal'], false)
+        ->update('outlet'); 
+    }
+    foreach ($data['bawaanbarang']['barang'] as $key => $barang) {
+      $qty = $data['bawaanbarang']['qty'][$key];
+      $this->db->insert('bawaanbarang', array(
+        'bawaan' => $bawaan_id,
+        'barang' => $barang,
+        'qty' => $qty
+      ));
+      $bbarang_id = $this->db->insert_id();
+      $this->sirkulasiBarang ($data['waktu'], $barang, 'KELUAR', 'BAWAAN', $bbarang_id, $qty);
+      $this->updateStockOutlet ('MASUK', $data['outlet'], 'barangoutlet', $barang, $qty);
+    }
+    foreach ($data['bawaanayam']['ayam'] as $index => $ayam) {
+      $pcs = $data['bawaanayam']['pcs'][$index];
+      $kg = $data['bawaanayam']['kg'][$index];
+      $this->db->insert('bawaanayam', array(
+        'bawaan' => $bawaan_id,
+        'ayam' => $ayam,
+        'pcs' => $pcs,
+        'kg' => $kg
+      ));
+      $bayam_id = $this->db->insert_id();
+      $this->sirkulasiAyam ($data['waktu'], $ayam, 'KELUAR', 'BAWAAN', $bayam_id, $pcs, $kg);
+      $this->updateStockOutlet ('MASUK', $data['outlet'], 'ayamoutlet', $ayam, $pcs, $kg);
+    }
+    foreach ($data['bawaanproduk']['produk'] as $index => $produk) {
+      $qty = $data['bawaanproduk']['qty'][$index];
+      $this->db->insert('bawaanproduk', array(
+        'bawaan' => $bawaan_id,
+        'produk' => $produk,
+        'qty' => $qty
+      ));
+      $bproduk_id = $this->db->insert_id();
+      $this->sirkulasiProduk ($data['waktu'], $produk, 'KELUAR', 'BAWAAN', $bproduk_id, $qty);
+      $this->updateStockOutlet ('MASUK', $data['outlet'], 'produkoutlet', $produk, $qty);
+    }
+  }
 
-    $products = array (
-      0 => array('item[]', 'BAWAAN'),
-      1 => array('qty[]', 'JUMLAH'),
-    );
-
-    $products[0][2][0] = '';
-    foreach ($this->findAnother('produk') as $item)
-      $products[0][2][$item->id] = $item->nama;
-
-    return $products;
+  function find ($where = array()) {
+    $this->db
+      ->select('bawaan.*')
+      ->select('outlet.nama as outlet')
+      ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
+      ->join('outlet', 'bawaan.outlet = outlet.id');
+    return parent::find($where);
   }
 
 }

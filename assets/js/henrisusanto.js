@@ -19,7 +19,7 @@ $(function () {
     var clone = []
     $('.expandable-form').each (function (index) {
       var ef = $(this)
-      $('select').select2('destroy')
+      ef.find('select').select2('destroy')
       clone[index] = ef.children('div').clone()
       $('.tambah-item').eq(index).unbind('click').bind('click', function () {
         clone[index].prependTo(ef)

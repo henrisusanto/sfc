@@ -19,9 +19,12 @@ Class sirkulasiproduk extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('sirkulasiproduk.*')
-      ->select('produk.nama')
-      ->select("CONCAT (produk.stock, ' PCs') AS stock", false)
-      ->join('produk', 'produk.id=sirkulasiproduk.produk');
+      ->select('produk.nama as produk')
+      ->select("CONCAT (sirkulasiproduk.qty, ' PCs') AS qty", false)
+      ->select("CONCAT (sirkulasiproduk.stock, ' PCs') AS stock", false)
+      ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
+      ->join('produk', 'produk.id=sirkulasiproduk.produk')
+      ->order_by('id', 'DESC');
     return parent::find($where);
   }
 }

@@ -88,6 +88,7 @@ Class pemotongan extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('pemotongan.*')
+      ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->select("CONCAT(bahanpcs, ' EKOR / ', bahankg, ' KG') as ayamhidup", false)
       ->select("CONCAT(hasilpcs, ' PCs / ', hasilkg, ' KG') as hasilpemotongan", false)
       ->select("CONCAT (kepasar, ' KG') as kepasar", false)

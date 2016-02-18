@@ -8,8 +8,8 @@ Class produk extends my_model {
     $this->thead = array(
       array('nama','NAMA PRODUK'),
       array('type','JENIS PRODUK'),
-      array('stock','STOK GUDANG'),
-      array('harga','HARGA')
+      array('harga','HARGA JUAL'),
+      array('stock','STOK GUDANG')
     );
     $this->inputFields = array(
       0 => array('nama', 'NAMA PRODUK'),

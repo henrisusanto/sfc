@@ -26,7 +26,8 @@ Class sirkulasiayam extends my_model {
       ->select("CONCAT(sirkulasiayam.kg, ' KG') as kg", false)
       ->select("CONCAT (stockpcs, ' PCs') AS stockpcs", false)
       ->select("CONCAT (stockkg, ' KG') AS stockkg", false)
-      ->join('ayam', 'ayam.id=sirkulasiayam.ayam');
+      ->join('ayam', 'ayam.id=sirkulasiayam.ayam')
+      ->order_by('id', 'DESC');
     return parent::find($where);
   }
 }

@@ -6,7 +6,8 @@ Class outlet extends my_model {
     parent::__construct();
     $this->table = 'outlet';
     $this->thead = array(
-      array('nama','NAMA OUTLET')
+      array('nama','NAMA OUTLET'),
+      array('saldo','SALDO OUTLET')
     );
     $this->inputFields = array(
       0 => array('nama', 'NAMA OUTLET')

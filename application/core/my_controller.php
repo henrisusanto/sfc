@@ -55,8 +55,8 @@ Class my_controller extends CI_Controller {
     $data['menu'][] = array('TRANSAKSI', '#', 'shopping-cart', array(
       array('BELANJA GUDANG', 'pengeluaran/belanja'),
       array('BELANJA AYAM', 'pengeluaran/belanjaayam'),
-      array('PENGELUARAN', 'pengeluaran/gudang'),
-      array('PEMASUKAN', 'pemasukan/gudang'),
+      array('PENGELUARAN LAIN', 'pengeluaran/gudang'),
+      array('PEMASUKAN LAIN', 'pemasukan/gudang'),
       array('PINJAMAN', 'sirkulasi/pinjaman'),
     ));
 
@@ -71,7 +71,9 @@ Class my_controller extends CI_Controller {
       array('SETORAN OUTLET', 'pemasukan/setoran'),
       array('PENGELUARAN OUTLET', 'pengeluaran/outlet'),
       array('PEMASUKAN OUTLET', 'pemasukan/outlet'),
-      array('STOK OUTLET', 'entitas/produkoutlet'),
+      array('BARANG OUTLET', 'entitas/barangoutlet'),
+      array('AYAM OUTLET', 'entitas/ayamoutlet'),
+      array('PRODUK OUTLET', 'entitas/produkoutlet'),
     ));
 
     $data['menu'][] = array('MASTER &AMP; STOK', '#', 'key', array(

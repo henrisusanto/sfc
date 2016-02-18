@@ -34,6 +34,14 @@ class entitas extends my_controller {
     $this->crud ('komposisi', $tpl, $id);
   }
 
+  public function barangoutlet ($tpl='table', $id=null) {
+    $this->crud ('barangoutlet', $tpl, $id);
+  }
+
+  public function ayamoutlet ($tpl='table', $id=null) {
+    $this->crud ('ayamoutlet', $tpl, $id);
+  }
+
   public function produkoutlet ($tpl='table', $id=null) {
     $this->crud ('produkoutlet', $tpl, $id);
   }
