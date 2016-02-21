@@ -46,17 +46,20 @@ Class bawaan extends my_model {
 
   function save ($data) {
     if (isset($data['id'])) die('x');
+    $outlet = $data['outlet'];
+    $waktu = $data['waktu'];
+    $modal = $data['modal'];
     $this->db->insert('bawaan', array(
-      'outlet' => $data['outlet'],
-      'waktu' => $data['waktu'],
-      'modal' => $data['modal'],
+      'outlet' => $outlet,
+      'waktu' => $waktu,
+      'modal' => $modal,
     ));
     $bawaan_id = $this->db->insert_id();
-    if ($data['modal'] > 0) {
-      $this->sirkulasiKeuangan ('KELUAR', 'BAWAAN', $data['modal'], $bawaan_id, $data['waktu']);
+    if ($modal > 0) {
+      $this->sirkulasiKeuangan ('KELUAR', 'BAWAAN', $modal, $bawaan_id, $waktu);
       $this->db
-        ->where('id', $data['outlet'])
-        ->set("saldo = saldo + " . $data['modal'], false)
+        ->where('id', $outlet)
+        ->set("saldo = saldo + " . $modal, false)
         ->update('outlet'); 
     }
     foreach ($data['bawaanbarang']['barang'] as $key => $barang) {
@@ -67,8 +70,9 @@ Class bawaan extends my_model {
         'qty' => $qty
       ));
       $bbarang_id = $this->db->insert_id();
-      $this->sirkulasiBarang ($data['waktu'], $barang, 'KELUAR', 'BAWAAN', $bbarang_id, $qty);
-      $this->updateStockOutlet ('MASUK', $data['outlet'], 'barangoutlet', $barang, $qty);
+      $this->sirkulasiBarang ($waktu, $barang, 'KELUAR', 'BAWAAN', $bbarang_id, $qty);
+      // $this->updateStockOutlet ('MASUK', $outlet, 'barangoutlet', $barang, $qty);
+      $this->sirkulasiBarangOutlet ($waktu, $barang, 'MASUK', 'BAWAAN', $bbarang_id, $qty, $outlet);
     }
     foreach ($data['bawaanayam']['ayam'] as $index => $ayam) {
       $pcs = $data['bawaanayam']['pcs'][$index];
@@ -80,8 +84,9 @@ Class bawaan extends my_model {
         'kg' => $kg
       ));
       $bayam_id = $this->db->insert_id();
-      $this->sirkulasiAyam ($data['waktu'], $ayam, 'KELUAR', 'BAWAAN', $bayam_id, $pcs, $kg);
-      $this->updateStockOutlet ('MASUK', $data['outlet'], 'ayamoutlet', $ayam, $pcs, $kg);
+      $this->sirkulasiAyam ($waktu, $ayam, 'KELUAR', 'BAWAAN', $bayam_id, $pcs, $kg);
+      // $this->updateStockOutlet ('MASUK', $outlet, 'ayamoutlet', $ayam, $pcs, $kg);
+      $this->sirkulasiAyamOutlet ($waktu, $ayam, 'MASUK', 'BAWAAN', $bayam_id, $pcs, $kg, $outlet);
     }
     foreach ($data['bawaanproduk']['produk'] as $index => $produk) {
       $qty = $data['bawaanproduk']['qty'][$index];
@@ -91,8 +96,9 @@ Class bawaan extends my_model {
         'qty' => $qty
       ));
       $bproduk_id = $this->db->insert_id();
-      $this->sirkulasiProduk ($data['waktu'], $produk, 'KELUAR', 'BAWAAN', $bproduk_id, $qty);
-      $this->updateStockOutlet ('MASUK', $data['outlet'], 'produkoutlet', $produk, $qty);
+      $this->sirkulasiProduk ($waktu, $produk, 'KELUAR', 'BAWAAN', $bproduk_id, $qty);
+      // $this->updateStockOutlet ('MASUK', $outlet, 'produkoutlet', $produk, $qty);
+      $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', 'BAWAAN', $bproduk_id, $qty, $outlet);
     }
   }
 

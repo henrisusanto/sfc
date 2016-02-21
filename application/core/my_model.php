@@ -140,6 +140,79 @@ Class my_model extends CI_Model {
     $this->db->insert('sirkulasiproduk', $sirkulasi);
   }
 
+  function sirkulasiBarangOutlet ($waktu, $barang, $type, $transaksi, $fkey, $qty, $outlet) {
+    $operator = $type == 'MASUK' ? '+' : '-';
+    $this->db
+      ->where('outlet', $outlet)
+      ->where('barang', $barang)
+      ->set('stock', "stock $operator " . $qty, false)
+      ->update('barangoutlet');
+    $sir = $this->db->get_where('sirkulasibarangoutlet', array('barang' => $barang, 'outlet' => $outlet))->result();
+    $last = end($sir);
+    $stock = isset($last->stock) ? $last->stock : 0;
+    $sirkulasi = array(
+      'outlet' => $outlet,
+      'waktu' => $waktu,
+      'barang' => $barang,
+      'type' => $type,
+      'transaksi' => $transaksi,
+      'fkey' => $fkey,
+      'qty' => $qty,
+      'stock' => $type == 'MASUK' ? $stock + $qty : $stock - $qty
+    );
+    $this->db->insert('sirkulasibarangoutlet', $sirkulasi);
+  }
+
+  function sirkulasiAyamOutlet ($waktu, $ayam, $type, $transaksi, $fkey, $pcs, $kg, $outlet) {
+    $operator = $type == 'MASUK' ? '+' : '-';
+    $this->db
+      ->where('outlet', $outlet)
+      ->where('ayam', $ayam)
+      ->set('pcs', "pcs $operator " . $pcs, false)
+      ->set('kg', "kg $operator " . $kg, false)
+      ->update('ayamoutlet');
+    $sir = $this->db->get_where('sirkulasiayamoutlet', array('ayam' => $ayam, 'outlet' => $outlet))->result();
+    $last = end($sir);
+    $stockpcs = isset($last->stockpcs) ? $last->stockpcs : 0;
+    $stockkg = isset($last->stockkg) ? $last->stockkg : 0;
+    $sirkulasi = array(
+      'outlet' => $outlet,
+      'waktu' => $waktu,
+      'ayam' => $ayam,
+      'type' => $type,
+      'transaksi' => $transaksi,
+      'fkey' => $fkey,
+      'pcs' => $pcs,
+      'kg' => $kg,
+      'stockpcs' => $type == 'MASUK' ? $stockpcs + $pcs : $stockpcs - $pcs,
+      'stockkg' => $type == 'MASUK' ? $stockkg + $kg : $stockkg - $kg
+    );
+    $this->db->insert('sirkulasiayamoutlet', $sirkulasi);
+  }
+
+  function sirkulasiProdukOutlet ($waktu, $produk, $type, $transaksi, $fkey, $qty, $outlet) {
+    $operator = $type == 'MASUK' ? '+' : '-';
+    $this->db
+      ->where('outlet', $outlet)
+      ->where('produk', $produk)
+      ->set('stock', "stock $operator " . $qty, false)
+      ->update('produkoutlet');
+    $sir = $this->db->get_where('sirkulasiprodukoutlet', array('produk' => $produk, 'outlet' => $outlet))->result();
+    $last = end($sir);
+    $stock = isset($last->stock) ? $last->stock : 0;
+    $sirkulasi = array(
+      'outlet' => $outlet,
+      'waktu' => $waktu,
+      'produk' => $produk,
+      'type' => $type,
+      'transaksi' => $transaksi,
+      'fkey' => $fkey,
+      'qty' => $qty,
+      'stock' => $type == 'MASUK' ? $stock + $qty : $stock - $qty
+    );
+    $this->db->insert('sirkulasiprodukoutlet', $sirkulasi);
+  }
+/*
   function updateStockOutlet ($flow, $outlet, $table, $itemId, $qty, $kg = null) {
     $field = str_replace('outlet', '', $table);
     $exists = $this->db->get_where($table, array($field => $itemId))->row_array();
@@ -174,4 +247,5 @@ Class my_model extends CI_Model {
       $this->db->insert($table, $record);
     }
   }
+*/
 }

@@ -20,10 +20,10 @@ Class barangoutlet extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('barangoutlet.*')
-      ->select("CONCAT(barangoutlet.stock, ' PCs') as stock", false)
       ->select('outlet.nama as outlet')
-      ->join('outlet','barangoutlet.outlet=outlet.id')
       ->select('baranggudang.nama as barang')
+      ->select("CONCAT(barangoutlet.stock, ' PCs') as stock", false)
+      ->join('outlet','barangoutlet.outlet=outlet.id')
       ->join('baranggudang','barangoutlet.barang=baranggudang.id', 'LEFT');
     return parent::find($where);
   }
