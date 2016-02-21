@@ -19,6 +19,7 @@ Class sirkulasibarang extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('sirkulasibarang.*')
+      ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->select('baranggudang.nama as barang')
       ->select("CONCAT (sirkulasibarang.qty, ' ', baranggudang.satuan) AS qty", false)
       ->select("CONCAT (sirkulasibarang.stock, ' ', baranggudang.satuan) AS stock", false)

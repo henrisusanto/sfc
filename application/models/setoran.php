@@ -13,58 +13,70 @@ Class setoran extends my_model {
     $this->inputFields = array(
       0 => array('waktu', 'TANGGAL'),
       1 => array('outlet', 'OUTLET'),
-      2 => array('nominal', 'SETORAN'),
+    );
+    $this->buildRelation($this->inputFields[1][2], 'outlet');
+
+    $this->expandables = array();
+    $this->expandables[0] = array(
+      'label' => 'LAPORAN PENJUALAN',
+      'fields' => array (
+        0 => array('setoranpenjualan[produk][]', 'PRODUK'),
+        1 => array('setoranpenjualan[qty][]', 'JUMLAH'),
+      )
+    );
+    $this->buildRelation($this->expandables[0]['fields'][0][2], 'produk');
+
+    $this->expandables[1] = array(
+      'label' => 'LAPORAN PENGELUARAN',
+      'fields' => array (
+        0 => array('setoranpengeluaran[item][]', 'ITEM'),
+        1 => array('setoranpengeluaran[nominal][]', 'NOMINAL'),
+      )
     );
 
-    foreach ($this->findAnother('outlet') as $item)
-      $this->inputFields[1][2][$item->id] = $item->nama;
+    $this->expandables[2] = array(
+      'label' => 'LAPORAN SISA PRODUK',
+      'fields' => array (
+        0 => array('setoransisaproduk[produk][]', 'PRODUK'),
+        1 => array('setoransisaayam[qty][]', 'QTY'),
+      )
+    );
+    $this->buildRelation($this->expandables[2]['fields'][0][2], 'produk');
+
+    $this->expandables[3] = array(
+      'label' => 'LAPORAN SISA BAHAN',
+      'fields' => array (
+        0 => array('setoransisabarang[barang][]', 'BAHAN'),
+        1 => array('setoransisabarang[qty][]', 'QTY'),
+      )
+    );
+    $this->buildRelation($this->expandables[3]['fields'][0][2], 'baranggudang');
+
   }
 
   function save ($data) {
-    if (!isset($data['id'])) {
-      $cashflow = array (
-        'id' => time(),
-        'waktu' => date('Y-m-d H:i:s'),
-        'type' => 'MASUK',
-        'transaksi' => 'SETORAN',
-        'nominal' => $data['nominal'],
-        'saldo' => parent::cashFlowGetSaldo($data['nominal'], 'MASUK'),
-      );
-      $this->db->insert('cashflow', $cashflow);
-    } else {
-      $old = $this->findOne($data['id']);
-      $nominal_lama = $old['nominal'];
-      $nominal_baru = $data['nominal'];
-      $selisih = $nominal_lama - $nominal_baru;
-      if ($selisih != 0) {
-        $type = $selisih < 0 ? 'MASUK': 'KELUAR';
-        $selisih = abs($selisih);
-        $cashflow = array (
-          'id' => time(),
-          'waktu' => date('Y-m-d H:i:s'),
-          'type' => $type,
-          'transaksi' => 'SETORAN EDIT',
-          'nominal' => $selisih,
-          'saldo' => parent::cashFlowGetSaldo($selisih, $type),
-        );
-        $this->db->insert('cashflow', $cashflow);
-      }
-    }
-    return parent::save($data);
-  }
+    if (isset($data['id'])) die('x');
 
-  function delete ($id) {
-    $setoran = $this->findOne($id);
-    $cashflow = array (
-      'id' => time(),
-      'waktu' => date('Y-m-d H:i:s'),
-      'type' => 'KELUAR',
-      'transaksi' => 'SETORAN BATAL',
-      'nominal' => $setoran['nominal'],
-      'saldo' => parent::cashFlowGetSaldo($setoran['nominal'], 'KELUAR'),
-    );
-    $this->db->insert('cashflow', $cashflow);
-    return parent::delete($id);
+    $waktu = $data['waktu'];
+    $outlet = $data['outlet'];
+    $transaksi = 'SETORAN';
+    $total = 0;
+    $prices = array();
+    foreach ($this->db->get('produk')->result() as $product) 
+      $prices[$product->id] = $product->harga;
+    foreach ($data['setoranpenjualan']['produk'] as $index => $produk)
+      $total += $prices[$produk] * $data['setoranpenjualan']['qty'][$index];
+    foreach ($data['setoranpengeluaran']['nominal'] as $index => $nominal) 
+      $total -= $nominal;
+
+    $this->db->insert('setoran', array(
+      'outlet' => $outlet,
+      'waktu' => $waktu,
+      'nominal' => $total
+    ));
+    $setoranId = $this->db->insert_id();
+
+    // penjualan, pengeluaran, sisa : produk, bahan, ayam
   }
 
   function find ($where = array()) {

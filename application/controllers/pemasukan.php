@@ -6,4 +6,7 @@ class pemasukan extends my_controller {
     $this->crud ('pemasukangudang', $tpl, $id);
   }
 
+  public function setoran ($tpl='table', $id=null) {
+    $this->crud ('setoran', $tpl, $id);
+  }
 }

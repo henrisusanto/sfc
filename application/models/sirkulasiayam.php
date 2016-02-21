@@ -22,6 +22,7 @@ Class sirkulasiayam extends my_model {
     $this->db
       ->select('sirkulasiayam.*')
       ->select('ayam.nama as ayam')
+      ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->select("CONCAT(sirkulasiayam.pcs, ' PCs') as pcs", false)
       ->select("CONCAT(sirkulasiayam.kg, ' KG') as kg", false)
       ->select("CONCAT (stockpcs, ' PCs') AS stockpcs", false)

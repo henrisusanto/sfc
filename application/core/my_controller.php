@@ -63,6 +63,7 @@ Class my_controller extends CI_Controller {
     $data['menu'][] = array('PRODUKSI', '#', 'cogs', array(
       array('PEMOTONGAN AYAM', 'produksi/pemotongan'),
       array('PRODUKSI GUDANG', 'produksi/gudang'),
+      array('PRODUKSI OUTLET', 'produksi/outlet'),
     ));
 
     $data['menu'][] = array('OUTLET', '#', 'home-2', array(
@@ -70,7 +71,6 @@ Class my_controller extends CI_Controller {
       array('TRANSAKSI ANTAR OUTLET', 'produksi/transaksiinternal'),
       array('SETORAN OUTLET', 'pemasukan/setoran'),
       array('PENGELUARAN OUTLET', 'pengeluaran/outlet'),
-      array('PEMASUKAN OUTLET', 'pemasukan/outlet'),
       array('BARANG OUTLET', 'entitas/barangoutlet'),
       array('AYAM OUTLET', 'entitas/ayamoutlet'),
       array('PRODUK OUTLET', 'entitas/produkoutlet'),
@@ -85,6 +85,9 @@ Class my_controller extends CI_Controller {
       array('DATA KARYAWAN', 'entitas/karyawan'),
       array('DATA DISTRIBUTOR', 'entitas/distributor'),
       array('DATA DEBITUR', 'entitas/debitur'),
+    ));
+
+    $data['menu'][] = array('LAPORAN', '#', 'stats', array(
     ));
 
     $this->load->view('header', $data);
