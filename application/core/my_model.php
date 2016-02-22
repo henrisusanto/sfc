@@ -140,6 +140,23 @@ Class my_model extends CI_Model {
     $this->db->insert('sirkulasiproduk', $sirkulasi);
   }
 
+  function sirkulasiKeuanganOutlet ($type, $transaksi, $nominal, $fkey, $waktu, $outlet) {
+    $cashflow = $this->db->get_where('cashflowoutlet', array('outlet' => $outlet))->result();
+    $last = end($cashflow);
+    $saldo = isset($last->saldo) ? $last->saldo : 0;
+    $saldo = $type == 'MASUK' ? $saldo + $nominal : $saldo - $nominal;
+    $cashflow = array (
+      'outlet' => $outlet,
+      'waktu' => $waktu,
+      'type' => $type,
+      'transaksi' => $transaksi,
+      'nominal' => $nominal,
+      'saldo' => $saldo,
+    );
+    $this->db->insert('cashflowoutlet', $cashflow);
+    $this->db->where('id', $outlet)->set('saldo', $saldo)->update('outlet');
+  }
+
   function sirkulasiBarangOutlet ($waktu, $barang, $type, $transaksi, $fkey, $qty, $outlet) {
     $operator = $type == 'MASUK' ? '+' : '-';
     $barangOutlet = $this->db

@@ -50,6 +50,7 @@ Class my_controller extends CI_Controller {
       array('GUDANG', 'sirkulasi/barang'),
       array('AYAM MENTAH', 'sirkulasi/ayam'),
       array('PRODUK', 'sirkulasi/produk'),
+      array('KEUANGAN OUTLET', 'sirkulasi/cashflowoutlet'),
       array('BAHAN OUTLET', 'sirkulasi/barangoutlet'),
       array('AYAM OUTLET', 'sirkulasi/ayamoutlet'),
       array('PRODUK OUTLET', 'sirkulasi/produkoutlet'),

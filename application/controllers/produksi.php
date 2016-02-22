@@ -14,4 +14,8 @@ class produksi extends my_controller {
     $this->crud ('prosesproduksi', $tpl, $id);
   }
 
+  public function transaksiinternal ($tpl='table', $id=null) {
+    $this->crud ('transaksiinternal', $tpl, $id);
+  }
+  
 }

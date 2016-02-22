@@ -22,6 +22,10 @@ class sirkulasi extends my_controller {
     $this->crud ('pinjaman', $tpl, $id);
   }
 
+  public function cashflowoutlet ($tpl='table', $id=null) {
+    $this->crud ('cashflowoutlet', $tpl, $id);
+  }
+
   public function barangoutlet ($tpl='table', $id=null) {
     $this->crud ('sirkulasibarangoutlet', $tpl, $id);
   }
