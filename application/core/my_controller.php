@@ -65,8 +65,7 @@ Class my_controller extends CI_Controller {
 
     $data['menu'][] = array('PRODUKSI', '#', 'cogs', array(
       array('PEMOTONGAN AYAM', 'produksi/pemotongan'),
-      array('PRODUKSI GUDANG', 'produksi/gudang'),
-      array('PRODUKSI OUTLET', 'produksi/outlet'),
+      array('PRODUKSI', 'produksi/proses'),
     ));
 
     $data['menu'][] = array('OUTLET', '#', 'home-2', array(

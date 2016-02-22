@@ -4,7 +4,7 @@ Class baranggudang extends my_model {
 
   function __construct () {
     parent::__construct();
-    $this->table = 'barangGudang';
+    $this->table = 'baranggudang';
     $this->thead = array(
       array('nama','NAMA BARANG'),
       array('type','GUDANG'),

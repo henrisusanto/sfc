@@ -17,8 +17,6 @@ TRUNCATE TABLE `sirkulasiayamoutlet`;
 TRUNCATE TABLE `sirkulasiprodukoutlet`;
 TRUNCATE TABLE `pemotongan`;
 TRUNCATE TABLE `pemotongandetail`;
-TRUNCATE TABLE `produksigudang`;
-TRUNCATE TABLE `produksioutlet`;
 TRUNCATE TABLE `produkoutlet`;
 TRUNCATE TABLE `ayamoutlet`;
 TRUNCATE TABLE `barangoutlet`;

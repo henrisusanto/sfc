@@ -142,9 +142,20 @@ Class my_model extends CI_Model {
 
   function sirkulasiBarangOutlet ($waktu, $barang, $type, $transaksi, $fkey, $qty, $outlet) {
     $operator = $type == 'MASUK' ? '+' : '-';
-    $this->db
+    $barangOutlet = $this->db
       ->where('outlet', $outlet)
       ->where('barang', $barang)
+      ->get('barangoutlet')->row_array();
+    if (!isset($barangOutlet['id'])) {
+      $this->db->insert('barangoutlet', array(
+        'barang' => $barang,
+        'outlet' => $outlet,
+        'stock' => 0
+      ));
+      $barangOutlet['id'] = $this->db->insert_id();
+    }
+    $this->db
+      ->where('id', $barangOutlet['id'])
       ->set('stock', "stock $operator " . $qty, false)
       ->update('barangoutlet');
     $sir = $this->db->get_where('sirkulasibarangoutlet', array('barang' => $barang, 'outlet' => $outlet))->result();
@@ -165,9 +176,21 @@ Class my_model extends CI_Model {
 
   function sirkulasiAyamOutlet ($waktu, $ayam, $type, $transaksi, $fkey, $pcs, $kg, $outlet) {
     $operator = $type == 'MASUK' ? '+' : '-';
-    $this->db
+    $ayamoutlet = $this->db
       ->where('outlet', $outlet)
       ->where('ayam', $ayam)
+      ->get('ayamoutlet')->row_array();
+    if (!isset($ayamoutlet['id'])) {
+      $this->db->insert('ayamoutlet', array(
+        'ayam' => $ayam,
+        'outlet' => $outlet,
+        'pcs' => 0,
+        'kg'  => 0
+      ));
+      $ayamoutlet['id'] = $this->db->insert_id();
+    }
+    $this->db
+      ->where('id', $ayamoutlet['id'])
       ->set('pcs', "pcs $operator " . $pcs, false)
       ->set('kg', "kg $operator " . $kg, false)
       ->update('ayamoutlet');
@@ -192,9 +215,20 @@ Class my_model extends CI_Model {
 
   function sirkulasiProdukOutlet ($waktu, $produk, $type, $transaksi, $fkey, $qty, $outlet) {
     $operator = $type == 'MASUK' ? '+' : '-';
-    $this->db
+    $produkoutlet = $this->db
       ->where('outlet', $outlet)
       ->where('produk', $produk)
+      ->get('produkoutlet')->row_array();
+    if (!isset($produkoutlet['id'])) {
+      $this->db->insert('produkoutlet', array(
+        'produk' => $produk,
+        'outlet' => $outlet,
+        'stock' => 0
+      ));
+      $produkoutlet['id'] = $this->db->insert_id();
+    }
+    $this->db
+      ->where('id', $produkoutlet['id'])
       ->set('stock', "stock $operator " . $qty, false)
       ->update('produkoutlet');
     $sir = $this->db->get_where('sirkulasiprodukoutlet', array('produk' => $produk, 'outlet' => $outlet))->result();
@@ -212,40 +246,4 @@ Class my_model extends CI_Model {
     );
     $this->db->insert('sirkulasiprodukoutlet', $sirkulasi);
   }
-/*
-  function updateStockOutlet ($flow, $outlet, $table, $itemId, $qty, $kg = null) {
-    $field = str_replace('outlet', '', $table);
-    $exists = $this->db->get_where($table, array($field => $itemId))->row_array();
-    $stock = isset ($exists['stock']) ? $exists['stock'] : 0 ;
-    $stock = $flow == 'MASUK' ? $stock + $qty : $stock - $qty;
-
-    $pcs = isset ($exists['pcs']) ? $exists['pcs'] : 0 ;
-    $pcs = $flow == 'MASUK' ? $pcs + $qty : $pcs - $qty;
-    $kgs = isset ($exists['kg']) ? $exists['kg'] : 0 ;
-    $kgs = $flow == 'MASUK' ? $kgs + $kg : $kgs - $kg;
-
-    if (isset($exists['id'])) {
-      $this->db->where('id', $exists['id']);
-      if ($table == 'ayamoutlet') {
-        $this->db->set('pcs', $pcs);
-        $this->db->set('kg', $kgs);
-      } else {
-        $this->db->set('stock', $stock);
-      }
-      $this->db->update($table);
-    } else {
-      $record = array(
-        $field => $itemId,
-        'outlet' => $outlet,
-      );
-      if ($table == 'ayamoutlet') {
-        $record['kg'] = $kgs;
-        $record['pcs'] = $pcs;
-      } else {
-        $record['stock'] = $stock;
-      }
-      $this->db->insert($table, $record);
-    }
-  }
-*/
 }

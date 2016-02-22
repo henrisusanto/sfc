@@ -10,11 +10,8 @@ class produksi extends my_controller {
     $this->crud ('bawaan', $tpl, $id);
   }
 
-  public function gudang ($tpl='table', $id=null) {
-    $this->crud ('produksigudang', $tpl, $id);
+  public function proses ($tpl='table', $id=null) {
+    $this->crud ('prosesproduksi', $tpl, $id);
   }
 
-  public function outlet ($tpl='table', $id=null) {
-    $this->crud ('produksioutlet', $tpl, $id);
-  }
 }
