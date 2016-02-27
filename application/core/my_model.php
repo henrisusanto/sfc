@@ -8,12 +8,24 @@ Class my_model extends CI_Model {
     date_default_timezone_set('Asia/Jakarta');
   }
 
+  function toRp ($int) {
+    return 'Rp. ' . number_format( $int, 0 , '' , '.' ) . ',00';
+  }
+
   function getTHead () {
     return $this->thead;
   }
 
+  function getTFoot ($tbody) {
+    return $this->tfoot;
+  }
+
   function getInputFields () {
     return $this->inputFields;
+  }
+
+  function getFilters () {
+    return $this->filters;
   }
 
   function getExpandables () {
@@ -51,8 +63,8 @@ Class my_model extends CI_Model {
     return $this->db->where('id', $id)->delete($this->table);
   }
 
-  function buildRelation (&$dropdown, $table, $where = array()) {
-    $dropdown[0] = '';
+  function buildRelation (&$dropdown, $table, $where = array(), $default = '') {
+    $dropdown[0] = $default;
     $this->db->where($where);
     foreach ($this->db->get($table)->result() as $item)
       $dropdown[$item->id] = $item->nama;

@@ -2,4 +2,7 @@
 
 class laporan extends my_controller {
 
+  function belanjagudang () {
+    $this->laporan('laporanbelanja');
+  }
 }

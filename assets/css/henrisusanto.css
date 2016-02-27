@@ -41,13 +41,30 @@ table.pemotongan tr td:nth-child(5),
 table.pemotongan tr td:nth-child(6),
 table.pemotongan tr td:nth-child(7),
 table.pemotongan tr td:nth-child(8),
+table.laporanbelanja tr td:nth-child(6),
+table.laporanbelanja tr td:nth-child(7),
+table.laporanbelanja tr td:nth-child(8),
 table.pengeluarangudang tr td:last-child,
 table.produksigudang tr td:last-child,
 table.outlet tr td:last-child,
-table.belanja tr td:last-child{
+table.belanja tr td:last-child,
+
+table.laporanbelanja tfoot tr th:nth-child(6),
+table.laporanbelanja tfoot tr th:nth-child(7),
+table.laporanbelanja tfoot tr th:nth-child(8)
+{
   text-align: right;
 }
 
 select {
   height: 28px;
+}
+
+tfoot {
+  background: #e8e8e8 repeat-x left top;
+  border-top: 1px solid #cccccc;
+}
+
+tfoot tr th {
+  padding: 8px 16px;
 }

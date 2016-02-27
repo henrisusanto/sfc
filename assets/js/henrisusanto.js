@@ -34,10 +34,14 @@ $(function () {
   var current_url = window.location.href
   if (current_url.indexOf('form') > -1) current_url = current_url.replace('form','')
   if (current_url.slice(-1) == '/') current_url = current_url.substring(0, current_url.length - 1)
+  current_url = current_url.split('?')[0]
   $('a[href="'+current_url+'"]').parent().parent().removeClass('closed')
-  var pagetitle = $('a[href="'+current_url+'"]').text()
+  var pagetitle = $('a[href="'+current_url+'"]').length > 1 ? 
+    $('a[href="'+current_url+'"]').eq(0).text() : 
+    $('a[href="'+current_url+'"]').text()
   if ($('#pagetitle').length > 0) $('#pagetitle').html(pagetitle)
   // if (window.location.href.indexOf('sirkulasi') > -1) {
     // $('.table-panel a').remove()
   // }
+  if ($('.mws-collapsible').length > 0 && window.location.href.indexOf('?') < 0) $('.mws-collapsible').addClass('mws-collapsed')
 })

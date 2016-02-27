@@ -90,6 +90,19 @@ Class my_controller extends CI_Controller {
     ));
 
     $data['menu'][] = array('LAPORAN', '#', 'stats', array(
+      array('1. BELANJA GUDANG', 'laporan/belanjagudang'),
+      array('2. GRAFIK BAHAN', 'laporan/grafikbahan'),
+      array('3. PENJUALAN GLOBAL', 'laporan/penjualanglobal'),
+      array('4. PESANAN', 'laporan/pesanan'),
+      array('5. HARIAN GUDANG', 'laporan/hariangudang'),
+      array('6. STOK GUDANG', 'laporan/stokgudang'),
+      array('7. BAWAAN OUTLET', 'laporan/bawaanoutlet'),
+      array('8. PENJUALAN OUTLET', 'laporan/penjualanoutlet'),
+      array('9. STOK OUTLET', 'laporan/stokoutlet'),
+      array('10. SETORAN', 'laporan/setoran'),
+      array('11. PENGELUARAN', 'laporan/pengeluaran'),
+      array('12. HUTANG', 'laporan/hutang'),
+      array('13. LABA RUGI', 'laporan/labarugi'),
     ));
 
     $this->load->view('header', $data);
@@ -149,6 +162,25 @@ Class my_controller extends CI_Controller {
     }
 
     $this->loadview($tpl, $data);
+  }
+
+  function laporan ($model) {
+    $data = array('entity' => $model);
+    $this->load->model($model);
+    
+    $get = $this->input->get();
+    $get = !$get ? array() : $get;
+    foreach ($get as $field => $value) 
+      if ($value == 0) unset($get[$field]);
+      else $get[$field] = urldecode($value);
+    $data['form'] = $get;
+    $data['thead'] = $this->$model->getTHead();
+    $data['tbody'] = $this->$model->find($get);
+    $data['tfoot'] = $this->$model->getTFoot($data['tbody']);
+    $data['filters'] = $this->$model->getFilters();
+    $data['tablePage'] = $this->$model->getTablePage(null);
+
+    $this->loadview('laporan', $data);
   }
 
 }
