@@ -61,36 +61,42 @@ Class prosesproduksi extends my_model {
     $transaksi = 'PRODUKSI';
 
     foreach ($data['produksiproduk']['produk'] as $index => $produk) {
+      if ($produk == 0) continue;
       $qty = $data['produksiproduk']['qty'][$index];
-      $fkey = $this->db->insert('produksiproduk', array(
+      $this->db->insert('produksiproduk', array(
         'produksi' => $produksiId,
         'produk' => $produk,
         'qty' => $qty
       ));
+      $fkey = $this->db->insert_id();
       if ($outlet==0) $this->sirkulasiProduk ($waktu, $produk, 'MASUK', $transaksi, $fkey, $qty);
       else $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', $transaksi, $fkey, $qty, $outlet);
     }
 
     foreach ($data['produksibarang']['barang'] as $index => $barang) {
+      if ($barang == 0) continue;
       $qty = $data['produksibarang']['qty'][$index];
-      $fkey = $this->db->insert('produksibarang', array(
+      $this->db->insert('produksibarang', array(
         'produksi' => $produksiId,
         'barang' => $barang,
         'qty' => $qty
       ));
+      $fkey = $this->db->insert_id();
       if ($outlet==0) $this->sirkulasiBarang ($waktu, $barang, 'KELUAR', $transaksi, $fkey, $qty);
       else $this->sirkulasiBarangOutlet ($waktu, $barang, 'KELUAR', $transaksi, $fkey, $qty, $outlet);
     }
 
     foreach ($data['produksiayam']['ayam'] as $index => $ayam) {
+      if ($ayam == 0) continue;
       $pcs = $data['produksiayam']['pcs'][$index];
       $kg = $data['produksiayam']['kg'][$index];
-      $fkey = $this->db->insert('produksiayam', array(
+      $this->db->insert('produksiayam', array(
         'produksi' => $produksiId,
         'ayam' => $ayam,
         'pcs' => $pcs,
         'kg' => $kg
       ));
+      $fkey = $this->db->insert_id();
       if ($outlet==0) $this->sirkulasiAyam ($waktu, $ayam, 'KELUAR', $transaksi, $fkey, $pcs, $kg);
       else $this->sirkulasiAyamOutlet ($waktu, $ayam, 'KELUAR', $transaksi, $fkey, $pcs, $kg, $outlet);
     }

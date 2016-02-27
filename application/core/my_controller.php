@@ -47,16 +47,16 @@ Class my_controller extends CI_Controller {
 
     $data['menu'][] = array('SIRKULASI', '#', 'refresh', array(
       array('KEUANGAN', 'sirkulasi/keuangan'),
-      array('GUDANG', 'sirkulasi/barang'),
+      array('BAHAN GUDANG', 'sirkulasi/barang'),
       array('AYAM MENTAH', 'sirkulasi/ayam'),
-      array('PRODUK', 'sirkulasi/produk'),
+      array('PRODUK GUDANG', 'sirkulasi/produk'),
       array('KEUANGAN OUTLET', 'sirkulasi/cashflowoutlet'),
       array('BAHAN OUTLET', 'sirkulasi/barangoutlet'),
       array('AYAM OUTLET', 'sirkulasi/ayamoutlet'),
       array('PRODUK OUTLET', 'sirkulasi/produkoutlet'),
     ));
 
-    $data['menu'][] = array('TRANSAKSI', '#', 'shopping-cart', array(
+    $data['menu'][] = array('TRANSAKSI GUDANG', '#', 'home', array(
       array('BELANJA GUDANG', 'pengeluaran/belanja'),
       array('BELANJA AYAM', 'pengeluaran/belanjaayam'),
       array('PENGELUARAN LAIN', 'pengeluaran/gudang'),
@@ -69,21 +69,20 @@ Class my_controller extends CI_Controller {
       array('PRODUKSI', 'produksi/proses'),
     ));
 
-    $data['menu'][] = array('OUTLET', '#', 'home-2', array(
+    $data['menu'][] = array('TRANSAKSI OUTLET', '#', 'home-2', array(
       array('BAWAAN OUTLET', 'produksi/bawaan'),
       array('TRANSAKSI ANTAR OUTLET', 'produksi/transaksiinternal'),
       array('SETORAN OUTLET', 'pemasukan/setoran'),
-      array('PENGELUARAN OUTLET', 'pengeluaran/outlet'),
-      array('BARANG OUTLET', 'entitas/barangoutlet'),
-      array('AYAM OUTLET', 'entitas/ayamoutlet'),
-      array('PRODUK OUTLET', 'entitas/produkoutlet'),
     ));
 
     $data['menu'][] = array('MASTER &AMP; STOK', '#', 'key', array(
       array('BARANG GUDANG', 'entitas/baranggudang'),
       array('AYAM MENTAH', 'entitas/ayam'),
       array('PRODUK GUDANG', 'entitas/produk'),
-      array('KOMPOSISI', 'entitas/komposisi'),
+      array('BARANG OUTLET', 'entitas/barangoutlet'),
+      array('AYAM OUTLET', 'entitas/ayamoutlet'),
+      array('PRODUK OUTLET', 'entitas/produkoutlet'),
+      // array('KOMPOSISI', 'entitas/komposisi'),
       array('DAFTAR OUTLET', 'entitas/outlet'),
       array('DATA KARYAWAN', 'entitas/karyawan'),
       array('DATA DISTRIBUTOR', 'entitas/distributor'),

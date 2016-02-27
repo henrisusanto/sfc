@@ -43,6 +43,7 @@ Class belanja extends my_model {
     ));
     $belanja = $this->db->insert_id();
     foreach ($data['belanjadetail']['barang'] as $key => $value) {
+      if ($value == 0) continue;
       $this->db->insert('belanjadetail', array(
         'belanja' => $belanja,
         'distributor' => $data['belanjadetail']['distributor'][$key],

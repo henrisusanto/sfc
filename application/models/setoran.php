@@ -13,8 +13,10 @@ Class setoran extends my_model {
     $this->inputFields = array(
       0 => array('waktu', 'TANGGAL'),
       1 => array('outlet', 'OUTLET'),
+      2 => array('karyawan', 'PENANGGUNG JAWAB'),
     );
     $this->buildRelation($this->inputFields[1][2], 'outlet');
+    $this->buildRelation($this->inputFields[2][2], 'karyawan');
 
     $this->expandables = array();
     $this->expandables[0] = array(
@@ -44,7 +46,7 @@ Class setoran extends my_model {
     $this->buildRelation($this->expandables[2]['fields'][0][2], 'produk');
 
     $this->expandables[3] = array(
-      'label' => 'LAPORAN SISA BAHAN',
+      'label' => 'LAPORAN SISA BAHAN YANG DIKEMBALIKAN KE GUDANG',
       'fields' => array (
         0 => array('setoransisabarang[barang][]', 'BAHAN'),
         1 => array('setoransisabarang[qty][]', 'QTY'),
@@ -52,6 +54,14 @@ Class setoran extends my_model {
     );
     $this->buildRelation($this->expandables[3]['fields'][0][2], 'baranggudang');
 
+    $this->expandables[4] = array(
+      'label' => 'LAPORAN SISA BAHAN DI OUTLET',
+      'fields' => array (
+        0 => array('stockoutlet[barang][]', 'BAHAN'),
+        1 => array('stockoutlet[qty][]', 'QTY'),
+      )
+    );
+    $this->buildRelation($this->expandables[4]['fields'][0][2], 'baranggudang');
   }
 
   function save ($data) {
@@ -60,51 +70,33 @@ Class setoran extends my_model {
     $waktu = $data['waktu'];
     $outlet = $data['outlet'];
     $transaksi = 'SETORAN';
-    $total = 0;
     $prices = array();
+    $pemasukan = 0;
+    $pengeluaran = 0;
+    $produkDihasilkan = array();
+    $bahanTerpakai = array();
 
     // HITUNG TOTAL UANG YANG DISETOR
     foreach ($this->db->get('produk')->result() as $product) 
       $prices[$product->id] = $product->harga;
     foreach ($data['setoranpenjualan']['produk'] as $index => $produk)
-      $total += $prices[$produk] * $data['setoranpenjualan']['qty'][$index];
+      if (isset($prices[$produk])) $pemasukan += $prices[$produk] * $data['setoranpenjualan']['qty'][$index];
     foreach ($data['setoranpengeluaran']['nominal'] as $index => $nominal) 
-      $total -= $nominal;
+      $pengeluaran += $nominal;
 
-    $this->db->insert('setoran', array(
+    $setoranId = parent::save(array(
       'outlet' => $outlet,
       'waktu' => $waktu,
-      'nominal' => $total
+      'nominal' => $pemasukan - $pengeluaran
     ));
-    $setoranId = $this->db->insert_id();
-    $this->sirkulasiKeuangan ('MASUK', 'SETORAN', $total, $setoranId, $waktu);
-
-    // HITUNG HASIL PRODUKSI OUTLET
-    $produksi = array();
-    foreach ($data['setoranpenjualan']['produk'] as $index => $produk)
-      $produksi[$produk] = $data['setoranpenjualan']['qty'][$index];
-    foreach ($data['setoransisaproduk']['produk'] as $index => $produk) {
-      if (!isset($produksi[$produk])) $produksi[$produk] = $data['setoranpenjualan']['qty'][$index];
-      else $produksi[$produk] += $data['setoransisaproduk']['qty'][$index];  
-    }
-    foreach ($produksi as $produk => $qty) {
-      $this->db->insert('produksioutlet', array(
-        'outlet'=> $outlet,
-        'waktu' => $waktu,
-        'produk'=> $produk,
-        'qty' => $qty
-      ));
-      $fkey = $this->db->insert_id();
-      $komposisi = $this->db->get_where('komposisi', array('produk' => $produk))->result();
-      foreach ($komposisi as $k) {
-        if ($k->barang > 0) $this->sirkulasiBarangOutlet ($waktu, $k->barang, 'KELUAR', 'PRODUKSI OUTLET', $fkey, $k->qty * $qty, $outlet);
-        if ($k->ayam > 0) $this->sirkulasiAyamOutlet ($waktu, $k->ayam, 'KELUAR', 'PRODUKSI OUTLET', $fkey, $k->qty * $qty, 0, $outlet);
-      }
-      $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', 'PRODUKSI OUTLET', $fkey, $qty, $outlet);
-    }
+    $this->sirkulasiKeuanganOutlet ('MASUK', 'PENJUALAN', $pemasukan, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuanganOutlet ('KELUAR', 'PENGELUARAN', $pengeluaran, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuanganOutlet ('KELUAR', 'SETORAN', $pemasukan - $pengeluaran, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuangan ('MASUK', 'SETORAN', $pemasukan - $pengeluaran, $setoranId, $waktu);
 
     // penjualan
     foreach ($data['setoranpenjualan']['produk'] as $index => $produk) {
+      if ($produk == 0) continue;
       $qty = $data['setoranpenjualan']['qty'][$index];
       $this->db->insert('setoranpenjualan', array(
         'setoran' => $setoranId,
@@ -113,6 +105,7 @@ Class setoran extends my_model {
       ));
       $fkey = $this->db->insert_id();
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'KELUAR', 'PENJUALAN OUTLET', $fkey, $qty, $outlet);
+      $produkDihasilkan[$produk] = $qty;
     }
 
     // pengeluaran
@@ -125,6 +118,7 @@ Class setoran extends my_model {
 
     // sisa produk
     foreach ($data['setoransisaproduk']['produk'] as $index => $produk) {
+      if ($produk == 0) continue;
       $qty = $data['setoransisaproduk']['qty'][$index];
       $this->db->insert('setoransisaproduk', array(
         'setoran' => $setoranId,
@@ -134,10 +128,18 @@ Class setoran extends my_model {
       $fkey = $this->db->insert_id();
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'KELUAR', 'SETORAN SISA', $fkey, $qty, $outlet);
       $this->sirkulasiProduk ($waktu, $produk, 'MASUK', 'SETORAN SISA', $fkey, $qty);
+      if (isset($produkDihasilkan[$produk])) $produkDihasilkan[$produk] += $qty;
+      else $produkDihasilkan[$produk] = $qty;
     }
+
+    // COLLECT STOCK BARANG DI OUTLET UTK HITUNG PRODUKSI
+    $stockBahanOutlet = array();
+    foreach ($this->db->get_where('barangoutlet', array('outlet' => $outlet))->result() as $barang)
+      $stockBahanOutlet [$barang->barang] = $barang->stock;
 
     // sisa bahan
     foreach ($data['setoransisabarang']['barang'] as $index => $barang) {
+      if ($barang == 0) continue;
       $qty = $data['setoransisabarang']['qty'][$index];
       $this->db->insert('setoransisabarang', array(
         'setoran' => $setoranId,
@@ -147,6 +149,60 @@ Class setoran extends my_model {
       $fkey = $this->db->insert_id();
       $this->sirkulasiBarangOutlet ($waktu, $barang, 'KELUAR', 'SETORAN SISA', $fkey, $qty, $outlet);
       $this->sirkulasiBarang ($waktu, $barang, 'MASUK', 'SETORAN SISA', $fkey, $qty);
+      $bahanTerpakai[$barang] = $stockBahanOutlet[$barang] - $qty;
+    }
+
+    foreach ($data['stockoutlet']['barang'] as $index => $barang) {
+      if ($barang == 0) continue;
+      $qty = $data['stockoutlet']['qty'][$index];
+      $this->db
+        ->where('outlet', $outlet)
+        ->where('barang', $barang)
+        ->set('stock', $qty)
+        ->update('barangoutlet');
+      if (isset($bahanTerpakai[$barang])) $bahanTerpakai[$barang] -= $qty;
+      else $bahanTerpakai[$barang] = $qty;
+    }
+
+    // HITUNG PRODUKSI OUTLET
+    $this->db->insert('produksi', array(
+      'waktu' => $waktu,
+      'karyawan' => $data['karyawan'],
+      'outlet' => $outlet
+    ));
+    $produksiId = $this->db->insert_id();
+
+    // SELURUH AYAM DI OUTLET PASTI HABIS DI PRODUKSI
+    $seluruhAyam = $this->db->get_where('ayamoutlet', array('outlet'=>$outlet))->result();
+    foreach ($seluruhAyam as $ayam) {
+      $this->db->insert('produksiayam', array(
+        'produksi' => $produksiId,
+        'ayam' => $ayam->ayam,
+        'pcs' => $ayam->pcs,
+        'kg' => $ayam->kg
+      ));
+      $fkey = $this->db->insert_id();
+      $this->sirkulasiAyamOutlet ($waktu, $ayam->ayam, 'KELUAR', 'PRODUKSI', $fkey, $ayam->pcs, $ayam->kg, $outlet);
+    }
+
+    foreach ($bahanTerpakai as $barang => $qty) {
+      $this->db->insert('produksibarang', array(
+        'produksi' => $produksiId,
+        'barang' => $barang,
+        'qty' => $qty
+      ));
+      $fkey = $this->db->insert_id();
+      $this->sirkulasiBarangOutlet ($waktu, $barang, 'KELUAR', 'PRODUKSI', $fkey, $qty, $outlet);
+    }
+
+    foreach ($produkDihasilkan as $produk => $qty) {
+      $this->db->insert('produksiproduk', array(
+        'produksi' => $produksiId,
+        'produk' => $produk,
+        'qty' => $qty
+      ));
+      $fkey = $this->db->insert_id();
+      $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', 'PRODUKSI', $fkey, $qty, $outlet);
     }
   }
 

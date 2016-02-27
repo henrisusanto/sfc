@@ -14,4 +14,10 @@ Class outlet extends my_model {
     );
   }
 
+  function find ($where = array()) {
+    $this->db
+      ->select('outlet.*')
+      ->select("CONCAT('Rp ', FORMAT(saldo, 2)) AS saldo", false);
+    return parent::find($where);
+  }
 }

@@ -50,6 +50,7 @@ Class pemotongan extends my_model {
     $hasilkg = 0;
     $atikg = 0;
     foreach ($data['pemotongandetail']['ayam'] as $index => $ayam) {
+      if ($ayam == 0) continue;
       if ($ayam == $atiayam['id']) {
         $atikg += $data['pemotongandetail']['kg'][$index];
       }else {
@@ -72,6 +73,7 @@ Class pemotongan extends my_model {
     $pemotongan_id = $this->db->insert_id();
     $this->sirkulasiAyam ($data['waktu'], $ayamhidup['id'], 'KELUAR', 'PEMOTONGAN', $pemotongan_id, $data['bahanpcs'], $data['bahankg']);
     foreach ($data['pemotongandetail']['ayam'] as $index => $ayam) {
+      if ($ayam == 0) continue;
       $pcs = $data['pemotongandetail']['pcs'][$index];
       $kg = $data['pemotongandetail']['kg'][$index];
       $this->db->insert('pemotongandetail', array (

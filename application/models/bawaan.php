@@ -57,12 +57,10 @@ Class bawaan extends my_model {
     $bawaan_id = $this->db->insert_id();
     if ($modal > 0) {
       $this->sirkulasiKeuangan ('KELUAR', 'BAWAAN', $modal, $bawaan_id, $waktu);
-      $this->db
-        ->where('id', $outlet)
-        ->set("saldo = saldo + " . $modal, false)
-        ->update('outlet'); 
+      $this->sirkulasiKeuanganOutlet ('MASUK', 'BAWAAN', $modal, $bawaan_id, $waktu, $outlet);
     }
     foreach ($data['bawaanbarang']['barang'] as $key => $barang) {
+      if ($barang == 0) continue;
       $qty = $data['bawaanbarang']['qty'][$key];
       $this->db->insert('bawaanbarang', array(
         'bawaan' => $bawaan_id,
@@ -71,10 +69,10 @@ Class bawaan extends my_model {
       ));
       $bbarang_id = $this->db->insert_id();
       $this->sirkulasiBarang ($waktu, $barang, 'KELUAR', 'BAWAAN', $bbarang_id, $qty);
-      // $this->updateStockOutlet ('MASUK', $outlet, 'barangoutlet', $barang, $qty);
       $this->sirkulasiBarangOutlet ($waktu, $barang, 'MASUK', 'BAWAAN', $bbarang_id, $qty, $outlet);
     }
     foreach ($data['bawaanayam']['ayam'] as $index => $ayam) {
+      if ($ayam == 0) continue;
       $pcs = $data['bawaanayam']['pcs'][$index];
       $kg = $data['bawaanayam']['kg'][$index];
       $this->db->insert('bawaanayam', array(
@@ -85,10 +83,10 @@ Class bawaan extends my_model {
       ));
       $bayam_id = $this->db->insert_id();
       $this->sirkulasiAyam ($waktu, $ayam, 'KELUAR', 'BAWAAN', $bayam_id, $pcs, $kg);
-      // $this->updateStockOutlet ('MASUK', $outlet, 'ayamoutlet', $ayam, $pcs, $kg);
       $this->sirkulasiAyamOutlet ($waktu, $ayam, 'MASUK', 'BAWAAN', $bayam_id, $pcs, $kg, $outlet);
     }
     foreach ($data['bawaanproduk']['produk'] as $index => $produk) {
+      if ($produk == 0) continue;
       $qty = $data['bawaanproduk']['qty'][$index];
       $this->db->insert('bawaanproduk', array(
         'bawaan' => $bawaan_id,
@@ -97,7 +95,6 @@ Class bawaan extends my_model {
       ));
       $bproduk_id = $this->db->insert_id();
       $this->sirkulasiProduk ($waktu, $produk, 'KELUAR', 'BAWAAN', $bproduk_id, $qty);
-      // $this->updateStockOutlet ('MASUK', $outlet, 'produkoutlet', $produk, $qty);
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', 'BAWAAN', $bproduk_id, $qty, $outlet);
     }
   }

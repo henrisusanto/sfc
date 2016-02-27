@@ -7,8 +7,8 @@ Class cashflow extends my_model {
     $this->table = 'cashflow';
     $this->thead = array(
       array('waktu','TANGGAL'),
-      array('transaksi','TRANSAKSI'),
       array('type','FLOW'),
+      array('transaksi','TRANSAKSI'),
       array('nominal','CASH'),
       array('saldo','SALDO'),
     );

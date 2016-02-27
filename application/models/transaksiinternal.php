@@ -68,6 +68,7 @@ Class transaksiinternal extends my_model {
     }
 
     foreach ($data['internalbarang']['barang'] as $index => $barang) {
+      if ($barang == 0) continue;
       $qty = $data['internalbarang']['qty'][$index];
       $fkey = $this->db->insert('internalbarang', array(
         'internal' => $internalId,
@@ -79,6 +80,7 @@ Class transaksiinternal extends my_model {
     }
 
     foreach ($data['internalayam']['ayam'] as $index => $ayam) {
+      if ($ayam == 0) continue;
       $pcs = $data['internalayam']['pcs'][$index];
       $kg = $data['internalayam']['kg'][$index];
       $fkey = $this->db->insert('internalayam', array(
@@ -92,6 +94,7 @@ Class transaksiinternal extends my_model {
     }
 
     foreach ($data['internalproduk']['produk'] as $index => $produk) {
+      if ($produk == 0) continue;
       $qty = $data['internalproduk']['qty'][$index];
       $fkey = $this->db->insert('internalproduk', array(
         'internal' => $internalId,

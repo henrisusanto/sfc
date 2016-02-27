@@ -26,8 +26,8 @@ Class cashflowoutlet extends my_model {
       ->select("CONCAT('Rp ', FORMAT(nominal, 2)) AS nominal", false)
       ->select("CONCAT('Rp ', FORMAT(cashflowoutlet.saldo, 2)) AS saldo", false)
       ->select('outlet.nama as outlet')
-      ->join('outlet', 'cashflowoutlet.outlet=outlet.id', 'LEFT')
-      ->order_by('id', 'DESC');
+      ->join('outlet', 'cashflowoutlet.outlet=outlet.id', 'LEFT');
+      // ->order_by('id', 'DESC');
     return parent::find($where);
   }
 }

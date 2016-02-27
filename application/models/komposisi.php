@@ -37,18 +37,22 @@ Class komposisi extends my_model {
   function save ($data) {
     if (isset($data['id'])) die('x');
     $produk = $data['produk'];
-    foreach ($data['komposisiayam']['ayam'] as $index => $ayam) 
+    foreach ($data['komposisiayam']['ayam'] as $index => $ayam) {
+      if ($ayam == 0) continue;
       $this->db->insert('komposisi', array(
         'produk' => $produk,
         'ayam' => $ayam, 
         'qty' => $data['komposisiayam']['qty'][$index]
       ));
-    foreach ($data['komposisibahan']['barang'] as $index => $barang) 
+    }
+    foreach ($data['komposisibahan']['barang'] as $index => $barang) {
+      if ($barang == 0) continue;
       $this->db->insert('komposisi', array(
         'produk' => $produk,
         'barang' => $barang,
         'qty' => $data['komposisibahan']['qty'][$index]
       ));
+    }
   }
 
   function find ($where = array()) {

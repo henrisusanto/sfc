@@ -22,7 +22,7 @@ Class barangoutlet extends my_model {
       ->select('barangoutlet.*')
       ->select('outlet.nama as outlet')
       ->select('baranggudang.nama as barang')
-      ->select("CONCAT(barangoutlet.stock, ' PCs') as stock", false)
+      ->select("CONCAT(barangoutlet.stock, ' ', baranggudang.satuan) as stock", false)
       ->join('outlet','barangoutlet.outlet=outlet.id')
       ->join('baranggudang','barangoutlet.barang=baranggudang.id', 'LEFT');
     return parent::find($where);

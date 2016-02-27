@@ -59,6 +59,7 @@ Class my_model extends CI_Model {
   }
 
   function sirkulasiKeuangan ($type, $transaksi, $nominal, $fkey, $waktu) {
+    if ($nominal <= 0) return true;
     $cashflow = $this->db->get('cashflow')->result();
     $last = end($cashflow);
     $saldo = isset($last->saldo) ? $last->saldo : 0;
@@ -74,6 +75,7 @@ Class my_model extends CI_Model {
   }
 
   function sirkulasiBarang ($waktu, $barang, $type, $transaksi, $fkey, $qty) {
+    if ($qty <= 0) return true;
     $operator = $type == 'MASUK' ? '+' : '-';
     $this->db
       ->where('id', $barang)
@@ -95,6 +97,7 @@ Class my_model extends CI_Model {
   }
 
   function sirkulasiAyam ($waktu, $ayam, $type, $transaksi, $fkey, $pcs, $kg) {
+    if ($pcs <= 0 && $kg <= 0) return true;
     $operator = $type == 'MASUK' ? '+' : '-';
     $this->db
       ->where('id', $ayam)
@@ -120,6 +123,7 @@ Class my_model extends CI_Model {
   }
 
   function sirkulasiProduk ($waktu, $produk, $type, $transaksi, $fkey, $qty) {
+    if ($qty <= 0) return true;
     $operator = $type == 'MASUK' ? '+' : '-';
     $this->db
       ->where('id', $produk)
@@ -141,6 +145,7 @@ Class my_model extends CI_Model {
   }
 
   function sirkulasiKeuanganOutlet ($type, $transaksi, $nominal, $fkey, $waktu, $outlet) {
+    if ($nominal <= 0) return true;
     $cashflow = $this->db->get_where('cashflowoutlet', array('outlet' => $outlet))->result();
     $last = end($cashflow);
     $saldo = isset($last->saldo) ? $last->saldo : 0;
@@ -158,6 +163,7 @@ Class my_model extends CI_Model {
   }
 
   function sirkulasiBarangOutlet ($waktu, $barang, $type, $transaksi, $fkey, $qty, $outlet) {
+    if ($qty <= 0) return true;
     $operator = $type == 'MASUK' ? '+' : '-';
     $barangOutlet = $this->db
       ->where('outlet', $outlet)
@@ -192,6 +198,7 @@ Class my_model extends CI_Model {
   }
 
   function sirkulasiAyamOutlet ($waktu, $ayam, $type, $transaksi, $fkey, $pcs, $kg, $outlet) {
+    if ($pcs <= 0 && $kg <= 0) return true;
     $operator = $type == 'MASUK' ? '+' : '-';
     $ayamoutlet = $this->db
       ->where('outlet', $outlet)
@@ -231,6 +238,7 @@ Class my_model extends CI_Model {
   }
 
   function sirkulasiProdukOutlet ($waktu, $produk, $type, $transaksi, $fkey, $qty, $outlet) {
+    if ($qty <= 0) return true;
     $operator = $type == 'MASUK' ? '+' : '-';
     $produkoutlet = $this->db
       ->where('outlet', $outlet)

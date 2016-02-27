@@ -43,6 +43,7 @@ table.pemotongan tr td:nth-child(7),
 table.pemotongan tr td:nth-child(8),
 table.pengeluarangudang tr td:last-child,
 table.produksigudang tr td:last-child,
+table.outlet tr td:last-child,
 table.belanja tr td:last-child{
   text-align: right;
 }
