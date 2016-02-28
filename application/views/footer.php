@@ -3,7 +3,7 @@
                        
             <!-- Footer -->
             <div id="mws-footer">
-              Copyright Your Website 2012. All Rights Reserved.
+              Copyright Super Fried Chicken 2016. All Rights Reserved.
               <marquee style="color:red">
                 yen arep gawe filter until, ojo lali jam e mbuk set 23:59:00 ** 
                 pasang autonumeric ** 

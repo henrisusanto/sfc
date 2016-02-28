@@ -43,5 +43,30 @@ $(function () {
   // if (window.location.href.indexOf('sirkulasi') > -1) {
     // $('.table-panel a').remove()
   // }
-  if ($('.mws-collapsible').length > 0 && window.location.href.indexOf('?') < 0) $('.mws-collapsible').addClass('mws-collapsed')
+  if ($('.mws-collapsible').length > 0 && window.location.href.indexOf('?') < 0) 
+    $('.mws-collapsible').addClass('mws-collapsed')
+
+  if ($('#mws-line-chart').length > 0)
+    var plot = $.jqplot(
+      'mws-line-chart', 
+      datachart, 
+      {
+        axes:{
+          xaxis:{
+            renderer:$.jqplot.DateAxisRenderer,
+            tickOptions:{formatString:'%#d %b %Y'},
+            tickInterval:'1 day'
+          },
+          yaxis:{
+            min:0,
+            max:datamax
+          }
+        },
+        legend:{
+          show:true,
+          labels:datalegends
+        }
+      }
+    );    
+
 })

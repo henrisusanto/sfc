@@ -24,7 +24,6 @@ Class my_controller extends CI_Controller {
       'plugins/select2/select2.min.css',
       'css/henrisusanto.css',
     );
-    foreach ($css as $c) $data['css'][] = base_url("assets/$c");
 
     $js = array (
       'js/libs/jquery-1.8.3.min.js',
@@ -39,8 +38,15 @@ Class my_controller extends CI_Controller {
       'js/core/mws.js',
       'js/demo/demo.widget.js',
       'js/demo/demo.table.js',
-      'js/henrisusanto.js'
     );
+    if ($viewer == 'chart') {
+      $js [] = 'plugins/flot/jquery.jqplot.js';
+      $js [] = 'plugins/flot/jqplot.dateAxisRenderer.js';
+      $css [] = 'plugins/flot/jquery.jqplot.css';      
+    }
+    $js [] = 'js/henrisusanto.js';
+
+    foreach ($css as $c) $data['css'][] = base_url("assets/$c");
     foreach ($js as $j) $data['js'][] = base_url("assets/$j");
 
     $data['menu'] = array();
@@ -91,7 +97,7 @@ Class my_controller extends CI_Controller {
 
     $data['menu'][] = array('LAPORAN', '#', 'stats', array(
       array('1. BELANJA GUDANG', 'laporan/belanjagudang'),
-      array('2. GRAFIK BAHAN', 'laporan/grafikbahan'),
+      array('2. GRAFIK BELANJA', 'laporan/grafikbahan'),
       array('3. PENJUALAN GLOBAL', 'laporan/penjualanglobal'),
       array('4. PESANAN', 'laporan/pesanan'),
       array('5. HARIAN GUDANG', 'laporan/hariangudang'),
@@ -108,8 +114,7 @@ Class my_controller extends CI_Controller {
     $this->load->view('header', $data);
     $this->load->view('menu', $data);
     if (!is_null($viewer)) {
-      if ($viewer != 'form') $this->load->view($viewer, $data);
-      else {
+      if ($viewer == 'form') {
         $this->load->view('formheader');
         $this->load->view($viewer, $data);
         if (isset($data['expandables']))
@@ -120,6 +125,7 @@ Class my_controller extends CI_Controller {
             ));
         $this->load->view('formfooter');
       }
+      else $this->load->view($viewer, $data);
     }
     
     $this->load->view('footer', $data);

@@ -40,13 +40,7 @@ Class laporanbelanja extends my_model {
   }
 
   function find ($where = array()) {
-    foreach (array ('since', 'until') as $between) {
-      $operator = $between == 'since' ? ' >=' : ' <=';
-      if (isset ($where[$between])) {
-        $where["DATE_FORMAT(`waktu`, '%m/%d/%Y') $operator"] = $where[$between];
-        unset($where[$between]);
-      }      
-    }
+    $this->translateDateRange($where);
     $this->db
       ->select('belanja.*')
       ->select('baranggudang.satuan as satuan', false)

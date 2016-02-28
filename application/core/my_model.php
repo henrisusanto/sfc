@@ -40,6 +40,17 @@ Class my_model extends CI_Model {
     return $goto;  
   }
 
+  function translateDateRange (&$where, $field = 'waktu') {
+    if (empty($where)) return;
+    foreach (array ('since', 'until') as $between) {
+      $operator = $between == 'since' ? ' >=' : ' <=';
+      if (isset ($where[$between])) {
+        $where["DATE_FORMAT(`$field`, '%m/%d/%Y') $operator"] = $where[$between];
+        unset($where[$between]);
+      }      
+    }
+  }
+
   function find ($where = array()) {
     $this->db->where($where);
     return $this->db->get($this->table)->result();
