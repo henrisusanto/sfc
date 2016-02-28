@@ -53,7 +53,7 @@
                     </div>
                     <div class="mws-panel-body">
                       <div class="mws-panel-content">
-                        <div id="mws-line-chart" style="width:100%; height:300px; "></div>
+                        <div id="mws-line-chart" style="width:100%; height:400px; "></div>
                       </div>
                     </div>
                 </div>

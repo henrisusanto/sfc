@@ -6,6 +6,10 @@ class laporan extends my_controller {
     $this->laporan('laporanbelanja');
   }
 
+  function penjualanglobal () {
+    $this->laporan('laporanpenjualan');
+  }
+
   function grafikbahan () {
     $model = 'grafikbahan';
     $data = array('entity' => $model);

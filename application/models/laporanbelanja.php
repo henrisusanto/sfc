@@ -14,14 +14,8 @@ Class laporanbelanja extends my_model {
       array('qty','JUMLAH'),
       array('total','HARGA TOTAL'),
     );
-    $this->filters = array(
-      0 => array('barang', 'FILTER BAHAN'),
-      1 => array('since', 'SEJAK TANGGAL'),
-      2 => array('until', 'HINGGA TANGGAL'),
-    );
-    $this->buildRelation($this->filters[0][2], 'baranggudang', array(), 'TAMPILKAN SEMUA');
-    $this->tfoot = array();
-    foreach ($this->thead as $index => $th) $this->tfoot[$index] = '';
+    $this->buildFilters('baranggudang', 'barang');
+    $this->buildTFoot();
   }
 
   function getTFoot ($tbody) {

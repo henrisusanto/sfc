@@ -24,8 +24,24 @@ Class my_model extends CI_Model {
     return $this->inputFields;
   }
 
+  function buildFilters ($table, $fkey = null) {
+    $fkey = is_null($fkey) ? $table : $fkey;
+    $this->filters = array(
+      0 => array($fkey, 'FILTER BAHAN'),
+      1 => array('since', 'SEJAK TANGGAL'),
+      2 => array('until', 'HINGGA TANGGAL'),
+    );
+    $this->buildRelation($this->filters[0][2], $table, array(), 'TAMPILKAN SEMUA');
+  }
+
   function getFilters () {
     return $this->filters;
+  }
+
+  function buildTFoot () {
+    $this->tfoot = array();
+    foreach ($this->thead as $index => $th) $this->tfoot[$index] = '';
+    $this->tfoot[] = '';
   }
 
   function getExpandables () {
