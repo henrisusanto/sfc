@@ -2,7 +2,7 @@
 
 class laporan extends my_controller {
 
-  function belanjagudang () {
+  function belanja () {
     $this->laporan('laporanbelanja');
   }
 
@@ -10,8 +10,37 @@ class laporan extends my_controller {
     $this->laporan('laporanpenjualan');
   }
 
-  function grafikbahan () {
-    $model = 'grafikbahan';
+  function sirkulasibahan () {
+    $this->laporan('laporansirkulasibahan');
+  }
+
+  function stockgudang () {
+    $this->laporan('laporanstockgudang');
+  }
+
+  function bawaan () {
+    $model = 'laporanbawaan';
+    $data = array('entity' => $model);
+    $this->load->model($model);
+    
+    $get = $this->input->get();
+    $get = !$get ? array() : $get;
+    foreach ($get as $field => $value) 
+      if ($value == 0) unset($get[$field]);
+      else $get[$field] = urldecode($value);
+    $data['form'] = $get;
+    $data['thead'] = $this->$model->getTHead();
+    $data['tbody'] = $this->$model->find($get);
+    $data['tfoot'] = $this->$model->getTFoot($data['tbody']);
+    $data['filters'] = $this->$model->getFilters();
+    $data['tablePage'] = $this->$model->getTablePage(null);
+    $data['titles'] = array('BAWAAN RECEH', 'BAWAAN AYAM', 'BAWAAN BAHAN', 'BAWAAN PRODUK');
+
+    $this->loadview('laporanmulti', $data);
+  }
+
+  function belanjagrafik () {
+    $model = 'laporangrafikbelanja';
     $data = array('entity' => $model);
     $this->load->model($model);    
 

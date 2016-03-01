@@ -1,6 +1,6 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-Class grafikbahan extends my_model {
+Class laporangrafikbelanja extends my_model {
 
   function __construct () {
     parent::__construct();

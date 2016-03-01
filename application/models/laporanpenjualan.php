@@ -36,6 +36,7 @@ Class laporanpenjualan extends my_model {
     $this->translateDateRange($where);
     $this->db
       ->select('setoran.*')
+      ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->select('produk.nama as produk', FALSE)
       ->select('produk.type as type', FALSE)
       // ->select('outlet.nama as outlet', FALSE)

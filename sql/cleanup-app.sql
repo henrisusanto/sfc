@@ -1,4 +1,7 @@
 TRUNCATE TABLE `bawaan`;
+TRUNCATE TABLE `bawaanayam`;
+TRUNCATE TABLE `bawaanbarang`;
+TRUNCATE TABLE `bawaanproduk`;
 TRUNCATE TABLE `belanja`;
 TRUNCATE TABLE `belanjaayam`;
 TRUNCATE TABLE `belanjadetail`;

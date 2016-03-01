@@ -5,7 +5,7 @@
             <div id="mws-footer">
               Copyright Super Fried Chicken 2016. All Rights Reserved.
               <marquee style="color:red">
-                yen arep gawe filter until, ojo lali jam e mbuk set 23:59:00 ** 
+                form kosong keinsert db ** 
                 pasang autonumeric ** 
                 recheck update-delete each menu
               </marquee>
