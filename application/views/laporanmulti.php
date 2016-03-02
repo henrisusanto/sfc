@@ -1,3 +1,4 @@
+              <?php if (!empty($filters)): ?>
               <div class="mws-panel grid_8 mws-collapsible">
                 <div class="mws-panel-header">
                   <span id="">FILTER LAPORAN</span>
@@ -47,6 +48,7 @@
                   </form>
                 </div>
               </div>
+              <?php endif ?>
 
               <?php for ($i=0; $i<count($thead); $i++): ?>
               <div class="mws-panel grid_8">
@@ -65,7 +67,7 @@
                             </thead>
                             <tbody>
                               <?php $no = 0; foreach ($tbody[$i] as $tb): $no++ ?>
-                                <tr onclick="window.location='<?= current_url() . "/form/$tb->id" ?>'">
+                                <tr>
                                   <td><?= $no ?></td>
                                   <?php foreach ($thead[$i] as $th): ?>
                                   <td><?= $tb->$th[0] ?></td>

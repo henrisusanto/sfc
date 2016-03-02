@@ -7,8 +7,8 @@ Class ayam extends my_model {
     $this->table = 'ayam';
     $this->thead = array(
       array('nama','JENIS AYAM'),
-      array('pcs','STOK PCS (EKOR)'),
-      array('kg','STOK KG')
+      // array('pcs','STOK PCS (EKOR)'),
+      // array('kg','STOK KG')
     );
     $this->inputFields = array(
       0 => array('nama', 'JENIS AYAM'),

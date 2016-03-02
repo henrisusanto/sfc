@@ -7,7 +7,8 @@
               <marquee style="color:red">
                 form kosong keinsert db ** 
                 pasang autonumeric ** 
-                recheck update-delete each menu
+                recheck update-delete each menu **
+                hapus menu-menu yang tergantikan oleh laporan
               </marquee>
               <br/>
             </div>

@@ -9,7 +9,7 @@ Class produk extends my_model {
       array('nama','NAMA PRODUK'),
       array('type','JENIS PRODUK'),
       array('harga','HARGA JUAL'),
-      array('stock','STOK GUDANG')
+      // array('stock','STOK GUDANG')
     );
     $this->inputFields = array(
       0 => array('nama', 'NAMA PRODUK'),

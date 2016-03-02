@@ -63,7 +63,7 @@ Class my_controller extends CI_Controller {
     ));
 
     $data['menu'][] = array('TRANSAKSI GUDANG', '#', 'home', array(
-      array('BELANJA GUDANG', 'pengeluaran/belanja'),
+      array('BELANJA BAHAN', 'pengeluaran/belanja'),
       array('BELANJA AYAM', 'pengeluaran/belanjaayam'),
       array('PENGELUARAN LAIN', 'pengeluaran/gudang'),
       array('PEMASUKAN LAIN', 'pemasukan/gudang'),
@@ -82,12 +82,12 @@ Class my_controller extends CI_Controller {
     ));
 
     $data['menu'][] = array('MASTER DATA', '#', 'key', array(
-      array('BARANG GUDANG', 'entitas/baranggudang'),
+      array('BAHAN', 'entitas/baranggudang'),
       array('AYAM MENTAH', 'entitas/ayam'),
-      array('PRODUK GUDANG', 'entitas/produk'),
-      array('BARANG OUTLET', 'entitas/barangoutlet'),
-      array('AYAM OUTLET', 'entitas/ayamoutlet'),
-      array('PRODUK OUTLET', 'entitas/produkoutlet'),
+      array('PRODUK', 'entitas/produk'),
+      // array('BARANG OUTLET', 'entitas/barangoutlet'),
+      // array('AYAM OUTLET', 'entitas/ayamoutlet'),
+      // array('PRODUK OUTLET', 'entitas/produkoutlet'),
       // array('KOMPOSISI', 'entitas/komposisi'),
       array('DAFTAR OUTLET', 'entitas/outlet'),
       array('DATA KARYAWAN', 'entitas/karyawan'),
@@ -104,7 +104,7 @@ Class my_controller extends CI_Controller {
       array('6. STOK GUDANG', 'laporan/stockgudang'),
       array('7. BAWAAN OUTLET', 'laporan/bawaan'),
       array('8. PENJUALAN OUTLET', 'laporan/penjualanoutlet'),
-      array('9. STOK OUTLET', 'laporan/stokoutlet'),
+      array('9. STOK OUTLET', 'laporan/stockoutlet'),
       array('10. SETORAN', 'laporan/setoran'),
       array('11. PENGELUARAN', 'laporan/pengeluaran'),
       array('12. HUTANG', 'laporan/hutang'),

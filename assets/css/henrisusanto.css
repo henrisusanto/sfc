@@ -6,7 +6,6 @@
   text-align: center;
 }
 
-table.baranggudang tr td:last-child,
 table.ayam tr td:nth-child(3),
 table.ayam tr td:nth-child(4),
 table.baranggudang tr td:nth-child(4),
@@ -52,20 +51,32 @@ table.laporanpenjualan tr td:nth-child(7),
 table.laporanbelanja tr td:nth-child(6),
 table.laporanbelanja tr td:nth-child(7),
 table.laporanbelanja tr td:nth-child(8),
+table.laporanpenjualanoutlet tr td:nth-child(5),
+table.laporanpenjualanoutlet tr td:nth-child(6),
+table.laporanpenjualanoutlet tr td:nth-child(7),
 table.pengeluarangudang tr td:last-child,
 table.produksigudang tr td:last-child,
 table.outlet tr td:last-child,
 table.belanja tr td:last-child,
-table.laporanstockgudang tr td:last-child,
+table.laporanstockgudang0 tr td:last-child,
+table.laporanstockgudang2 tr td:last-child,
+table.laporanstockgudang1 tr td:nth-child(3),
+table.laporanstockgudang1 tr td:nth-child(4),
 table.laporanbawaan0 tr td:last-child,
 table.laporanbawaan3 tr td:last-child,
 table.laporanbawaan2 tr td:last-child,
+table.laporanstockoutlet0 tr td:last-child,
+table.laporanstockoutlet2 tr td:last-child,
+table.laporanstockoutlet1 tr td:nth-child(4),
+table.laporanstockoutlet1 tr td:nth-child(5),
+table.laporanpengeluaran tr td:last-child,
 
 table.laporanbawaan1 tfoot tr th:nth-child(5),
 table.laporanbawaan1 tfoot tr th:nth-child(6),
 table.laporanbawaan0 tfoot tr th:last-child,
 table.laporanbawaan2 tfoot tr th:last-child,
 table.laporanbawaan3 tfoot tr th:last-child,
+table.laporanpengeluaran tfoot tr th:last-child,
 table.laporansirkulasibahan tfoot tr th:nth-child(5),
 table.laporansirkulasibahan tfoot tr th:nth-child(6),
 table.laporansirkulasibahan tfoot tr th:nth-child(7),
@@ -74,7 +85,9 @@ table.laporanpenjualan tfoot tr th:nth-child(6),
 table.laporanpenjualan tfoot tr th:nth-child(7),
 table.laporanbelanja tfoot tr th:nth-child(6),
 table.laporanbelanja tfoot tr th:nth-child(7),
-table.laporanbelanja tfoot tr th:nth-child(8)
+table.laporanbelanja tfoot tr th:nth-child(8),
+table.laporanpenjualanoutlet tfoot tr th:nth-child(6),
+table.laporanpenjualanoutlet tfoot tr th:nth-child(7)
 
 {
   text-align: right;

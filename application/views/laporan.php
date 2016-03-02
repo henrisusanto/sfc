@@ -64,7 +64,7 @@
                             </thead>
                             <tbody>
                               <?php $no = 0; foreach ($tbody as $tb): $no++ ?>
-                                <tr onclick="window.location='<?= current_url() . "/form/$tb->id" ?>'">
+                                <tr>
                                   <td><?= $no ?></td>
                                   <?php foreach ($thead as $th): ?>
                                   <td><?= $tb->$th[0] ?></td>
