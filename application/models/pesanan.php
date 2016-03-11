@@ -8,67 +8,110 @@ Class pesanan extends my_model {
     $this->thead = array(
       array('waktu','TANGGAL'),
       array('outlet','OUTLET'),
-      array('nama','PENANGGUNG JAWAB'),
-      array('total','TOTAL'),
+      array('customer','CUSTOMER'),
+      array('total','TOTAL PESANAN'),
       array('dibayar','TELAH DIBAYAR'),
-      array('kekurangan','KEKURANGAN')
     );
     $this->inputFields = array(
       0 => array('waktu', 'TANGGAL'),
       1 => array('outlet', 'OUTLET'),
-      2 => array('karyawan', 'PENANGGUNG JAWAB'),
+      2 => array('customer', 'NAMA CUSTOMER'),
     );
 
     $this->buildRelation($this->inputFields[1][2], 'outlet');
-    $this->buildRelation($this->inputFields[2][2], 'karyawan');
 
     $this->expandables = array();
     $this->expandables[0] = array(
-      'label' => 'DAFTAR PRODUK PESANAN',
+      'label' => 'DAFTAR PRODUK YANG DIPESAN',
       'fields' => array (
-        0 => array('pesanandetail[produk][]', 'NAMA PRODUK'),
-        1 => array('pesanandetail[qty][]', 'JUMLAH'),
+        0 => array('pesananproduk[produk][]', 'NAMA PRODUK'),
+        1 => array('pesananproduk[qty][]', 'JUMLAH'),
       )
     );
-
     $this->buildRelation($this->expandables[0]['fields'][0][2], 'produk');
+
+    $this->expandables[1] = array(
+      'label' => 'DAFTAR BAHAN YANG DIGUNAKAN',
+      'fields' => array (
+        0 => array('pesananbarang[barang][]', 'NAMA BAHAN'),
+        1 => array('pesananbarang[qty][]', 'JUMLAH'),
+      )
+    );
+    $this->buildRelation($this->expandables[1]['fields'][0][2], 'baranggudang');
+
+    $this->expandables[2] = array(
+      'label' => 'DAFTAR AYAM YANG DIPAKAI',
+      'fields' => array (
+        0 => array('pesananayam[ayam][]', 'AYAM'),
+        1 => array('pesananayam[pcs][]', 'JUMLAH'),
+        2 => array('pesananayam[kg][]', 'BERAT'),
+      )
+    );
+    $this->buildRelation($this->expandables[2]['fields'][0][2], 'ayam', array('nama <>' => 'AYAM HIDUP'));
   }
 
   function save ($data) {
     if (isset($data['id'])) die('durung tak pikir');
     $total = 0;
-    foreach ($data['pesanandetail']['total'] as $hargatotal) $total += $hargatotal;
+    $waktu = $data['waktu'];
+    $transaksi = 'PESANAN';
+    $produks = array();
+    foreach ($this->db->get('produk')->result() as $p) $produks[$p->id] = $p->harga;
+    foreach ($data['pesananproduk']['produk'] as $pesan)  $total += $produks[$pesan];
     $this->db->insert('pesanan', array(
-      'waktu' => $data['waktu'],
-      'karyawan' => $data['karyawan'],
+      'waktu' => $waktu,
+      'outlet' => $data['outlet'],
+      'customer' => $data['customer'],
       'total' => $total
     ));
-    $pesanan = $this->db->insert_id();
-    foreach ($data['pesanandetail']['barang'] as $key => $value) {
-      if ($value == 0) continue;
-      $this->db->insert('pesanandetail', array(
-        'pesanan' => $pesanan,
-        'distributor' => $data['pesanandetail']['distributor'][$key],
-        'barang' => $data['pesanandetail']['barang'][$key],
-        'qty' => $data['pesanandetail']['qty'][$key],
-        'hargasatuan' => $data['pesanandetail']['total'][$key] / $data['pesanandetail']['qty'][$key],
-        'total' => $data['pesanandetail']['total'][$key],
+    $pid = $this->db->insert_id();
+
+    foreach ($data['pesananproduk']['produk'] as $index => $produk) {
+      $qty = $data['pesananproduk']['qty'][$index];
+      $this->db->insert('pesananproduk', array(
+        'pesanan' => $pid,
+        'produk' => $produk,
+        'qty' => $qty
       ));
-      $id = $this->db->insert_id();
-      $this->sirkulasiBarang ($data['waktu'], $data['pesanandetail']['barang'][$key], 'MASUK', 'pesanan', $id, $data['pesanandetail']['qty'][$key]);
+      $fkey = $this->db->insert_id();
+      $this->sirkulasiProduk ($waktu, $produk, 'MASUK', $transaksi, $fkey, $qty);
+      $this->sirkulasiProduk ($waktu, $produk, 'KELUAR', $transaksi, $fkey, $qty);
     }
-    $this->sirkulasiKeuangan ('KELUAR', 'pesanan', $total, $pesanan, $data['waktu']);
+
+    foreach ($data['pesananbarang']['barang'] as $index => $barang) {
+      $qty = $data['pesananbarang']['qty'][$index];
+      $this->db->insert('pesananbarang', array(
+        'pesanan' => $pid,
+        'barang' => $barang,
+        'qty' => $qty
+      ));
+      $this->sirkulasiBarang ($waktu, $barang, 'KELUAR', $transaksi, $this->db->insert_id(), $qty);
+    }
+
+    foreach ($data['pesananayam']['ayam'] as $index => $ayam) {
+      $pcs = $data['pesananayam']['pcs'][$index];
+      $kg = $data['pesananayam']['kg'][$index];
+      $this->db->insert('pesananayam', array(
+        'pesanan' => $pid,
+        'ayam' => $ayam,
+        'pcs' => $pcs,
+        'kg' => $kg
+      ));
+      $this->sirkulasiAyam ($waktu, $ayam, 'KELUAR', $transaksi, $this->db->insert_id(), $pcs, $kg);
+    }
   }
 
 
   function find ($where = array()) {
     $this->db
-      ->select('pesanan.*, karyawan.nama as karyawan, outlet.nama as outlet', false)
+      ->select('pesanan.*, outlet.nama as outlet', false)
       ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->select("CONCAT('Rp ', FORMAT(total, 2)) AS total", false)
-      ->select("SUM(pesanan.bayar)")
-      ->join('karyawan', 'karyawan.id = pesanan.karyawan', 'LEFT')
+      ->select("CONCAT('Rp ', FORMAT(IFNULL (SUM(pesananbayar.nominal), 0), 2)) as dibayar", false)
+      ->join('pesananbayar', 'pesananbayar.pesanan = pesanan.id', 'LEFT')
       ->join('outlet', 'outlet.id = pesanan.outlet', 'LEFT');
-    return parent::find($where);
+    return 
+    parent::find($where);
+    // die($this->db->last_query());
   }
 }

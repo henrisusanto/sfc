@@ -17,5 +17,9 @@ class produksi extends my_controller {
   public function transaksiinternal ($tpl='table', $id=null) {
     $this->crud ('transaksiinternal', $tpl, $id);
   }
+
+  public function pesanan ($tpl='table', $id=null) {
+    $this->crud ('pesanan', $tpl, $id);
+  }
   
 }
