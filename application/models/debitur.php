@@ -7,7 +7,6 @@ Class debitur extends my_model {
     $this->table = 'debitur';
     $this->thead = array(
       array('nama','NAMA DEBITUR'),
-      array('saldo','SISA PINJAMAN')
     );
     $this->inputFields = array(
       0 => array('nama', 'NAMA DEBITUR')
@@ -15,9 +14,6 @@ Class debitur extends my_model {
   }
 
   function find ($where = array()) {
-    $this->db
-      ->select('*')
-      ->select("CONCAT('Rp ', FORMAT(saldo, 2)) AS saldo", false);
     return parent::find($where);
   }
 }

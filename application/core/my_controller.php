@@ -78,6 +78,7 @@ Class my_controller extends CI_Controller {
     $data['menu'][] = array('TRANSAKSI OUTLET', '#', 'home-2', array(
       array('BAWAAN OUTLET', 'produksi/bawaan'),
       array('TRANSAKSI ANTAR OUTLET', 'produksi/transaksiinternal'),
+      array('BUAT PESANAN', 'produksi/pesanan'),
       array('SETORAN OUTLET', 'pemasukan/setoran'),
     ));
 

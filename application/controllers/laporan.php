@@ -14,8 +14,16 @@ class laporan extends my_controller {
     $this->laporan('laporansirkulasibahan');
   }
 
+  function labarugi () {
+    $this->laporan('laporanlabarugi');
+  }
+
   function pengeluaran () {
     $this->laporan('laporanpengeluaran');
+  }
+
+  function hutang () {
+    $this->laporan('laporanhutang');
   }
 
   function stockgudang () {
@@ -81,6 +89,27 @@ class laporan extends my_controller {
     $data['filters'] = $this->$model->getFilters();
     $data['tablePage'] = $this->$model->getTablePage(null);
     $data['titles'] = array('BAWAAN RECEH', 'BAWAAN AYAM', 'BAWAAN BAHAN', 'BAWAAN PRODUK');
+
+    $this->loadview('laporanmulti', $data);
+  }
+
+  function setoran () {
+    $model = 'laporansetoran';
+    $data = array('entity' => $model);
+    $this->load->model($model);
+    
+    $get = $this->input->get();
+    $get = !$get ? array() : $get;
+    foreach ($get as $field => $value) 
+      if ($value == 0) unset($get[$field]);
+      else $get[$field] = urldecode($value);
+    $data['form'] = $get;
+    $data['thead'] = $this->$model->getTHead();
+    $data['tbody'] = $this->$model->find($get);
+    $data['tfoot'] = $this->$model->getTFoot($data['tbody']);
+    $data['filters'] = $this->$model->getFilters();
+    $data['tablePage'] = $this->$model->getTablePage(null);
+    $data['titles'] = array('SETORAN', 'PENGEMBALIAN PRODUK', 'PENGEMBALIAN BAHAN');
 
     $this->loadview('laporanmulti', $data);
   }
