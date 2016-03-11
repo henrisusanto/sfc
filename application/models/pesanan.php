@@ -105,7 +105,7 @@ Class pesanan extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('pesanan.*, outlet.nama as outlet', false)
-      ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
+      ->select("DATE_FORMAT(pesanan.waktu,'%d %b %Y %T') AS waktu", false)
       ->select("CONCAT('Rp ', FORMAT(total, 2)) AS total", false)
       ->select("CONCAT('Rp ', FORMAT(IFNULL (SUM(pesananbayar.nominal), 0), 2)) as dibayar", false)
       ->join('pesananbayar', 'pesananbayar.pesanan = pesanan.id', 'LEFT')

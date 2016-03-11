@@ -62,6 +62,17 @@ Class setoran extends my_model {
       )
     );
     $this->buildRelation($this->expandables[4]['fields'][0][2], 'baranggudang');
+
+    $this->expandables[5] = array(
+      'label' => 'LAPORAN PEMBAYARAN PESANAN',
+      'fields' => array (
+        0 => array('pesanan[id][]', 'PESANAN'),
+        1 => array('pesanan[nominal][]', 'JUMLAH'),
+      )
+    );
+    $this->expandables[5]['fields'][0][2][0] = '';
+    foreach ($this->db->get_where('pesanan', array('lunas' => 0))->result() as $pesanan)
+      $this->expandables[5]['fields'][0][2][$pesanan->id] = $pesanan->customer;
   }
 
   function save ($data) {
@@ -203,6 +214,25 @@ Class setoran extends my_model {
       ));
       $fkey = $this->db->insert_id();
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', 'PRODUKSI', $fkey, $qty, $outlet);
+    }
+
+    foreach ($data['pesanan']['id'] as $index => $pesanan) {
+      $nominal = $data['pesanan']['nominal'][$index];
+      $this->db->insert('pesananbayar', array(
+        'pesanan' => $pesanan,
+        'nominal' => $nominal,
+        'waktu' => $waktu,
+        'outlet' => $outlet
+      ));
+      $fkey = $this->db->insert_id();
+      
+      $master = $this->db->get_where('pesanan', array('id' => $pesanan))->row_array();
+      $total = $master['total'];
+      foreach ($this->db->get_where('pesananbayar', array ('pesanan' => $pesanan))->result() as $bayar)
+        $total -= $bayar->nominal;
+      
+      if ($total <= 0) $this->db->where('id', $pesanan)->set('lunas', 1)->update('pesanan');
+      $this->sirkulasiKeuangan ('MASUK', 'PESANAN', $nominal, $fkey, $waktu);
     }
   }
 
