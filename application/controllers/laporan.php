@@ -26,6 +26,10 @@ class laporan extends my_controller {
     $this->laporan('laporanhutang');
   }
 
+  function pesanan () {
+    $this->laporan('laporanpesanan');
+  }
+
   function stockgudang () {
     $model = 'laporanstockgudang';
     $data = array('entity' => $model);

@@ -36,6 +36,12 @@ TRUNCATE TABLE `internalayam`;
 TRUNCATE TABLE `internalbarang`;
 TRUNCATE TABLE `internalproduk`;
 TRUNCATE TABLE `cashflowoutlet`;
+TRUNCATE TABLE `pesanan`;
+TRUNCATE TABLE `pesananproduk`;
+TRUNCATE TABLE `pesananbarang`;
+TRUNCATE TABLE `pesananayam`;
+TRUNCATE TABLE `pesananbayar`;
+
 UPDATE `produk` SET stock = 0;
 UPDATE `ayam` SET pcs = 0, kg = 0;
 UPDATE `baranggudang` SET stock = 0;

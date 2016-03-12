@@ -24,10 +24,11 @@ Class my_model extends CI_Model {
     return $this->inputFields;
   }
 
-  function buildFilters ($table, $fkey = null) {
+  function buildFilters ($table, $fkey = null, $label = null) {
     $fkey = is_null($fkey) ? $table : $fkey;
+    $label = is_null($label) ? $fkey : $label;
     $this->filters = array(
-      0 => array($fkey, 'FILTER BAHAN'),
+      0 => array($fkey, strtoupper("FILTER $label")),
       1 => array('since', 'SEJAK TANGGAL'),
       2 => array('until', 'HINGGA TANGGAL'),
     );

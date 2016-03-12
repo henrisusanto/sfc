@@ -74,6 +74,10 @@ table.laporanhutang tr td:last-child,
 table.laporanlabarugi tr td:nth-child(4),
 table.laporanlabarugi tr td:nth-child(5),
 table.laporanlabarugi tr td:nth-child(6),
+table.pesanan tr td:nth-child(5),
+table.pesanan tr td:nth-child(6),
+table.laporanpesanan tr td:nth-child(5),
+table.laporanpesanan tr td:nth-child(6),
 
 table.laporanlabarugi tfoot tr th:nth-child(4),
 table.laporanlabarugi tfoot tr th:nth-child(5),
@@ -96,7 +100,9 @@ table.laporanbelanja tfoot tr th:nth-child(6),
 table.laporanbelanja tfoot tr th:nth-child(7),
 table.laporanbelanja tfoot tr th:nth-child(8),
 table.laporanpenjualanoutlet tfoot tr th:nth-child(6),
-table.laporanpenjualanoutlet tfoot tr th:nth-child(7)
+table.laporanpenjualanoutlet tfoot tr th:nth-child(7),
+table.laporanpesanan tfoot tr th:nth-child(5),
+table.laporanpesanan tfoot tr th:nth-child(6)
 
 {
   text-align: right;

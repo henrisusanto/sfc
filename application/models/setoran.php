@@ -94,6 +94,7 @@ Class setoran extends my_model {
       if (isset($prices[$produk])) $pemasukan += $prices[$produk] * $data['setoranpenjualan']['qty'][$index];
     foreach ($data['setoranpengeluaran']['nominal'] as $index => $nominal) 
       $pengeluaran += $nominal;
+    foreach ($data['pesanan']['nominal'] as $pesanan) $pemasukan += $pesanan;
 
     $setoranId = parent::save(array(
       'outlet' => $outlet,
@@ -219,10 +220,9 @@ Class setoran extends my_model {
     foreach ($data['pesanan']['id'] as $index => $pesanan) {
       $nominal = $data['pesanan']['nominal'][$index];
       $this->db->insert('pesananbayar', array(
+        'setoran' => $setoranId,
         'pesanan' => $pesanan,
         'nominal' => $nominal,
-        'waktu' => $waktu,
-        'outlet' => $outlet
       ));
       $fkey = $this->db->insert_id();
       
@@ -241,7 +241,7 @@ Class setoran extends my_model {
       ->select('setoran.*, outlet.nama as outlet')
       ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->select("CONCAT('Rp ', FORMAT(nominal, 2)) AS nominal", false)
-      ->join('outlet', 'outlet.id = setoran.outlet');
+      ->join('outlet', 'outlet.id = setoran.outlet', 'LEFT');
     return parent::find($where);
   }
 }

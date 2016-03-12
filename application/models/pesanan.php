@@ -57,7 +57,9 @@ Class pesanan extends my_model {
     $transaksi = 'PESANAN';
     $produks = array();
     foreach ($this->db->get('produk')->result() as $p) $produks[$p->id] = $p->harga;
-    foreach ($data['pesananproduk']['produk'] as $pesan)  $total += $produks[$pesan];
+    foreach ($data['pesananproduk']['produk'] as $index => $produk)  
+      $total += $produks[$produk] * $data['pesananproduk']['qty'][$index];
+
     $this->db->insert('pesanan', array(
       'waktu' => $waktu,
       'outlet' => $data['outlet'],
@@ -107,9 +109,10 @@ Class pesanan extends my_model {
       ->select('pesanan.*, outlet.nama as outlet', false)
       ->select("DATE_FORMAT(pesanan.waktu,'%d %b %Y %T') AS waktu", false)
       ->select("CONCAT('Rp ', FORMAT(total, 2)) AS total", false)
-      ->select("CONCAT('Rp ', FORMAT(IFNULL (SUM(pesananbayar.nominal), 0), 2)) as dibayar", false)
+      ->select("CONCAT('Rp ', FORMAT(SUM(pesananbayar.nominal), 2)) as dibayar", false)
       ->join('pesananbayar', 'pesananbayar.pesanan = pesanan.id', 'LEFT')
-      ->join('outlet', 'outlet.id = pesanan.outlet', 'LEFT');
+      ->join('outlet', 'outlet.id = pesanan.outlet', 'LEFT')
+      ->group_by('pesanan.id');
     return 
     parent::find($where);
     // die($this->db->last_query());
