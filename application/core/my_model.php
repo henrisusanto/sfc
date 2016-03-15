@@ -8,6 +8,12 @@ Class my_model extends CI_Model {
     date_default_timezone_set('Asia/Jakarta');
   }
 
+  function getSubForm ($id) {
+    return in_array($this->table . 'detail', $this->db->list_tables()) ?
+      $this->db->get_where($this->table . 'detail', array($this->table => $id))->result():
+      array();
+  }
+
   function toRp ($int) {
     return 'Rp. ' . number_format( $int, 0 , '' , '.' ) . ',00';
   }

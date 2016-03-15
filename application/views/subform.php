@@ -12,6 +12,8 @@
                                 <div class="mws-form-cols">
                                   <?php foreach ($subfields as $sub): 
                                     $field = str_replace('[]', '', $sub[0]);
+                                    $field = explode('[', $field);
+                                    $field = str_replace(']', '', $field[1]);
                                     $name = str_replace('[]', "[$brg->id]", $sub[0]);
                                   ?>
                                     <div class="mws-form-col-2-8">

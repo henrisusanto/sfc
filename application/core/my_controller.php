@@ -166,6 +166,7 @@ Class my_controller extends CI_Controller {
 
     if (!is_null($id)) {
       $data['form'] = $this->$model->findOne($id);
+      $data['subform'] = $this->$model->getSubForm($id);
     }
 
     $this->loadview($tpl, $data);
