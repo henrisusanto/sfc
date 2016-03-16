@@ -7,7 +7,7 @@
                     </div>
                     <div class="mws-panel-body no-padding">
 
-                        <?php if (isset($subform)): foreach ($subform as $brg) : ?>
+                        <?php if (!empty($subform)): foreach ($subform as $brg) : ?>
                             <div class="mws-form-row">
                                 <div class="mws-form-cols">
                                   <?php foreach ($subfields as $sub): 

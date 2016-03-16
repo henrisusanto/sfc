@@ -8,12 +8,6 @@ Class my_model extends CI_Model {
     date_default_timezone_set('Asia/Jakarta');
   }
 
-  function getSubForm ($id) {
-    return in_array($this->table . 'detail', $this->db->list_tables()) ?
-      $this->db->get_where($this->table . 'detail', array($this->table => $id))->result():
-      array();
-  }
-
   function toRp ($int) {
     return 'Rp. ' . number_format( $int, 0 , '' , '.' ) . ',00';
   }
@@ -51,8 +45,20 @@ Class my_model extends CI_Model {
     $this->tfoot[] = '';
   }
 
-  function getExpandables () {
-    return isset($this->expandables) ? $this->expandables: array();
+  function getExpandables ($id) {
+    if (!isset($this->expandables)) return array();
+    foreach ($this->expandables as &$exp) $exp['subform'] = array();
+    if (is_null($id)) return $this->expandables;
+    else if (count ($this->expandables == 1) && in_array($this->table . 'detail', $this->db->list_tables()))
+      $this->expandables[0]['subform'] = $this->db->get_where($this->table . 'detail', array($this->table => $id))->result();
+    else {
+      foreach ($this->expandables as &$exp) {
+        $table = explode('[', $exp['fields'][0][0]);
+        $table = reset($table);
+        $exp['subform'] = $this->db->get_where($table, array($this->table => $id))->result();
+      }
+    }
+    return $this->expandables;
   }
 
   function getTablePage ($id) {

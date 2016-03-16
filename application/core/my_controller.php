@@ -121,6 +121,7 @@ Class my_controller extends CI_Controller {
         if (isset($data['expandables']))
           for ($i=0; $i< count ($data['expandables']); $i++) 
             $this->load->view('subform', array(
+              'subform' => $data['expandables'][$i]['subform'],
               'label' => $data['expandables'][$i]['label'],
               'subfields' => $data['expandables'][$i]['fields'],
             ));
@@ -142,7 +143,7 @@ Class my_controller extends CI_Controller {
       $data['tbody'] = $this->$model->find();
     } else if ($tpl == 'form') {
       $data['fields'] = $this->$model->getInputFields();
-      $data['expandables'] = $this->$model->getExpandables();
+      $data['expandables'] = $this->$model->getExpandables($id);
     }
     $data['tablePage'] = $this->$model->getTablePage($id);
 
@@ -166,7 +167,6 @@ Class my_controller extends CI_Controller {
 
     if (!is_null($id)) {
       $data['form'] = $this->$model->findOne($id);
-      $data['subform'] = $this->$model->getSubForm($id);
     }
 
     $this->loadview($tpl, $data);
