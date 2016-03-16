@@ -100,6 +100,12 @@ Class my_model extends CI_Model {
   }
 
   function delete ($id) {
+    if (isset($this->expandables))
+      foreach ($this->expandables as &$exp) {
+        $table = explode('[', $exp['fields'][0][0]);
+        $table = reset($table);
+        $this->db->where($this->table, $id)->delete($table);
+      }
     return $this->db->where('id', $id)->delete($this->table);
   }
 
