@@ -33,14 +33,16 @@ Class belanja extends my_model {
   }
 
   function save ($data) {
-    if (isset($data['id'])) die('durung tak pikir');
+    if (isset($data['id'])) $this->delete($data['id']);
     $total = 0;
     foreach ($data['belanjadetail']['total'] as $hargatotal) $total += $hargatotal;
-    $this->db->insert('belanja', array(
+    $databelanja = array(
       'waktu' => $data['waktu'],
       'karyawan' => $data['karyawan'],
       'total' => $total
-    ));
+    );
+    if (isset($data['id'])) $databelanja['id'] = $data['id'];
+    $this->db->insert('belanja', $databelanja);
     $belanja = $this->db->insert_id();
     foreach ($data['belanjadetail']['barang'] as $key => $value) {
       if ($value == 0) continue;
@@ -58,6 +60,14 @@ Class belanja extends my_model {
     $this->sirkulasiKeuangan ('KELUAR', 'BELANJA', $total, $belanja, $data['waktu']);
   }
 
+  function delete ($id) {
+    $waktu = date('Y-m-d H:i:s',time());
+    $previous = $this->findOne($id);
+    $this->sirkulasiKeuangan('MASUK', 'PEMBATALAN BELANJA', $previous['total'], $id, $waktu);
+    foreach ($this->db->get_where('belanjadetail', array ('belanja' => $id))->result() as $brg)
+      $this->sirkulasiBarang ($waktu, $brg->barang, 'KELUAR', 'PEMBATALAN BELANJA', $brg->id, $brg->qty);
+    return parent::delete ($id);
+  }
 
   function find ($where = array()) {
     $this->db
