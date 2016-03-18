@@ -27,10 +27,10 @@ Class belanjaayam extends my_model {
   }
 
   function save ($data) {
-    if (isset($data['id'])) die('durung tak pikir');
+    if (isset($data['id'])) $this->delete ($data['id']);
     $ayam = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
     if (!isset($ayam['id'])) die('AYAM HIDUP tidak ditemukan dalam tabel AYAM');
-    $this->db->insert('belanjaayam', array(
+    $belanjaayam = array(
       'waktu' => $data['waktu'],
       'karyawan' => $data['karyawan'],
       'distributor' => $data['distributor'],
@@ -38,10 +38,21 @@ Class belanjaayam extends my_model {
       'ekor' => $data['ekor'],
       'kg' => $data['kg'],
       'total' => $data['total'],
-    ));
+    );
+    if (isset($data['id'])) $belanjaayam['id'] = $data['id'];
+    $this->db->insert('belanjaayam', $belanjaayam);
     $fkey = $this->db->insert_id();
     $this->sirkulasiAyam ($data['waktu'], $ayam['id'], 'MASUK', 'BELANJA AYAM', $fkey, $data['ekor'], $data['kg']);
     $this->sirkulasiKeuangan ('KELUAR', 'BELANJA AYAM', $data['total'], $fkey, $data['waktu']);
+  }
+
+  function delete ($id) {
+    $waktu = date('Y-m-d H:i:s',time());
+    $ayam = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
+    $belanjaayam = $this->findOne ($id);
+    $this->sirkulasiAyam ($waktu, $ayam['id'], 'KELUAR', 'PEMBATALAN BELANJA AYAM', $id, $belanjaayam['ekor'], $belanjaayam['kg']);
+    $this->sirkulasiKeuangan ('MASUK', 'PEMBATALAN BELANJA AYAM', $belanjaayam['total'], $id, $waktu);
+    return parent::delete($id);
   }
 
   function find ($where = array()) {
