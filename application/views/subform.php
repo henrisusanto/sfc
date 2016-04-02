@@ -8,7 +8,7 @@
                     <div class="mws-panel-body no-padding">
 
                         <?php if (!empty($subform)): foreach ($subform as $brg) : ?>
-                            <div class="mws-form-row">
+                            <div class="mws-form-row expandable-form expandable-form-edit">
                                 <div class="mws-form-cols">
                                   <?php foreach ($subfields as $sub): 
                                     $field = str_replace('[]', '', $sub[0]);

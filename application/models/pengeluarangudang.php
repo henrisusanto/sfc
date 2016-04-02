@@ -28,14 +28,16 @@ Class pengeluarangudang extends my_model {
   }
 
   function save ($data) {
-    if (isset($data['id'])) die('rung tak pikir');
+    if (isset($data['id'])) $this->delete($data['id']);
     $total = 0;
     foreach ($data['pengeluarandetail']['nominal'] as $nominal) $total += $nominal;
-    $this->db->insert('pengeluaran', array(
+    $record = array(
       'waktu' => $data['waktu'],
       'karyawan' => $data['karyawan'],
       'total' => $total,
-    ));
+    );
+    if (isset($data['id'])) $record['id'] = $data['id'];
+    $this->db->insert('pengeluaran', $record);
     $pengeluaran_id = $this->db->insert_id();
     
     foreach ($data['pengeluarandetail']['item'] as $index => $pd) {
@@ -47,6 +49,11 @@ Class pengeluarangudang extends my_model {
     }
 
     $this->sirkulasiKeuangan ('KELUAR', 'PENGELUARAN', $total, $pengeluaran_id, $data['waktu']);
+  }
+
+  function delete ($id) {
+    $record = $this->findOne ($id);
+    $this->sirkulasiKeuangan ('MASUK', 'PEMBATALAN PENGELUARAN', $record['total'], $id, date ('Y-m-d H:i:s', time()));
   }
 
   function find ($where = array()) {
