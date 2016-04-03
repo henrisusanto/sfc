@@ -13,6 +13,7 @@
                       <span id="pagetitle"></span>
                     </div>
                     <div class="mws-panel-body no-padding">
+                        <?php include APPPATH . '/views/message.php'; ?>
                         <table class="mws-datatable-fn mws-table <?= $entity ?>">
                             <thead>
                                 <tr>

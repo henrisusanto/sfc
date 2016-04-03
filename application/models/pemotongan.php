@@ -39,12 +39,10 @@ Class pemotongan extends my_model {
   }
 
   function save ($data) {
+    if (!$this->is_ok()) return true;
     if (isset($data['id'])) die('durung tak pikir');
-
     $ayamhidup = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
-    if (!isset($ayamhidup['id'])) die('AYAM HIDUP not found');
     $atiayam = $this->db->get_where('ayam', array('nama' => 'ATI'))->row_array();
-    if (!isset($atiayam['id'])) die('ATI not found');
 
     $hasilpcs = 0;
     $hasilkg = 0;
@@ -98,5 +96,14 @@ Class pemotongan extends my_model {
       ->select("CONCAT (susud, ' KG') as susud", false)
       ;
     return parent::find($where);
+  }
+
+  function is_ok () {
+    $syarat = $this->db
+      ->or_where('nama', 'ATI')
+      ->or_where('nama', 'AYAM HIDUP')
+      ->get('ayam')
+      ->result();
+    return count ($syarat) == 2;
   }
 }

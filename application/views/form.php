@@ -3,6 +3,7 @@
                       <span id="pagetitle"></span>
                     </div>
                     <div class="mws-panel-body no-padding">
+                      <?php include APPPATH . '/views/message.php'; ?>
                         <?php foreach ($fields as $field): ?>
                           <?php if (isset($field[2])): ?>
                             <div class="mws-form-inline">
