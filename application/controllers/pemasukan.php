@@ -9,4 +9,8 @@ class pemasukan extends my_controller {
   public function setoran ($tpl='table', $id=null) {
     $this->crud ('setoran', $tpl, $id);
   }
+
+  public function peminjaman ($tpl='table', $id=null) {
+    $this->crud ('peminjaman', $tpl, $id);
+  }
 }

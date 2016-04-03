@@ -51,23 +51,14 @@ Class my_controller extends CI_Controller {
 
     $data['menu'] = array();
 
-    $data['menu'][] = array('SIRKULASI', '#', 'refresh', array(
-      // array('KEUANGAN', 'sirkulasi/keuangan'),
-      // array('BAHAN GUDANG', 'sirkulasi/barang'),
-      array('AYAM MENTAH', 'sirkulasi/ayam'),
-      array('PRODUK GUDANG', 'sirkulasi/produk'),
-      array('KEUANGAN OUTLET', 'sirkulasi/cashflowoutlet'),
-      array('BAHAN OUTLET', 'sirkulasi/barangoutlet'),
-      array('AYAM OUTLET', 'sirkulasi/ayamoutlet'),
-      array('PRODUK OUTLET', 'sirkulasi/produkoutlet'),
-    ));
-
-    $data['menu'][] = array('TRANSAKSI GUDANG', '#', 'home', array(
+    $data['menu'][] = array('GUDANG', '#', 'home', array(
       array('BELANJA BAHAN', 'pengeluaran/belanja'),
       array('BELANJA AYAM', 'pengeluaran/belanjaayam'),
       array('PENGELUARAN LAIN', 'pengeluaran/gudang'),
       array('PEMASUKAN LAIN', 'pemasukan/gudang'),
-      array('PINJAMAN', 'sirkulasi/pinjaman'),
+      // array('PINJAMAN', 'sirkulasi/pinjaman'),
+      array('PEMINJAMAN', 'pemasukan/peminjaman'),
+      array('PENGEMBALIAN PINJAMAN', 'pengeluaran/pengembalianpinjaman'),
     ));
 
     $data['menu'][] = array('PRODUKSI', '#', 'cogs', array(
@@ -76,7 +67,7 @@ Class my_controller extends CI_Controller {
       array('BUAT PESANAN', 'produksi/pesanan'),
     ));
 
-    $data['menu'][] = array('TRANSAKSI OUTLET', '#', 'home-2', array(
+    $data['menu'][] = array('OUTLET', '#', 'home-2', array(
       array('BAWAAN OUTLET', 'produksi/bawaan'),
       array('TRANSAKSI ANTAR OUTLET', 'produksi/transaksiinternal'),
       array('SETORAN OUTLET', 'pemasukan/setoran'),
@@ -110,6 +101,17 @@ Class my_controller extends CI_Controller {
       array('11. PENGELUARAN', 'laporan/pengeluaran'),
       array('12. HUTANG', 'laporan/hutang'),
       array('13. LABA RUGI', 'laporan/labarugi'),
+    ));
+
+    $data['menu'][] = array('SIRKULASI', '#', 'refresh', array(
+      // array('KEUANGAN', 'sirkulasi/keuangan'),
+      // array('BAHAN GUDANG', 'sirkulasi/barang'),
+      array('AYAM MENTAH', 'sirkulasi/ayam'),
+      array('PRODUK GUDANG', 'sirkulasi/produk'),
+      array('KEUANGAN OUTLET', 'sirkulasi/cashflowoutlet'),
+      array('BAHAN OUTLET', 'sirkulasi/barangoutlet'),
+      array('AYAM OUTLET', 'sirkulasi/ayamoutlet'),
+      array('PRODUK OUTLET', 'sirkulasi/produkoutlet'),
     ));
 
     $this->load->view('header', $data);

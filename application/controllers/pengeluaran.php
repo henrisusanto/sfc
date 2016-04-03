@@ -14,4 +14,7 @@ class pengeluaran extends my_controller {
     $this->crud ('belanja', $tpl, $id);
   }
 
+  public function pengembalianpinjaman ($tpl='table', $id=null) {
+    $this->crud ('pengembalianpinjaman', $tpl, $id);
+  }
 }
