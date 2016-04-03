@@ -126,6 +126,7 @@ Class my_model extends CI_Model {
       'waktu' => $waktu,
       'type' => $type,
       'transaksi' => $transaksi,
+      'fkey' => $fkey,
       'nominal' => $nominal,
       'saldo' => $saldo,
     );

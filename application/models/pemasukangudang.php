@@ -22,10 +22,18 @@ Class pemasukangudang extends my_model {
   }
 
   function save ($data) {
-    if (isset($data['id'])) die('x');
-    $fkey = isset($data['id']) ? $data['id'] : null;
-    $this->sirkulasiKeuangan ('MASUK', 'PEMASUKAN', $data['nominal'], $fkey, $data['waktu']);
-    return parent::save ($data);
+    if (isset($data['id'])) {
+      $record = $this->findOne($data['id']);
+      $this->sirkulasiKeuangan ('KELUAR', 'PEMASUKAN BATAL', $record['nominal'], $data['id'], date ('Y-m-d H:i:s', time()));
+    } 
+    parent::save ($data);
+    $this->sirkulasiKeuangan ('MASUK', 'PEMASUKAN', $data['nominal'], $this->db->insert_id(), $data['waktu']);
+  }
+
+  function delete ($id) {
+    $record = $this->findOne($id);
+    $this->sirkulasiKeuangan ('KELUAR', 'PEMASUKAN BATAL', $record['nominal'], $id, date ('Y-m-d H:i:s', time()));
+    return parent::delete ($id);
   }
 
   function find ($where = array()) {

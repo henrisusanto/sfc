@@ -54,6 +54,7 @@ Class pengeluarangudang extends my_model {
   function delete ($id) {
     $record = $this->findOne ($id);
     $this->sirkulasiKeuangan ('MASUK', 'PEMBATALAN PENGELUARAN', $record['total'], $id, date ('Y-m-d H:i:s', time()));
+    return parent::delete($id);
   }
 
   function find ($where = array()) {
