@@ -115,6 +115,5 @@ Class pesanan extends my_model {
       ->group_by('pesanan.id');
     return 
     parent::find($where);
-    // die($this->db->last_query());
   }
 }

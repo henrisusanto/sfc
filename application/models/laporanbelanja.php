@@ -51,6 +51,5 @@ Class laporanbelanja extends my_model {
       ->join('distributor', 'distributor.id = belanjadetail.distributor', 'LEFT');
     return 
     parent::find($where);
-    // die($this->db->last_query());
   }
 }

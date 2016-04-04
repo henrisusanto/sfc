@@ -54,6 +54,5 @@ Class laporanpengeluaran extends my_model {
     }
     return 
     $this->db->get()->result();
-    // die($this->db->last_query());
   }
 }

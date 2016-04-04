@@ -27,9 +27,9 @@ Class belanjaayam extends my_model {
   }
 
   function save ($data) {
+    if (!$this->is_ok()) return true;
     if (isset($data['id'])) $this->delete ($data['id']);
     $ayam = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
-    if (!isset($ayam['id'])) die('AYAM HIDUP tidak ditemukan dalam tabel AYAM');
     $belanjaayam = array(
       'waktu' => $data['waktu'],
       'karyawan' => $data['karyawan'],
@@ -66,5 +66,13 @@ Class belanjaayam extends my_model {
       ->join('karyawan', 'karyawan.id = belanjaayam.karyawan' ,'LEFT')
       ->join('distributor', 'distributor.id = belanjaayam.distributor', 'LEFT');
     return parent::find($where);
+  }
+
+  function is_ok () {
+    $syarat = $this->db
+      ->where('nama', 'AYAM HIDUP')
+      ->get('ayam')
+      ->result();
+    return count ($syarat) == 1;
   }
 }

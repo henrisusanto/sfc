@@ -47,6 +47,5 @@ Class laporanlabarugi extends my_model {
       ->where($where);
     return 
     parent::find($where);
-    // die($this->db->last_query());
   }
 }

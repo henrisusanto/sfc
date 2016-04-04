@@ -49,6 +49,5 @@ Class laporansirkulasibahan extends my_model {
       ->order_by('id', 'DESC');
     return 
     parent::find($where);
-    // die($this->db->last_query());
   }
 }
