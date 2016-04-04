@@ -40,7 +40,7 @@ Class pemotongan extends my_model {
 
   function save ($data) {
     if (!$this->is_ok()) return true;
-    if (isset($data['id'])) die('durung tak pikir');
+    if (isset($data['id'])) $this->delete($data['id']);
     $ayamhidup = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
     $atiayam = $this->db->get_where('ayam', array('nama' => 'ATI'))->row_array();
 
@@ -85,6 +85,24 @@ Class pemotongan extends my_model {
     }
   }
 
+  function delete ($pemotongan_id) {
+    if (!$this->is_ok()) return true;
+    $waktu = date('Y-m-d H:i:s',time());
+    $ayamhidup = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
+    $data = $this->findOne($pemotongan_id);
+    $this->sirkulasiAyam (
+      $waktu, 
+      $ayamhidup['id'], 
+      'MASUK', 'PEMOTONGAN BATAL', 
+      $pemotongan_id, 
+      $data['bahanpcs'], 
+      $data['bahankg']
+    );
+    foreach ($this->db->get_where('pemotongandetail', array('pemotongan' => $pemotongan_id))->result() as $detail)
+      $this->sirkulasiAyam ($waktu, $detail->ayam, 'KELUAR', 'PEMOTONGAN BATAL', $detail->id, $detail->pcs, $detail->kg);
+    return parent::delete($pemotongan_id);
+  }
+
   function find ($where = array()) {
     $this->db
       ->select('pemotongan.*')
@@ -92,9 +110,9 @@ Class pemotongan extends my_model {
       ->select("CONCAT(bahanpcs, ' EKOR / ', bahankg, ' KG') as ayamhidup", false)
       ->select("CONCAT(hasilpcs, ' PCs / ', hasilkg, ' KG') as hasilpemotongan", false)
       ->select("CONCAT (kepasar, ' KG') as kepasar", false)
-      ->select("CONCAT (avg, ' KG') as avg", false)
-      ->select("CONCAT (susud, ' KG') as susud", false)
-      ;
+      ->select("CONCAT (ROUND (avg, 1), ' KG') as avg", false)
+      ->select('ROUND (per5kg, 1) as per5kg', false)
+      ->select("CONCAT (susud, ' KG') as susud", false);
     return parent::find($where);
   }
 

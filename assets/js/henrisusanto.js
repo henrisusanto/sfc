@@ -39,6 +39,7 @@ $(function () {
   var pagetitle = $('a[href="'+current_url+'"]').length > 1 ? 
     $('a[href="'+current_url+'"]').eq(0).text() : 
     $('a[href="'+current_url+'"]').text()
+  if (window.location.href.indexOf('sirkulasi') > -1) pagetitle = 'SIRKULASI ' + pagetitle
   if ($('#pagetitle').length > 0) $('#pagetitle').html(pagetitle)
   // if (window.location.href.indexOf('sirkulasi') > -1) {
     // $('.table-panel a').remove()

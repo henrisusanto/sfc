@@ -8,12 +8,10 @@ Class sirkulasiayam extends my_model {
     $this->thead = array(
       array('waktu','TANGGAL'),
       array('ayam','JENIS'),
-      array('type','FLOW'),
       array('transaksi','TRANSAKSI'),
-      array('pcs','PCs'),
-      array('kg','KG'),
-      array('stockpcs','STOK PCs'),
-      array('stockkg','STOK KG')
+      array('masuk','MASUK'),
+      array('keluar','KELUAR'),
+      array('stock','STOK GUDANG'),
     );
     $this->inputFields = null;
   }
@@ -21,12 +19,13 @@ Class sirkulasiayam extends my_model {
   function find ($where = array()) {
     $this->db
       ->select('sirkulasiayam.*')
-      ->select('ayam.nama as ayam')
       ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
-      ->select("CONCAT(sirkulasiayam.pcs, ' PCs') as pcs", false)
-      ->select("CONCAT(sirkulasiayam.kg, ' KG') as kg", false)
-      ->select("CONCAT (stockpcs, ' PCs') AS stockpcs", false)
-      ->select("CONCAT (stockkg, ' KG') AS stockkg", false)
+      ->select('ayam.nama as ayam')
+
+      ->select("IF(type = 'MASUK', CONCAT (sirkulasiayam.pcs, ' PCS / ', sirkulasiayam.kg, ' KG'), '') as masuk", false)
+      ->select("IF(type = 'KELUAR', CONCAT (sirkulasiayam.pcs, ' PCS / ', sirkulasiayam.kg, ' KG'), '') as keluar", false)
+      ->select("CONCAT (stockpcs, ' PCS / ', stockkg, ' KG') as stock", false)
+
       ->join('ayam', 'ayam.id=sirkulasiayam.ayam')
       ->order_by('id', 'DESC');
     return parent::find($where);
