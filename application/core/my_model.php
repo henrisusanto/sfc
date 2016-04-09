@@ -163,6 +163,7 @@ Class my_model extends CI_Model {
       ->set('pcs', "pcs $operator " . $pcs, false)
       ->set('kg', "kg $operator " . $kg, false)
       ->update('ayam');
+    // die ($this->db->last_query());
     $sir = $this->db->get_where('sirkulasiayam', array('ayam' => $ayam))->result();
     $last = end($sir);
     $stockpcs = isset($last->stockpcs) ? $last->stockpcs : 0;

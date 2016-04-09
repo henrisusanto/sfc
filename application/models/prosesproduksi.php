@@ -50,14 +50,19 @@ Class prosesproduksi extends my_model {
   }
 
   function save ($data) {
-    if (isset($data['id'])) die('durung tak pikir');
     $waktu = $data['waktu'];
     $outlet = $data['outlet'];
-    $produksiId = parent::save(array(
+    $record = array(
       'waktu' => $waktu,
       'karyawan' => $data['karyawan'],
       'outlet' => $outlet
-    ));
+    );
+    if (isset($data['id'])) {
+      $this->delete($data['id']);
+      $record['id'] = $data['id'];
+    }
+    $this->db->insert($this->table, $record);
+    $produksiId = $this->db->insert_id();
     $transaksi = 'PRODUKSI';
 
     foreach ($data['produksiproduk']['produk'] as $index => $produk) {
@@ -102,6 +107,35 @@ Class prosesproduksi extends my_model {
     }
   }
 
+  function delete ($id) {
+    $transaksi = 'PRODUKSI BATAL';
+    $data = $this->findOne($id);
+    $waktu = date('Y-m-d H:i:s',time());
+    $pkey = array('produksi' => $id);
+    $outlet = $data['outlet'];
+    $produk = $this->db->get_where('produksiproduk', $pkey)->result();
+    $barang = $this->db->get_where('produksibarang', $pkey)->result();
+    $ayam   = $this->db->get_where('produksiayam', $pkey)->result();
+
+    foreach ($produk as $p)
+      $sirprod = strlen($outlet) > 0 ?
+        $this->sirkulasiProduk ($waktu, $p->produk, 'KELUAR', $transaksi, $p->id, $p->qty):
+        $this->sirkulasiProdukOutlet ($waktu, $p->produk, 'KELUAR', $transaksi, $p->id, $p->qty, $outlet);
+
+    foreach ($barang as $b)
+      $sirbar = strlen($outlet) > 0 ?
+        $this->sirkulasiBarang ($waktu, $b->barang, 'MASUK', $transaksi, $b->id, $b->qty):
+        $this->sirkulasiBarangOutlet ($waktu, $b->barang, 'MASUK', $transaksi, $b->id, $b->qty, $outlet);
+
+    foreach ($ayam as $a)
+      $siryam = strlen($outlet) > 0 ?
+        $this->sirkulasiAyam ($waktu, $a->ayam, 'MASUK', $transaksi, $a->id, $a->pcs, $a->kg):
+        $this->sirkulasiAyamOutlet ($waktu, $a->ayam, 'MASUK', $transaksi, $a->id, $a->pcs, $a->kg, $outlet);
+
+    foreach (array('produksiproduk', 'produksibarang', 'produksiayam') as $child)
+      $this->db->where('produksi', $id)->delete($child);
+    return $this->db->where('id', $id)->delete('produksi');
+  }
 
   function find ($where = array()) {
     $this->db

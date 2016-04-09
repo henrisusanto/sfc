@@ -46,7 +46,8 @@ Class laporansirkulasibahan extends my_model {
       ->select("CONCAT (IF (sirkulasibarang.type = 'KELUAR', qty, 0), ' ', baranggudang.satuan) AS keluar", false)
       ->select("CONCAT (sirkulasibarang.stock, ' ', baranggudang.satuan) AS stock", false)
       ->join('baranggudang', 'baranggudang.id=sirkulasibarang.barang')
-      ->order_by('id', 'DESC');
+      // ->order_by('id', 'DESC')
+      ;
     return 
     parent::find($where);
   }

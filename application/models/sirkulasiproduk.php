@@ -24,7 +24,7 @@ Class sirkulasiproduk extends my_model {
       ->select("CONCAT (sirkulasiproduk.stock, ' PCs') AS stock", false)
       ->select("DATE_FORMAT(waktu,'%d %b %Y %T') AS waktu", false)
       ->join('produk', 'produk.id=sirkulasiproduk.produk')
-      ->order_by('id', 'DESC');
+      ->order_by('id', 'ASC');
     return parent::find($where);
   }
 }

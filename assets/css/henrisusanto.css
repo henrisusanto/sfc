@@ -120,7 +120,7 @@ tfoot tr th {
   padding: 8px 16px;
 }
 
-#mws-container > div.container > form > div:nth-child(2) > div.mws-panel-body.no-padding > 
+#mws-container > div.container > form > div > div.mws-panel-body.no-padding > 
 div.expandable-form-edit > div > div:last-child > div > input {
   width: 60%
 }
