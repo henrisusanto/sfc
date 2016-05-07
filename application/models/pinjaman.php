@@ -25,19 +25,26 @@ Class pinjaman extends my_model {
   }
 
   function save ($data) {
-    if (isset($data['id'])) die('durung tak pikir');
-    $this->sirkulasiKeuangan (
-      $data['type'] == 'PEMINJAMAN' ? 'MASUK' : 'KELUAR', 
-      $data['type'] == 'PEMINJAMAN' ? 'PEMINJAMAN' : 'PENGEMBALIAN PINJAMAN',
-      $data['nominal'], 
-      isset($data['id']) ? $data['id'] : null, 
-      $data['waktu']
+    $record = array (
+      'waktu' => $data['waktu'],
+      'type' => 'PINJAMAN',
+      'debitur' => $data['debitur'],
+      'nominal' => $data['nominal']
     );
-    $this->db->where('id', $data['debitur']);
-    if ($data['type'] == 'PEMINJAMAN') $this->db->set('saldo', 'saldo+'.$data['nominal'],false);
-    else if ($data['type'] == 'PENGEMBALIAN') $this->db->set('saldo', 'saldo-'.$data['nominal'],false);
-    $this->db->update('debitur');
-    return parent::save($data);
+    if (isset($data['id'])) {
+      $record['id'] = $data['id'];
+      $this->delete($data['id']);
+    }
+    $fkey = parent::save($record);
+    $this->sirkulasiKeuangan ('MASUK', 'PEMINJAMAN', $data['nominal'], $fkey, $data['waktu']);
+    $this->db->where('id', $data['debitur'])->set('saldo', 'saldo+'.$data['nominal'], false)->update('debitur');
+    return $fkey;
+  }
+
+  function delete ($id) {
+    $record = parent::findOne($id);
+    $this->sirkulasiKeuangan ('KELUAR', 'PEMINJAMAN BATAL', $record['nominal'], $id, date('Y-m-d H:i:s',time()));
+    $this->db->where('id', $record['debitur'])->set('saldo', 'saldo-'.$record['nominal'], false)->update('debitur');    
   }
 
   function find ($where = array()) {
