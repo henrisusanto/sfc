@@ -66,7 +66,7 @@ Class setoran extends my_model {
     $this->expandables[5] = array(
       'label' => 'LAPORAN PEMBAYARAN PESANAN',
       'fields' => array (
-        0 => array('pesanan[id][]', 'PESANAN'),
+        0 => array('pesanan[id][]', 'PESANAN ATAS NAMA'),
         1 => array('pesanan[nominal][]', 'JUMLAH'),
       )
     );

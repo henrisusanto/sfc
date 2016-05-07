@@ -51,7 +51,6 @@ Class pesanan extends my_model {
   }
 
   function save ($data) {
-    if (isset($data['id'])) die('durung tak pikir');
     $total = 0;
     $waktu = $data['waktu'];
     $transaksi = 'PESANAN';
@@ -60,12 +59,18 @@ Class pesanan extends my_model {
     foreach ($data['pesananproduk']['produk'] as $index => $produk)  
       $total += $produks[$produk] * $data['pesananproduk']['qty'][$index];
 
-    $this->db->insert('pesanan', array(
+    $record = array(
       'waktu' => $waktu,
       'outlet' => $data['outlet'],
       'customer' => $data['customer'],
       'total' => $total
-    ));
+    );
+    if (isset($data['id'])) {
+      $message = $this->delete($data['id']);
+      if (strlen($message) > 0) return $message;
+      $record['id'] = $data['id'];
+    }
+    $this->db->insert('pesanan', $record);
     $pid = $this->db->insert_id();
 
     foreach ($data['pesananproduk']['produk'] as $index => $produk) {
@@ -103,6 +108,23 @@ Class pesanan extends my_model {
     }
   }
 
+  function delete ($id) {
+    $dibayar = $this->db->get_where('pesananbayar', array('pesanan' => $id))->result();
+    if (count ($dibayar) > 0) return 'UNTUK MENJAGA KONSISTENSI DATA, PESANAN YANG TELAH DIBAYAR TIDAK DAPAT DIHAPUS ATAU DIEDIT';
+    $transaksi = 'PESANAN BATAL';
+    $waktu = date('Y-m-d H:i:s',time());
+    $fkey = $id;
+    foreach ($this->db->get_where('pesananproduk', array('pesanan' => $id))->result() as $child) {
+      $this->sirkulasiProduk ($waktu, $child->produk, 'KELUAR', $transaksi, $fkey, $child->qty);
+      $this->sirkulasiProduk ($waktu, $child->produk, 'MASUK', $transaksi, $fkey, $child->qty);
+    }
+    foreach ($this->db->get_where('pesananbarang', array('pesanan' => $id))->result() as $child)
+      $this->sirkulasiBarang ($waktu, $child->barang, 'MASUK', $transaksi, $fkey, $child->qty);
+    foreach ($this->db->get_where('pesananayam', array('pesanan' => $id))->result() as $child)
+      $this->sirkulasiAyam ($waktu, $child->ayam, 'MASUK', $transaksi, $fkey, $child->pcs, $child->kg);
+    parent::delete($id);
+    return '';
+  }
 
   function find ($where = array()) {
     $this->db

@@ -50,17 +50,21 @@ Class transaksiinternal extends my_model {
   }
 
   function save ($data) {
-    if (isset($data['id'])) die('x');
     $waktu = $data['waktu'];
     $source = $data['source'];
     $destination = $data['destination'];
     $receh = $data['receh'];
-    $internalId = parent::save(array( 
+    $record = array( 
       'waktu' => $waktu,
       'source'=> $source,
       'destination' => $destination,
       'receh' => $receh
-    ));
+    );
+    if (isset($data['id'])) {
+     $this->delete($data['id']);
+     $record['id'] = $data['id']; 
+    }
+    $internalId = parent::save($record);
     $transaksi = 'ANTAR OUTLET';
     if ($receh > 0) {
       $this->sirkulasiKeuanganOutlet ('KELUAR', $transaksi, $receh, $internalId, $waktu, $source);
@@ -104,6 +108,36 @@ Class transaksiinternal extends my_model {
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'KELUAR', $transaksi, $fkey, $qty, $source);
       $this->sirkulasiprodukOutlet ($waktu, $produk, 'MASUK', $transaksi, $fkey, $qty, $destination);
     }
+  }
+
+  function delete ($id) {
+    $transaksi = 'INTERNAL BATAL';
+    $record = parent::findOne($id);
+    $receh = $record['receh'];
+    $internalId = $record['id'];
+    $waktu = date('Y-m-d H:i:s',time());
+    $source = $record['source'];
+    $destination = $record['destination'];
+    $barang = $this->db->get_where('internalbarang', array('internal' => $internalId))->result();
+    $ayam = $this->db->get_where('internalayam', array('internal' => $internalId))->result();
+    $produk = $this->db->get_where('internalproduk', array('internal' => $internalId))->result();
+    if ($receh > 0) {
+      $this->sirkulasiKeuanganOutlet ('MASUK', $transaksi, $receh, $internalId, $waktu, $source);
+      $this->sirkulasiKeuanganOutlet ('KELUAR', $transaksi, $receh, $internalId, $waktu, $destination);
+    }
+    foreach ($barang as $b) {
+      $this->sirkulasiBarangOutlet ($waktu, $b->barang, 'MASUK', $transaksi, $b->id, $b->qty, $source);
+      $this->sirkulasiBarangOutlet ($waktu, $b->barang, 'KELUAR', $transaksi, $b->id, $b->qty, $destination);
+    }
+    foreach ($ayam as $a) {
+      $this->sirkulasiAyamOutlet ($waktu, $a->ayam, 'MASUK', $transaksi, $a->id, $a->pcs, $a->kg, $source);
+      $this->sirkulasiAyamOutlet ($waktu, $a->ayam, 'KELUAR', $transaksi, $a->id, $a->pcs, $a->kg, $destination);
+    }
+    foreach ($produk as $p) {
+      $this->sirkulasiProdukOutlet ($waktu, $p->produk, 'MASUK', $transaksi, $p->id, $p->qty, $source);
+      $this->sirkulasiprodukOutlet ($waktu, $p->produk, 'KELUAR', $transaksi, $p->id, $p->qty, $destination);
+    }
+    return parent::delete($id);
   }
 
   function find ($where = array()) {

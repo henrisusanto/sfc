@@ -60,7 +60,46 @@ class produksi extends my_controller {
   }
 
   public function pesanan ($tpl='table', $id=null) {
-    $this->crud ('pesanan', $tpl, $id);
+    $this->load->library('session');
+    $model = 'pesanan';
+    $data = array('entity' => $model);
+    $post = $this->input->post();
+    $this->load->model($model);
+
+    if ($tpl == 'table') {
+      $data['thead'] = $this->$model->getTHead();
+      $data['tbody'] = $this->$model->find();
+    } else if ($tpl == 'form') {
+      $data['fields'] = $this->$model->getInputFields();
+      $data['expandables'] = $this->$model->getExpandables($id);
+    }
+    $data['tablePage'] = $this->$model->getTablePage($id);
+
+    if ($tpl == 'delete') {
+      $message = $this->$model->delete($id);
+      if (strlen($message) > 0) $this->session->set_flashdata('message', $message);
+      redirect($data['tablePage']);
+    }
+
+    if ($tpl == 'form' && $post) {
+      $entity = array();
+      foreach ($data['fields'] as $input) {
+        $field = $input[0];
+        $entity[$field] = $post[$field];
+      }
+      if (!empty($data['expandables'])) $entity = $post;
+      if (!is_null($id)) $entity['id'] = $id;
+      $message = $this->$model->save($entity);
+      if (strlen($message) > 0) $this->session->set_flashdata('message', $message);
+
+      redirect($data['tablePage']);
+    }
+
+    if (!is_null($id))  $data['form'] = $this->$model->findOne($id);
+    if ($this->session->flashdata('message'))
+      $data['message'] = array($this->session->flashdata('message'), 'error');
+
+    $this->loadview($tpl, $data);
   }
   
 }

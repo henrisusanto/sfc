@@ -162,16 +162,9 @@
         // jQuery-UI Dialog
         if( $.fn.dialog ) {
             $("#mws-jui-dialog").dialog({
-                autoOpen: false,
-                title: "jQuery-UI Dialog",
-                modal: true,
-                width: "640",
-                buttons: [{
-                    text: "Close Dialog",
-                    click: function () {
-                        $(this).dialog("close");
-                    }
-                }]
+              autoOpen: false,
+              modal: true,
+              width: "640",
             });
             $("#mws-form-dialog").dialog({
                 autoOpen: false,
