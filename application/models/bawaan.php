@@ -45,16 +45,27 @@ Class bawaan extends my_model {
   }
 
   function save ($data) {
-    if (isset($data['id'])) die('x');
     $outlet = $data['outlet'];
     $waktu = $data['waktu'];
     $modal = $data['modal'];
-    $this->db->insert('bawaan', array(
+    $outlet = $data['outlet'];
+    $waktu = $data['waktu'];
+    $modal = $data['modal'];
+
+    $record = array(
       'outlet' => $outlet,
       'waktu' => $waktu,
       'modal' => $modal,
-    ));
+    );
+
+    if (isset($data['id'])) {
+      $this->delete($data['id']);
+      $record['id'] = $data['id'];
+    }
+
+    $this->db->insert('bawaan', $record);
     $bawaan_id = $this->db->insert_id();
+
     if ($modal > 0) {
       $this->sirkulasiKeuangan ('KELUAR', 'BAWAAN', $modal, $bawaan_id, $waktu);
       $this->sirkulasiKeuanganOutlet ('MASUK', 'BAWAAN', $modal, $bawaan_id, $waktu, $outlet);
@@ -97,6 +108,35 @@ Class bawaan extends my_model {
       $this->sirkulasiProduk ($waktu, $produk, 'KELUAR', 'BAWAAN', $bproduk_id, $qty);
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', 'BAWAAN', $bproduk_id, $qty, $outlet);
     }
+  }
+
+  function delete ($id) {
+    $bawaan = parent::findOne($id);
+    $outlet = $bawaan['outlet'];
+    $modal = $bawaan['modal'];
+    $transaksi = 'BAWAAN BATAL';
+    $waktu = date('Y-m-d H:i:s',time());
+    if ($modal > 0) {
+      $this->sirkulasiKeuangan ('MASUK', $transaksi, $modal, $id, $waktu);
+      $this->sirkulasiKeuanganOutlet ('KELUAR', $transaksi, $modal, $id, $waktu, $outlet);
+    }
+
+    foreach ($this->db->get_where('bawaanbarang', array ('bawaan' => $id))->result() as $bbarang) {
+      $this->sirkulasiBarang ($waktu, $bbarang->barang, 'MASUK', $transaksi, $bbarang->id, $bbarang->qty);
+      $this->sirkulasiBarangOutlet ($waktu, $bbarang->barang, 'KELUAR', $transaksi, $bbarang->id, $bbarang->qty, $outlet);
+    }
+
+    foreach ($this->db->get_where('bawaanayam', array ('bawaan' => $id))->result() as $bayam) {
+      $this->sirkulasiAyam ($waktu, $bayam->ayam, 'MASUK', $transaksi, $bayam->id, $bayam->pcs, $bayam->kg);
+      $this->sirkulasiAyamOutlet ($waktu, $bayam->ayam, 'KELUAR', $transaksi, $bayam->id, $bayam->pcs, $bayam->kg, $outlet);
+    }
+
+    foreach ($this->db->get_where('bawaanproduk', array ('bawaan' => $id))->result() as $bproduk) {
+      $this->sirkulasiProduk ($waktu, $bproduk->produk, 'MASUK', $transaksi, $bproduk->id, $bproduk->qty);
+      $this->sirkulasiProdukOutlet ($waktu, $bproduk->produk, 'KELUAR', $transaksi, $bproduk->id, $bproduk->qty, $outlet);
+    }
+
+    return parent::delete($id);
   }
 
   function find ($where = array()) {
