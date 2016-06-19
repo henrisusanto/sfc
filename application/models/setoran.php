@@ -78,6 +78,7 @@ Class setoran extends my_model {
   function save ($data) {
     if (isset($data['id'])) die('x');
 
+    $message = '';
     $waktu = $data['waktu'];
     $outlet = $data['outlet'];
     $transaksi = 'SETORAN';
@@ -86,6 +87,17 @@ Class setoran extends my_model {
     $pengeluaran = 0;
     $produkDihasilkan = array();
     $bahanTerpakai = array();
+
+    // COLLECT STOCK BARANG DI OUTLET UTK HITUNG PRODUKSI
+    $stockBahanOutlet = array();
+    foreach ($this->db->get_where('barangoutlet', array('outlet' => $outlet))->result() as $barang)
+      $stockBahanOutlet [$barang->barang] = $barang->stock;
+    // VALIDASI SISA BAHAN
+    foreach ($data['setoransisabarang']['barang'] as $index => $barang)
+      if (!isset ($stockBahanOutlet[$barang])) {
+        $message = 'PROSES SUKSES, NAMUN SETORAN SISA BARANG DIBATALKAN KARENA TIDAK DITEMUKAN DI OUTLET';
+        unset ($data['setoransisabarang']['barang'][$index]);
+      }
 
     // HITUNG TOTAL UANG YANG DISETOR
     foreach ($this->db->get('produk')->result() as $product) 
@@ -143,11 +155,6 @@ Class setoran extends my_model {
       if (isset($produkDihasilkan[$produk])) $produkDihasilkan[$produk] += $qty;
       else $produkDihasilkan[$produk] = $qty;
     }
-
-    // COLLECT STOCK BARANG DI OUTLET UTK HITUNG PRODUKSI
-    $stockBahanOutlet = array();
-    foreach ($this->db->get_where('barangoutlet', array('outlet' => $outlet))->result() as $barang)
-      $stockBahanOutlet [$barang->barang] = $barang->stock;
 
     // sisa bahan
     foreach ($data['setoransisabarang']['barang'] as $index => $barang) {
@@ -217,6 +224,7 @@ Class setoran extends my_model {
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', 'PRODUKSI', $fkey, $qty, $outlet);
     }
 
+    if ( $data['pesanan']['id'][0] > 0)
     foreach ($data['pesanan']['id'] as $index => $pesanan) {
       $nominal = $data['pesanan']['nominal'][$index];
       $this->db->insert('pesananbayar', array(
@@ -234,6 +242,22 @@ Class setoran extends my_model {
       if ($total <= 0) $this->db->where('id', $pesanan)->set('lunas', 1)->update('pesanan');
       $this->sirkulasiKeuangan ('MASUK', 'PESANAN', $nominal, $fkey, $waktu);
     }
+
+    return $message;
+  }
+
+  function delete ($id) {
+    $this->sirkulasiKeuanganOutlet ('MASUK', 'PENJUALAN', $pemasukan, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuanganOutlet ('KELUAR', 'PENGELUARAN', $pengeluaran, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuanganOutlet ('KELUAR', 'SETORAN', $pemasukan - $pengeluaran, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuangan ('MASUK', 'SETORAN', $pemasukan - $pengeluaran, $setoranId, $waktu);
+
+    $this->sirkulasiProdukOutlet ($waktu, $produk, 'KELUAR', 'PENJUALAN OUTLET', $fkey, $qty, $outlet);
+    // 'setoranpenjualan'
+    // 'setoranpengeluaran'
+
+    $this->sirkulasiProdukOutlet ($waktu, $produk, 'KELUAR', 'SETORAN SISA', $fkey, $qty, $outlet);
+    $this->sirkulasiProduk ($waktu, $produk, 'MASUK', 'SETORAN SISA', $fkey, $qty);
   }
 
   function find ($where = array()) {
