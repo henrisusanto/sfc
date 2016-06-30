@@ -57,8 +57,8 @@ Class setoran extends my_model {
     $this->expandables[4] = array(
       'label' => 'LAPORAN SISA BAHAN DI OUTLET',
       'fields' => array (
-        0 => array('stockoutlet[barang][]', 'BAHAN'),
-        1 => array('stockoutlet[qty][]', 'QTY'),
+        0 => array('setoranbarangoutlet[barang][]', 'BAHAN'),
+        1 => array('setoranbarangoutlet[qty][]', 'QTY'),
       )
     );
     $this->buildRelation($this->expandables[4]['fields'][0][2], 'baranggudang');
@@ -66,8 +66,8 @@ Class setoran extends my_model {
     $this->expandables[5] = array(
       'label' => 'LAPORAN PEMBAYARAN PESANAN',
       'fields' => array (
-        0 => array('pesanan[id][]', 'PESANAN ATAS NAMA'),
-        1 => array('pesanan[nominal][]', 'JUMLAH'),
+        0 => array('pesananbayar[id][]', 'PESANAN ATAS NAMA'),
+        1 => array('pesananbayar[nominal][]', 'JUMLAH'),
       )
     );
     $this->expandables[5]['fields'][0][2][0] = '';
@@ -106,7 +106,7 @@ Class setoran extends my_model {
       if (isset($prices[$produk])) $pemasukan += $prices[$produk] * $data['setoranpenjualan']['qty'][$index];
     foreach ($data['setoranpengeluaran']['nominal'] as $index => $nominal) 
       $pengeluaran += $nominal;
-    foreach ($data['pesanan']['nominal'] as $pesanan) $pemasukan += $pesanan;
+    foreach ($data['pesananbayar']['nominal'] as $pesanan) $pemasukan += $pesanan;
 
     $setoranId = parent::save(array(
       'outlet' => $outlet,
@@ -171,9 +171,14 @@ Class setoran extends my_model {
       $bahanTerpakai[$barang] = $stockBahanOutlet[$barang] - $qty;
     }
 
-    foreach ($data['stockoutlet']['barang'] as $index => $barang) {
+    foreach ($data['setoranbarangoutlet']['barang'] as $index => $barang) {
       if ($barang == 0) continue;
-      $qty = $data['stockoutlet']['qty'][$index];
+      $qty = $data['setoranbarangoutlet']['qty'][$index];
+      $this->db->insert('setoranbarangoutlet', array(
+        'setoran' => $setoranId,
+        'barang' => $barang,
+        'qty' => $qty
+      ));
       $this->db
         ->where('outlet', $outlet)
         ->where('barang', $barang)
@@ -224,9 +229,9 @@ Class setoran extends my_model {
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', 'PRODUKSI', $fkey, $qty, $outlet);
     }
 
-    if ( $data['pesanan']['id'][0] > 0)
-    foreach ($data['pesanan']['id'] as $index => $pesanan) {
-      $nominal = $data['pesanan']['nominal'][$index];
+    if ( $data['pesananbayar']['id'][0] > 0)
+    foreach ($data['pesananbayar']['id'] as $index => $pesanan) {
+      $nominal = $data['pesananbayar']['nominal'][$index];
       $this->db->insert('pesananbayar', array(
         'setoran' => $setoranId,
         'pesanan' => $pesanan,
@@ -268,4 +273,5 @@ Class setoran extends my_model {
       ->join('outlet', 'outlet.id = setoran.outlet', 'LEFT');
     return parent::find($where);
   }
+
 }
