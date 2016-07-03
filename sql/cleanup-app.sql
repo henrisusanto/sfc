@@ -41,6 +41,7 @@ TRUNCATE TABLE `pesananproduk`;
 TRUNCATE TABLE `pesananbarang`;
 TRUNCATE TABLE `pesananayam`;
 TRUNCATE TABLE `pesananbayar`;
+TRUNCATE TABLE `setoranbarangoutlet`;
 
 UPDATE `produk` SET stock = 0;
 UPDATE `ayam` SET pcs = 0, kg = 0;
