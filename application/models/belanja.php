@@ -34,6 +34,7 @@ Class belanja extends my_model {
 
   function save ($data) {
     if (isset($data['id'])) $this->delete($data['id']);
+    else if ($this->isEmptyForm ($data)) return false;
     $total = 0;
     foreach ($data['belanjadetail']['total'] as $hargatotal) $total += $hargatotal;
     $databelanja = array(
@@ -46,16 +47,18 @@ Class belanja extends my_model {
     $belanja = $this->db->insert_id();
     foreach ($data['belanjadetail']['barang'] as $key => $value) {
       if ($value == 0) continue;
+      $qty = $data['belanjadetail']['qty'][$key];
+      $qty = empty ($qty) ? 1 : $qty;
       $this->db->insert('belanjadetail', array(
         'belanja' => $belanja,
         'distributor' => $data['belanjadetail']['distributor'][$key],
         'barang' => $data['belanjadetail']['barang'][$key],
-        'qty' => $data['belanjadetail']['qty'][$key],
-        'hargasatuan' => $data['belanjadetail']['total'][$key] / $data['belanjadetail']['qty'][$key],
+        'qty' => $qty,
+        'hargasatuan' => $data['belanjadetail']['total'][$key] / $qty,
         'total' => $data['belanjadetail']['total'][$key],
       ));
       $id = $this->db->insert_id();
-      $this->sirkulasiBarang ($data['waktu'], $data['belanjadetail']['barang'][$key], 'MASUK', 'BELANJA', $id, $data['belanjadetail']['qty'][$key]);
+      $this->sirkulasiBarang ($data['waktu'], $data['belanjadetail']['barang'][$key], 'MASUK', 'BELANJA', $id, $qty);
     }
     $this->sirkulasiKeuangan ('KELUAR', 'BELANJA', $total, $belanja, $data['waktu']);
   }

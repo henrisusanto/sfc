@@ -331,4 +331,17 @@ Class my_model extends CI_Model {
     );
     $this->db->insert('sirkulasiprodukoutlet', $sirkulasi);
   }
+
+  function isEmptyForm ($data) {
+    $empty = true;
+    foreach ($this->expandables as $exp) {
+      $subform = explode('[', $exp['fields'][0][0]);
+      $subfield = explode(']', $subform[1]);
+      $subform = $subform[0];
+      $subfield = $subfield[0];
+      if (count ($data[$subform][$subfield]) > 1) $empty = false;
+      if ($data[$subform][$subfield][0] != 0) $empty = false;
+    }
+    return $empty;
+  }
 }

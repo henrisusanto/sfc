@@ -1,0 +1,6 @@
+form kosong keinsert db
+pasang autonumeric
+model yg possibly byk record, d ksh filter tanggal, terus d ksh default value
+bikin form validation d my_controller, base on my_model
+- required
+- same item in multi row input

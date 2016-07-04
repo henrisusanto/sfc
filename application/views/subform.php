@@ -34,7 +34,7 @@
                                             value="<?= $brg->$field ?>">
                                           <?php endif ?>
                                           <?php if ($sub == end ($subfields)): ?>
-                                            <a class="btn btn-danger" onclick="$(this).parent().parent().parent().remove()">HAPUS</a>
+                                            <a class="btn btn-danger btn-hapus-subform" onclick="$(this).parent().parent().parent().remove()">HAPUS</a>
                                           <?php endif ?>
                                         </div>
                                     </div>

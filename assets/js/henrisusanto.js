@@ -22,6 +22,7 @@ $(function () {
       ef.find('select').select2('destroy')
       clone[index] = ef.children('div').clone()
       $('.tambah-item').eq(index).unbind('click').bind('click', function () {
+        clone[index].find('input, select').val('')
         clone[index].prependTo(ef)
         clone[index] = clone[index].clone()
         ef.find('select').select2()
@@ -70,4 +71,5 @@ $(function () {
       }
     );    
 
+  $('.btn-hapus-subform').eq(0).hide()
 })
