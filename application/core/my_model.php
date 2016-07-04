@@ -342,6 +342,6 @@ Class my_model extends CI_Model {
       if (count ($data[$subform][$subfield]) > 1) $empty = false;
       if ($data[$subform][$subfield][0] != 0) $empty = false;
     }
-    return $empty;
+    return $empty ? array('PENYIMPANAN GAGAL, FORMULIR KOSONG', 'error') : $empty;
   }
 }

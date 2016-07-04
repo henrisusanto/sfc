@@ -34,7 +34,16 @@ Class belanja extends my_model {
 
   function save ($data) {
     if (isset($data['id'])) $this->delete($data['id']);
-    else if ($this->isEmptyForm ($data)) return false;
+    else {
+      $empty = $this->isEmptyForm ($data);
+      if (is_array($empty)) return $empty;
+    }
+
+    /*  VALIDASI  */
+    foreach ($data['belanjadetail']['barang'] as $key => $value) {
+      if (empty ($data['belanjadetail']['qty'][$key])) return array('JUMLAH BAHAN YANG DIBELI HARUS DIISI', 'error');
+    }
+
     $total = 0;
     foreach ($data['belanjadetail']['total'] as $hargatotal) $total += $hargatotal;
     $databelanja = array(
@@ -46,9 +55,8 @@ Class belanja extends my_model {
     $this->db->insert('belanja', $databelanja);
     $belanja = $this->db->insert_id();
     foreach ($data['belanjadetail']['barang'] as $key => $value) {
-      if ($value == 0) continue;
       $qty = $data['belanjadetail']['qty'][$key];
-      $qty = empty ($qty) ? 1 : $qty;
+      if (empty ($qty)) return array('JUMLAH BAHAN YANG DIBELI HARUS DIISI', 'error');
       $this->db->insert('belanjadetail', array(
         'belanja' => $belanja,
         'distributor' => $data['belanjadetail']['distributor'][$key],

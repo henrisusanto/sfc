@@ -162,15 +162,33 @@ Class my_controller extends CI_Controller {
       }
       if (!empty($data['expandables'])) $entity = $post;
       if (!is_null($id)) $entity['id'] = $id;
-      $this->$model->save($entity);
+      $message = $this->$model->save($entity);
 
-      redirect($data['tablePage']);
+      if (is_array ($message) && count ($message) === 2) {
+        $data['message'] = $message;
+        /*  BEGIN CARA MENGISI FORMULIR SAAT GAGAL VALIDASI */
+        foreach ($entity as $index => $value) {
+          if (is_array ($value)) {
+            foreach ($value as $field => $content) {
+              foreach ($content as $obj => $input) {
+                if (!isset ($data['expandables'][0]['subform'][$obj])) {
+                  $data['expandables'][0]['subform'][$obj] = new stdClass();
+                  $data['expandables'][0]['subform'][$obj]->id = 0;
+                } 
+                $data['expandables'][0]['subform'][$obj]->$field = $input;                  
+              }
+            }
+          }
+        }
+        /*  END CARA MENGISI FORMULIR SAAT GAGAL VALIDASI */
+      } else redirect($data['tablePage']);
     }
 
     if (!is_null($id)) {
       $data['form'] = $this->$model->findOne($id);
     }
 
+    if ($this->session->flashdata('message')) $data['message'] = $this->session->flashdata('message');
     $this->loadview($tpl, $data);
   }
 
