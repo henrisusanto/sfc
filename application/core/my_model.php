@@ -341,9 +341,13 @@ Class my_model extends CI_Model {
       /*  VALIDATE REQUIRED  */
       if (!isset ($exp['required'])) continue;
       else foreach ($data[$detail['table']][$detail['fields'][0]] as $key => $value) {
-        foreach ($exp['required'] as $input)
-          if (empty ($data[$detail['table']][$input][$key]))
-            return array(strtoupper($input) . ' TIDAK BOLEH KOSONG', 'error');
+        foreach ($exp['required'] as $input_name) {
+          $user_input = $data[$detail['table']][$input_name][$key];
+          $input_label = strtoupper($input_name);
+          if (empty ($user_input)) return array($input_label . ' TIDAK BOLEH KOSONG', 'error');
+          if (!is_numeric($user_input) && (!isset ($exp['strings']) || !in_array($input_name, $exp['strings'])))
+            return array($input_label . ' HARUS BERUPA ANGKA', 'error');
+        }
       }
     }
     return true;
