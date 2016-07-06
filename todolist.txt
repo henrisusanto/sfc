@@ -1,10 +1,15 @@
 edit mode : biarga usah hapus semua existing subform
 validate all models, bikin form validation d my_controller, base on my_model
   + required
-  - same item in multi row input
+  ? same item in multi row input? efeknya apa? gimana kalo sekali belanja beli barang sama di tempat beda?
+    ef.find('select').each(function (selectIndex) {
+      if (selectIndex === 0) {
+        console.log('henri', selectIndex, $(this))
+      }
+    })
 
 edit mode : 
- - tambah row tidak tersimpan
+ + tambah row tidak tersimpan
  + kalau saya mau delete row pertama?
 
 pasang autonumeric
