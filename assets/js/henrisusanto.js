@@ -41,6 +41,7 @@ $(function () {
   if (current_url.indexOf('form') > -1) current_url = current_url.replace('form','')
   if (current_url.slice(-1) == '/') current_url = current_url.substring(0, current_url.length - 1)
   current_url = current_url.split('?')[0]
+  current_url = current_url.replace('//' + current_url.split('//')[2], '')
   $('a[href="'+current_url+'"]').parent().parent().removeClass('closed')
   var pagetitle = $('a[href="'+current_url+'"]').length > 1 ? 
     $('a[href="'+current_url+'"]').eq(0).text() : 

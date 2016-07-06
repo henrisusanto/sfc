@@ -34,9 +34,14 @@ class pemasukan extends my_controller {
       }
       if (!empty($data['expandables'])) $entity = $post;
       if (!is_null($id)) $entity['id'] = $id;
-      $message = $this->$model->save($entity);
-      if (strlen($message) > 0) $data['message'] = $message;
-      redirect($data['tablePage']);
+      $valid = $this->$model->validate($entity);
+      if ($valid === true) {
+        $this->$model->save($entity);
+        redirect($data['tablePage']);
+      } else {
+        $data['message'] = $valid;
+        $data = $this->$model->prePopulate($entity, $data);
+      }
     }
 
     if (!is_null($id)) {

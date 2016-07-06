@@ -48,7 +48,6 @@ Class belanja extends my_model {
     $belanja = $this->db->insert_id();
     foreach ($data['belanjadetail']['barang'] as $key => $value) {
       $qty = $data['belanjadetail']['qty'][$key];
-      if (empty ($qty)) return array('JUMLAH BAHAN YANG DIBELI HARUS DIISI', 'error');
       $this->db->insert('belanjadetail', array(
         'belanja' => $belanja,
         'distributor' => $data['belanjadetail']['distributor'][$key],

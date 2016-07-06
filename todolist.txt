@@ -15,3 +15,6 @@ edit mode :
 pasang autonumeric
 model yg possibly byk record, d ksh filter tanggal, terus d ksh default value
 + way to validate done, lihat ke model belanja
+
+- validasi pesanan, setoran, belanjaayam
+- biar ga delete pas edit

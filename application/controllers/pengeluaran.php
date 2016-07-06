@@ -39,9 +39,14 @@ class pengeluaran extends my_controller {
       }
       if (!empty($data['expandables'])) $entity = $post;
       if (!is_null($id)) $entity['id'] = $id;
-      $this->$model->save($entity);
-
-      redirect($data['tablePage']);
+      $valid = $this->$model->validate($entity);
+      if ($valid === true) {
+        $this->$model->save($entity);
+        redirect($data['tablePage']);
+      } else {
+        $data['message'] = $valid;
+        $data = $this->$model->prePopulate($entity, $data);
+      }
     }
 
     if (!is_null($id)) {
