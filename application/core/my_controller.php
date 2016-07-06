@@ -162,26 +162,14 @@ Class my_controller extends CI_Controller {
       }
       if (!empty($data['expandables'])) $entity = $post;
       if (!is_null($id)) $entity['id'] = $id;
-      $message = $this->$model->save($entity);
-
-      if (is_array ($message) && count ($message) === 2) {
-        $data['message'] = $message;
-        /*  BEGIN CARA MENGISI FORMULIR SAAT GAGAL VALIDASI */
-        foreach ($entity as $index => $value) {
-          if (is_array ($value)) {
-            foreach ($value as $field => $content) {
-              foreach ($content as $obj => $input) {
-                if (!isset ($data['expandables'][0]['subform'][$obj])) {
-                  $data['expandables'][0]['subform'][$obj] = new stdClass();
-                  $data['expandables'][0]['subform'][$obj]->id = 0;
-                } 
-                $data['expandables'][0]['subform'][$obj]->$field = $input;                  
-              }
-            }
-          }
-        }
-        /*  END CARA MENGISI FORMULIR SAAT GAGAL VALIDASI */
-      } else redirect($data['tablePage']);
+      $valid = $this->$model->validate($entity);
+      if ($valid === true) {
+        $this->$model->save($entity);
+        redirect($data['tablePage']);
+      } else {
+        $data['message'] = $valid;
+        $data = $this->$model->prePopulate($entity, $data);
+      } 
     }
 
     if (!is_null($id)) {

@@ -1,10 +1,12 @@
 edit mode : biarga usah hapus semua existing subform
+validate all models, bikin form validation d my_controller, base on my_model
+  + required
+  - same item in multi row input
+
+edit mode : 
+ - tambah row tidak tersimpan
+ + kalau saya mau delete row pertama?
+
 pasang autonumeric
 model yg possibly byk record, d ksh filter tanggal, terus d ksh default value
-bikin form validation d my_controller, base on my_model
-- required
-- same item in multi row input
-edit mode : tambah row tidak tersimpan
-
-
 + way to validate done, lihat ke model belanja

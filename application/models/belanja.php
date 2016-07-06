@@ -20,6 +20,7 @@ Class belanja extends my_model {
     $this->expandables = array();
     $this->expandables[0] = array(
       'label' => 'DAFTAR BARANG BELANJA',
+      'required' => array('barang', 'qty', 'total'),
       'fields' => array (
         0 => array('belanjadetail[barang][]', 'NAMA BARANG'),
         1 => array('belanjadetail[distributor][]', 'TOKO / PENJUAL'),
@@ -34,15 +35,6 @@ Class belanja extends my_model {
 
   function save ($data) {
     if (isset($data['id'])) $this->delete($data['id']);
-    else {
-      $empty = $this->isEmptyForm ($data);
-      if (is_array($empty)) return $empty;
-    }
-
-    /*  VALIDASI  */
-    foreach ($data['belanjadetail']['barang'] as $key => $value) {
-      if (empty ($data['belanjadetail']['qty'][$key])) return array('JUMLAH BAHAN YANG DIBELI HARUS DIISI', 'error');
-    }
 
     $total = 0;
     foreach ($data['belanjadetail']['total'] as $hargatotal) $total += $hargatotal;
@@ -88,4 +80,5 @@ Class belanja extends my_model {
       ->join('karyawan', 'karyawan.id = belanja.karyawan', 'LEFT');
     return parent::find($where);
   }
+
 }

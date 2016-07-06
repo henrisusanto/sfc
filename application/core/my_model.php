@@ -332,16 +332,54 @@ Class my_model extends CI_Model {
     $this->db->insert('sirkulasiprodukoutlet', $sirkulasi);
   }
 
-  function isEmptyForm ($data) {
-    $empty = true;
+  function validate ($data) {
     foreach ($this->expandables as $exp) {
-      $subform = explode('[', $exp['fields'][0][0]);
-      $subfield = explode(']', $subform[1]);
-      $subform = $subform[0];
-      $subfield = $subfield[0];
-      if (count ($data[$subform][$subfield]) > 1) $empty = false;
-      if ($data[$subform][$subfield][0] != 0) $empty = false;
+      $detail = $this->getExpDetail($exp);
+      /*  VALIDATE EMPTY SUBFORM  */
+      if (!isset ($data[$detail['table']])) return array($exp['label'] . ' TIDAK BOLEH KOSONG', 'error');
+
+      /*  VALIDATE REQUIRED  */
+      if (!isset ($exp['required'])) continue;
+      else foreach ($data[$detail['table']][$detail['fields'][0]] as $key => $value) {
+        foreach ($exp['required'] as $input)
+          if (empty ($data[$detail['table']][$input][$key]))
+            return array(strtoupper($input) . ' TIDAK BOLEH KOSONG', 'error');
+      }
     }
-    return $empty ? array('PENYIMPANAN GAGAL, FORMULIR KOSONG', 'error') : $empty;
+    return true;
+  }
+
+  function prePopulate ($entity, $data) {
+    /*  KEMBALIKAN ISIAN FORMULIR USER SAAT GAGAL VALIDASI  */
+    /*  1. FORM TANPA SUBFORM  */
+    /*  2. FORM DENGAN 1 SUBFORM  */
+    foreach ($entity as $index => $value) {
+      if (is_array ($value)) {
+        foreach ($value as $field => $content) {
+          foreach ($content as $obj => $input) {
+            if (!isset ($data['expandables'][0]['subform'][$obj])) {
+              $data['expandables'][0]['subform'][$obj] = new stdClass();
+              $data['expandables'][0]['subform'][$obj]->id = 0;
+            } 
+            $data['expandables'][0]['subform'][$obj]->$field = $input;
+          }
+        }
+      }
+    }
+    /*  3. FORM DENGAN BANYAK SUBFORM  */
+    return $data;
+  }
+
+  function getExpDetail ($exp) {
+    $detail = array('table' => '', 'fields' => array());
+    $field0 = $exp['fields'][0][0];
+    $split = explode('[', $field0);
+    $detail['table'] = $split[0];
+    foreach ($exp['fields'][0] as $field) {
+      $f = str_replace($detail['table'] . '[', '', $field);
+      $f = str_replace('][]', '', $f);
+      $detail['fields'][] = $f;
+    }
+    return $detail;
   }
 }
