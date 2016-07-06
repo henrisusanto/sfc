@@ -110,7 +110,7 @@ Class pesanan extends my_model {
 
   function delete ($id) {
     $dibayar = $this->db->get_where('pesananbayar', array('pesanan' => $id))->result();
-    if (count ($dibayar) > 0) return 'UNTUK MENJAGA KONSISTENSI DATA, PESANAN YANG TELAH DIBAYAR TIDAK DAPAT DIHAPUS ATAU DIEDIT';
+    if (count ($dibayar) > 0) return 'UNTUK MENJAGA KONSISTENSI DATA, PESANAN YANG TELAH DIBAYAR TIDAK DAPAT DIHAPUS ATAU DI-EDIT';
     $transaksi = 'PESANAN BATAL';
     $waktu = date('Y-m-d H:i:s',time());
     $fkey = $id;

@@ -57,8 +57,8 @@ Class setoran extends my_model {
     $this->expandables[4] = array(
       'label' => 'LAPORAN SISA BAHAN DI OUTLET',
       'fields' => array (
-        0 => array('stockoutlet[barang][]', 'BAHAN'),
-        1 => array('stockoutlet[qty][]', 'QTY'),
+        0 => array('setoranbarangoutlet[barang][]', 'BAHAN'),
+        1 => array('setoranbarangoutlet[qty][]', 'QTY'),
       )
     );
     $this->buildRelation($this->expandables[4]['fields'][0][2], 'baranggudang');
@@ -66,8 +66,8 @@ Class setoran extends my_model {
     $this->expandables[5] = array(
       'label' => 'LAPORAN PEMBAYARAN PESANAN',
       'fields' => array (
-        0 => array('pesanan[id][]', 'PESANAN ATAS NAMA'),
-        1 => array('pesanan[nominal][]', 'JUMLAH'),
+        0 => array('pesananbayar[id][]', 'PESANAN ATAS NAMA'),
+        1 => array('pesananbayar[nominal][]', 'JUMLAH'),
       )
     );
     $this->expandables[5]['fields'][0][2][0] = '';
@@ -78,6 +78,7 @@ Class setoran extends my_model {
   function save ($data) {
     if (isset($data['id'])) die('x');
 
+    $message = '';
     $waktu = $data['waktu'];
     $outlet = $data['outlet'];
     $transaksi = 'SETORAN';
@@ -87,21 +88,36 @@ Class setoran extends my_model {
     $produkDihasilkan = array();
     $bahanTerpakai = array();
 
+    // COLLECT STOCK BARANG DI OUTLET UTK HITUNG PRODUKSI
+    $stockBahanOutlet = array();
+    foreach ($this->db->get_where('barangoutlet', array('outlet' => $outlet))->result() as $barang)
+      $stockBahanOutlet [$barang->barang] = $barang->stock;
+    // VALIDASI SISA BAHAN
+    foreach ($data['setoransisabarang']['barang'] as $index => $barang)
+      if (!isset ($stockBahanOutlet[$barang])) {
+        $message = 'PROSES SUKSES, NAMUN SETORAN SISA BARANG DIBATALKAN KARENA TIDAK DITEMUKAN DI OUTLET';
+        unset ($data['setoransisabarang']['barang'][$index]);
+      }
+
     // HITUNG TOTAL UANG YANG DISETOR
     foreach ($this->db->get('produk')->result() as $product) 
       $prices[$product->id] = $product->harga;
-    foreach ($data['setoranpenjualan']['produk'] as $index => $produk)
-      if (isset($prices[$produk])) $pemasukan += $prices[$produk] * $data['setoranpenjualan']['qty'][$index];
+    foreach ($data['setoranpenjualan']['produk'] as $index => $produk) {
+      if (isset($prices[$produk])) {
+        $pemasukan += $prices[$produk] * $data['setoranpenjualan']['qty'][$index];
+        $data['setoranpenjualan']['currentprice'][$index] = $prices[$produk];
+      }
+    }
     foreach ($data['setoranpengeluaran']['nominal'] as $index => $nominal) 
       $pengeluaran += $nominal;
-    foreach ($data['pesanan']['nominal'] as $pesanan) $pemasukan += $pesanan;
+    foreach ($data['pesananbayar']['nominal'] as $pesanan) $pemasukan += $pesanan;
 
     $setoranId = parent::save(array(
       'outlet' => $outlet,
       'waktu' => $waktu,
       'nominal' => $pemasukan - $pengeluaran
     ));
-    $this->sirkulasiKeuanganOutlet ('MASUK', 'PENJUALAN', $pemasukan, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuanganOutlet ('MASUK', 'PEMASUKAN', $pemasukan, $setoranId, $waktu, $outlet);
     $this->sirkulasiKeuanganOutlet ('KELUAR', 'PENGELUARAN', $pengeluaran, $setoranId, $waktu, $outlet);
     $this->sirkulasiKeuanganOutlet ('KELUAR', 'SETORAN', $pemasukan - $pengeluaran, $setoranId, $waktu, $outlet);
     $this->sirkulasiKeuangan ('MASUK', 'SETORAN', $pemasukan - $pengeluaran, $setoranId, $waktu);
@@ -113,7 +129,8 @@ Class setoran extends my_model {
       $this->db->insert('setoranpenjualan', array(
         'setoran' => $setoranId,
         'produk' => $produk,
-        'qty' => $qty
+        'qty' => $qty,
+        'currentprice' => $data['setoranpenjualan']['currentprice'][$index]
       ));
       $fkey = $this->db->insert_id();
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'KELUAR', 'PENJUALAN OUTLET', $fkey, $qty, $outlet);
@@ -121,12 +138,14 @@ Class setoran extends my_model {
     }
 
     // pengeluaran
-    foreach ($data['setoranpengeluaran']['item'] as $index => $item)
+    foreach ($data['setoranpengeluaran']['item'] as $index => $item) {
+      if ($data['setoranpengeluaran']['nominal'][$index] < 1) continue;
       $this->db->insert('setoranpengeluaran', array(
         'setoran' => $setoranId,
         'item' => $item,
         'nominal' => $data['setoranpengeluaran']['nominal'][$index]
-      ));
+      ));      
+    }
 
     // sisa produk
     foreach ($data['setoransisaproduk']['produk'] as $index => $produk) {
@@ -144,11 +163,6 @@ Class setoran extends my_model {
       else $produkDihasilkan[$produk] = $qty;
     }
 
-    // COLLECT STOCK BARANG DI OUTLET UTK HITUNG PRODUKSI
-    $stockBahanOutlet = array();
-    foreach ($this->db->get_where('barangoutlet', array('outlet' => $outlet))->result() as $barang)
-      $stockBahanOutlet [$barang->barang] = $barang->stock;
-
     // sisa bahan
     foreach ($data['setoransisabarang']['barang'] as $index => $barang) {
       if ($barang == 0) continue;
@@ -164,9 +178,14 @@ Class setoran extends my_model {
       $bahanTerpakai[$barang] = $stockBahanOutlet[$barang] - $qty;
     }
 
-    foreach ($data['stockoutlet']['barang'] as $index => $barang) {
+    foreach ($data['setoranbarangoutlet']['barang'] as $index => $barang) {
       if ($barang == 0) continue;
-      $qty = $data['stockoutlet']['qty'][$index];
+      $qty = $data['setoranbarangoutlet']['qty'][$index];
+      $this->db->insert('setoranbarangoutlet', array(
+        'setoran' => $setoranId,
+        'barang' => $barang,
+        'qty' => $qty
+      ));
       $this->db
         ->where('outlet', $outlet)
         ->where('barang', $barang)
@@ -180,7 +199,8 @@ Class setoran extends my_model {
     $this->db->insert('produksi', array(
       'waktu' => $waktu,
       'karyawan' => $data['karyawan'],
-      'outlet' => $outlet
+      'outlet' => $outlet,
+      'setoran' => $setoranId
     ));
     $produksiId = $this->db->insert_id();
 
@@ -217,8 +237,9 @@ Class setoran extends my_model {
       $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', 'PRODUKSI', $fkey, $qty, $outlet);
     }
 
-    foreach ($data['pesanan']['id'] as $index => $pesanan) {
-      $nominal = $data['pesanan']['nominal'][$index];
+    if ( $data['pesananbayar']['id'][0] > 0)
+    foreach ($data['pesananbayar']['id'] as $index => $pesanan) {
+      $nominal = $data['pesananbayar']['nominal'][$index];
       $this->db->insert('pesananbayar', array(
         'setoran' => $setoranId,
         'pesanan' => $pesanan,
@@ -232,9 +253,69 @@ Class setoran extends my_model {
         $total -= $bayar->nominal;
       
       if ($total <= 0) $this->db->where('id', $pesanan)->set('lunas', 1)->update('pesanan');
-      $this->sirkulasiKeuangan ('MASUK', 'PESANAN', $nominal, $fkey, $waktu);
+      $this->sirkulasiKeuangan ('MASUK', 'BAYAR PESANAN', $nominal, $fkey, $waktu);
     }
+
+    return $message;
   }
+
+  function delete ($id) {
+    $setoran = $this->findOne ($id);
+    $setoranId = $setoran['id'];
+    $outlet = $setoran['outlet'];
+    $waktu = date('Y-m-d H:i:s', time());
+
+    $setoran_detail = array();
+    foreach (array ('setoranbarangoutlet', 'setoranpengeluaran', 'produksi',
+    'setoranpenjualan', 'setoransisabarang', 'setoransisaproduk', 'pesananbayar') as $table)
+      $setoran_detail[$table] = $this->db->get_where($table, array ('setoran' => $setoranId))->result();
+
+    $pemasukan = 0;
+    $pengeluaran = 0;
+    foreach ($setoran_detail['setoranpenjualan'] as $penjualan)
+      $pemasukan += $penjualan['currentprice'] * $penjualan['qty'];
+    foreach ($setoran_detail['pesananbayar'] as $pesanan) $pemasukan += $pesanan['nominal'];
+    foreach ($setoran_detail['setoranpengeluaran'] as $set_pengeluaran) $pengeluaran += $set_pengeluaran['nominal'];
+
+    $this->sirkulasiKeuanganOutlet ('KELUAR', 'PEMASUKAN BATAL', $pemasukan, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuanganOutlet ('MASUK', 'PENGELUARAN BATAL', $pengeluaran, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuanganOutlet ('MASUK', 'SETORAN BATAL', $pemasukan - $pengeluaran, $setoranId, $waktu, $outlet);
+    $this->sirkulasiKeuangan ('KELUAR', 'SETORAN BATAL', $pemasukan - $pengeluaran, $setoranId, $waktu);
+
+    foreach ($setoran_detail['setoranpenjualan'] as $penjualan)
+      $this->sirkulasiProdukOutlet ($waktu, $penjualan->produk, 'MASUK', 'PENJUALAN OUTLET BATAL', $penjualan->id, $penjualan->qty, $outlet);
+
+    foreach ($setoran_detail['setoransisaproduk'] as $sisa) {
+      $this->sirkulasiProdukOutlet ($waktu, $sisa->produk, 'MASUK', 'SETORAN SISA BATAL', $sisa->id, $sisa->qty, $outlet);
+      $this->sirkulasiProduk ($waktu, $sisa->produk, 'KELUAR', 'SETORAN SISA BATAL', $sisa->id, $sisa->qty);
+    }
+      
+    foreach ($setoran_detail['setoransisabarang'] as $sisa) {
+      $this->sirkulasiBarangOutlet ($waktu, $sisa->barang, 'MASUK', 'SETORAN SISA BATAL', $sisa->id, $sisa->qty, $outlet);
+      $this->sirkulasiBarang ($waktu, $sisa->barang, 'KELUAR', 'SETORAN SISA BATAL', $sisa->id, $sisa->qty);
+    }
+
+    foreach ($setoran_detail['pesananbayar'] as $pesanan)
+      $this->sirkulasiKeuangan ('KELUAR', 'BAYAR PESANAN BATAL', $pesanan->nominal, $setoranId, $waktu);
+
+    // PRODUKSI
+    $produksi_detail = array();
+    $produksiId = $setoran_detail['produksi'][0]->id ? $setoran_detail['produksi'][0]->id : null;
+    $this->db->where('id', $produksiId)->delete('produksi');
+    foreach (array ('produksiproduk', 'produksiayam', 'produksibarang') as $table) {
+      $produksi_detail[$table] = $this->db->get_where($table, array ('produksi' => $produksiId))->result();
+      $this->db->where('produksi', $produksiId)->delete($table);
+    }
+
+    foreach ($produksi_detail['produksiayam'] as $ayam)
+      $this->sirkulasiAyamOutlet ($waktu, $ayam->ayam, 'MASUK', 'PRODUKSI BATAL', $produksiId, $ayam->pcs, $ayam->kg, $outlet);
+    foreach ($produksi_detail['produksibarang'] as $barang)
+      $this->sirkulasiBarangOutlet ($waktu, $barang->barang, 'MASUK', 'PRODUKSI BATAL', $produksiId, $barang->qty, $outlet);
+    foreach ($produksi_detail['produksiproduk'] as $produk)
+      $this->sirkulasiProdukOutlet ($waktu, $produk->produk, 'KELUAR', 'PRODUKSI BATAL', $produksiId, $produk->qty, $outlet);
+
+    return parent::delete($id);  
+}
 
   function find ($where = array()) {
     $this->db
@@ -244,4 +325,5 @@ Class setoran extends my_model {
       ->join('outlet', 'outlet.id = setoran.outlet', 'LEFT');
     return parent::find($where);
   }
+
 }
