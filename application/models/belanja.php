@@ -35,7 +35,7 @@ Class belanja extends my_model {
 
   function update ($data) {
     $reason = 'EDIT BELANJA';
-    $databelanja= $this->getDataBelanja($data);
+    $databelanja= $this->prepare($data);
     $oldbelanja = $this->findOne($data['id']);
 
     $CI =& get_instance();
@@ -66,7 +66,7 @@ Class belanja extends my_model {
 
   function save ($data) {
     $reason = 'BELANJA';
-    $databelanja = $this->getDataBelanja($data);
+    $databelanja = $this->prepare($data);
     $this->db->insert('belanja', $databelanja['record']);
     $belanja = $this->db->insert_id();
     $CI =& get_instance();
@@ -84,7 +84,7 @@ Class belanja extends my_model {
     $this->sirkulasiKeuangan ('KELUAR', $reason, $databelanja['total'], $belanja, $data['waktu']);
   }
 
-  function getDataBelanja ($data) {
+  function prepare ($data) {
     $databelanja = array('total' => 0, 'record' => array());
     foreach ($data['belanjadetail']['total'] as $hargatotal) $databelanja['total'] += $hargatotal;
     $databelanja['record'] = array(

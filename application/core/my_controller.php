@@ -173,9 +173,8 @@ Class my_controller extends CI_Controller {
       } 
     }
 
-    if (!is_null($id)) {
+    if (!is_null($id) && !isset ($data['form']))
       $data['form'] = $this->$model->findOne($id);
-    }
 
     if ($this->session->flashdata('message')) $data['message'] = $this->session->flashdata('message');
     $this->loadview($tpl, $data);

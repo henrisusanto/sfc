@@ -12,10 +12,8 @@ class pengeluaran extends my_controller {
     $post = $this->input->post();
     $this->load->model($model);
 
-    if (!$this->belanjaayam->is_ok()) {
-      $data['message'] = array("PROSES TIDAK DAPAT DILANJUTKAN KARENA 
-      AYAM HIDUP TIDAK DITEMUKAN DALAM DATA MASTER AYAM MENTAH", 'error');
-    }
+    $syarat = $this->belanjaayam->is_ok();
+    if (true !== $syarat) $data['message'] = $syarat;
 
     if ($tpl == 'table') {
       $data['thead'] = $this->$model->getTHead();
@@ -41,7 +39,8 @@ class pengeluaran extends my_controller {
       if (!is_null($id)) $entity['id'] = $id;
       $valid = $this->$model->validate($entity);
       if ($valid === true) {
-        $this->$model->save($entity);
+        if (isset ($entity['id'])) $this->$model->update($entity);
+        else $this->$model->save($entity);
         redirect($data['tablePage']);
       } else {
         $data['message'] = $valid;
@@ -49,9 +48,8 @@ class pengeluaran extends my_controller {
       }
     }
 
-    if (!is_null($id)) {
+    if (!is_null($id) && !isset ($data['form']))
       $data['form'] = $this->$model->findOne($id);
-    }
 
     $this->loadview($tpl, $data);
   }

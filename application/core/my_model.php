@@ -340,22 +340,34 @@ Class my_model extends CI_Model {
   }
 
   function validate ($data) {
-    foreach ($this->expandables as $exp) {
-      $detail = $this->getExpDetail($exp);
-      /*  VALIDATE EMPTY SUBFORM  */
-      if (!isset ($data[$detail['table']])) return array($exp['label'] . ' TIDAK BOLEH KOSONG', 'error');
+    if (!empty ($this->expandables))
+      foreach ($this->expandables as $exp) {
+        $detail = $this->getExpDetail($exp);
+        /*  VALIDATE EMPTY SUBFORM  */
+        if (!isset ($data[$detail['table']])) return array($exp['label'] . ' TIDAK BOLEH KOSONG', 'error');
+  
+        /*  VALIDATE REQUIRED  */
+        if (!isset ($exp['required'])) continue;
+        else foreach ($data[$detail['table']][$detail['fields'][0]] as $key => $value) {
+          foreach ($exp['required'] as $input_name) {
 
-      /*  VALIDATE REQUIRED  */
-      if (!isset ($exp['required'])) continue;
-      else foreach ($data[$detail['table']][$detail['fields'][0]] as $key => $value) {
-        foreach ($exp['required'] as $input_name) {
-          $user_input = $data[$detail['table']][$input_name][$key];
-          $input_label = strtoupper($input_name);
-          if (empty ($user_input)) return array($input_label . ' TIDAK BOLEH KOSONG', 'error');
-          if (!is_numeric($user_input) && (!isset ($exp['strings']) || !in_array($input_name, $exp['strings'])))
-            return array($input_label . ' HARUS BERUPA ANGKA', 'error');
+            $user_input = $data[$detail['table']][$input_name][$key];
+            $input_label = strtoupper($input_name);
+            if (empty ($user_input)) return array($input_label . ' TIDAK BOLEH KOSONG', 'error');
+
+            /*  VALIDATE INTEGER  */
+            if (!is_numeric($user_input) && (!isset ($exp['strings']) || !in_array($input_name, $exp['strings'])))
+              return array($input_label . ' HARUS BERUPA ANGKA', 'error');
+          }
         }
       }
+
+    if (!isset ($this->strings)) $this->strings = array('waktu');
+    foreach ($this->inputFields as $mainfield) {
+      if (isset ($this->required) && in_array ($mainfield[0], $this->required) && empty ($data[$mainfield[0]]))
+        return array($mainfield[1] . ' TIDAK BOLEH KOSONG', 'error');
+      if (!in_array($mainfield[0], $this->strings) && !is_numeric($data[$mainfield[0]]))
+        return array($mainfield[1] . ' HARUS BERUPA ANGKA', 'error');
     }
     return true;
   }
@@ -363,6 +375,8 @@ Class my_model extends CI_Model {
   function prePopulate ($entity, $data) {
     /*  KEMBALIKAN ISIAN FORMULIR USER SAAT GAGAL VALIDASI  */
     /*  1. FORM TANPA SUBFORM  */
+    $data['form'] = $entity;
+
     /*  2. FORM DENGAN 1 SUBFORM  */
     foreach ($entity as $index => $value) {
       if (is_array ($value)) {

@@ -21,16 +21,60 @@ Class belanjaayam extends my_model {
       4 => array('kg', 'BERAT TOTAL'),
       5 => array('total', 'HARGA TOTAL'),
     );
-
+    $this->required = array ('ekor', 'kg', 'total');
     $this->buildRelation($this->inputFields[1][2], 'karyawan');
     $this->buildRelation($this->inputFields[2][2], 'distributor');
   }
 
+  function validate ($data) {
+    $syarat = $this->belanjaayam->is_ok();
+    if (true !== $syarat) return $syarat;
+    return parent::validate($data);
+  }
+
+  function update ($data) {
+    $reason = 'EDIT BELANJA AYAM';
+    $belanjaayam = $this->prepare($data);
+    $previous = $this->findOne($data['id']);
+    $fkey = parent::save($belanjaayam);
+    
+    if ($data['ekor'] > $previous['ekor'] && $data['kg'] > $previous['kg'])
+      $this->sirkulasiAyam ($data['waktu'], $belanjaayam['ayam'], 'MASUK', $reason, $fkey, 
+      $data['ekor'] - $previous['ekor'], $data['kg'] - $previous['kg']);
+    else if ($data['ekor'] < $previous['ekor'] && $data['kg'] < $previous['kg'])
+      $this->sirkulasiAyam ($data['waktu'], $belanjaayam['ayam'], 'KELUAR', $reason, $fkey, 
+      $previous['ekor'] - $data['ekor'], $previous['kg'] - $data['kg']);
+    else {
+      if ($data['ekor'] > $previous['ekor'])
+        $this->sirkulasiAyam ($data['waktu'], $belanjaayam['ayam'], 'MASUK', $reason, $fkey, 
+        $data['ekor'] - $previous['ekor'], 0);      
+      if ($data['kg'] > $previous['kg'])
+        $this->sirkulasiAyam ($data['waktu'], $belanjaayam['ayam'], 'MASUK', $reason, $fkey, 
+        0, $data['kg'] - $previous['kg']);
+      if ($data['ekor'] < $previous['ekor'])
+        $this->sirkulasiAyam ($data['waktu'], $belanjaayam['ayam'], 'KELUAR', $reason, $fkey, 
+        $previous['ekor'] - $data['ekor'], 0);
+      if ($data['kg'] < $previous['kg'])
+        $this->sirkulasiAyam ($data['waktu'], $belanjaayam['ayam'], 'KELUAR', $reason, $fkey, 
+        0, $previous['kg'] - $data['kg']);
+    }
+
+    if ($data['total'] > $previous['total'])
+      $this->sirkulasiKeuangan ('KELUAR', $reason, $data['total'] - $previous['total'], $fkey, $data['waktu']);    
+    if ($data['total'] < $previous['total'])
+      $this->sirkulasiKeuangan ('MASUK', $reason, $previous['total'] - $data['total'], $fkey, $data['waktu']);
+  }
+
   function save ($data) {
-    if (!$this->is_ok()) return true;
-    if (isset($data['id'])) $this->delete ($data['id']);
+    $belanjaayam = $this->prepare($data);
+    $fkey = parent::save($belanjaayam);
+    $this->sirkulasiAyam ($data['waktu'], $belanjaayam['ayam'], 'MASUK', 'BELANJA AYAM', $fkey, $data['ekor'], $data['kg']);
+    $this->sirkulasiKeuangan ('KELUAR', 'BELANJA AYAM', $data['total'], $fkey, $data['waktu']);
+  }
+
+  function prepare ($data) {
     $ayam = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
-    $belanjaayam = array(
+    $record = array(
       'waktu' => $data['waktu'],
       'karyawan' => $data['karyawan'],
       'distributor' => $data['distributor'],
@@ -39,11 +83,8 @@ Class belanjaayam extends my_model {
       'kg' => $data['kg'],
       'total' => $data['total'],
     );
-    if (isset($data['id'])) $belanjaayam['id'] = $data['id'];
-    $this->db->insert('belanjaayam', $belanjaayam);
-    $fkey = $this->db->insert_id();
-    $this->sirkulasiAyam ($data['waktu'], $ayam['id'], 'MASUK', 'BELANJA AYAM', $fkey, $data['ekor'], $data['kg']);
-    $this->sirkulasiKeuangan ('KELUAR', 'BELANJA AYAM', $data['total'], $fkey, $data['waktu']);
+    if (isset ($data['id'])) $record['id'] = $data['id'];
+    return $record;
   }
 
   function delete ($id) {
@@ -73,6 +114,7 @@ Class belanjaayam extends my_model {
       ->where('nama', 'AYAM HIDUP')
       ->get('ayam')
       ->result();
-    return count ($syarat) == 1;
+    return count ($syarat) == 1 ? true : array("PROSES TIDAK DAPAT DILANJUTKAN KARENA 
+      AYAM HIDUP TIDAK DITEMUKAN DALAM DATA MASTER AYAM MENTAH", 'error');
   }
 }
