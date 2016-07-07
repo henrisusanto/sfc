@@ -33,41 +33,78 @@ Class belanja extends my_model {
     $this->buildRelation($this->expandables[0]['fields'][1][2], 'distributor');
   }
 
-  function save ($data) {
-    if (isset($data['id'])) $this->delete($data['id']);
+  function update ($data) {
+    $reason = 'EDIT BELANJA';
+    $databelanja= $this->getDataBelanja($data);
+    $oldbelanja = $this->findOne($data['id']);
 
-    $total = 0;
-    foreach ($data['belanjadetail']['total'] as $hargatotal) $total += $hargatotal;
-    $databelanja = array(
-      'waktu' => $data['waktu'],
-      'karyawan' => $data['karyawan'],
-      'total' => $total
-    );
-    if (isset($data['id'])) $databelanja['id'] = $data['id'];
-    $this->db->insert('belanja', $databelanja);
-    $belanja = $this->db->insert_id();
+    $CI =& get_instance();
+    $CI->load->model('belanjadetail');
+    $excepted = array();
     foreach ($data['belanjadetail']['barang'] as $key => $value) {
-      $qty = $data['belanjadetail']['qty'][$key];
-      $this->db->insert('belanjadetail', array(
+      $record = array(
+        'belanja' => $data['id'],
+        'distributor' => $data['belanjadetail']['distributor'][$key],
+        'barang' => $data['belanjadetail']['barang'][$key],
+        'qty' => $data['belanjadetail']['qty'][$key],
+        'hargasatuan' => $data['belanjadetail']['total'][$key] / $data['belanjadetail']['qty'][$key],
+        'total' => $data['belanjadetail']['total'][$key],
+      );
+      if (!empty ($data['belanjadetail']['id'][$key])) $record['id'] = $data['belanjadetail']['id'][$key];
+      $excepted[] = $this->belanjadetail->save($record, $data['waktu'], $reason);
+    }
+    foreach ($this->belanjadetail->find(array('belanja' => $data['id']), array('id' => $excepted)) as $delete)
+      $this->belanjadetail->delete($delete->id, $data['waktu'], $reason);
+
+    if ($oldbelanja['total'] > $databelanja['total'])
+      $this->sirkulasiKeuangan ('MASUK', $reason, $oldbelanja['total'] - $databelanja['total'], $data['id'], $data['waktu']);
+    else if ($oldbelanja['total'] < $databelanja['total'])
+      $this->sirkulasiKeuangan ('KELUAR', $reason, $databelanja['total'] - $oldbelanja['total'], $data['id'], $data['waktu']);
+
+    return parent::save($databelanja['record']);
+  }
+
+  function save ($data) {
+    $reason = 'BELANJA';
+    $databelanja = $this->getDataBelanja($data);
+    $this->db->insert('belanja', $databelanja['record']);
+    $belanja = $this->db->insert_id();
+    $CI =& get_instance();
+    $CI->load->model('belanjadetail');
+    foreach ($data['belanjadetail']['barang'] as $key => $value) {
+      $this->belanjadetail->save(array(
         'belanja' => $belanja,
         'distributor' => $data['belanjadetail']['distributor'][$key],
         'barang' => $data['belanjadetail']['barang'][$key],
-        'qty' => $qty,
-        'hargasatuan' => $data['belanjadetail']['total'][$key] / $qty,
+        'qty' => $data['belanjadetail']['qty'][$key],
+        'hargasatuan' => $data['belanjadetail']['total'][$key] / $data['belanjadetail']['qty'][$key],
         'total' => $data['belanjadetail']['total'][$key],
-      ));
-      $id = $this->db->insert_id();
-      $this->sirkulasiBarang ($data['waktu'], $data['belanjadetail']['barang'][$key], 'MASUK', 'BELANJA', $id, $qty);
+      ), $data['waktu'], $reason);
     }
-    $this->sirkulasiKeuangan ('KELUAR', 'BELANJA', $total, $belanja, $data['waktu']);
+    $this->sirkulasiKeuangan ('KELUAR', $reason, $databelanja['total'], $belanja, $data['waktu']);
+  }
+
+  function getDataBelanja ($data) {
+    $databelanja = array('total' => 0, 'record' => array());
+    foreach ($data['belanjadetail']['total'] as $hargatotal) $databelanja['total'] += $hargatotal;
+    $databelanja['record'] = array(
+      'waktu' => $data['waktu'],
+      'karyawan' => $data['karyawan'],
+      'total' => $databelanja['total']
+    );
+    if (isset ($data['id'])) $databelanja['record']['id'] = $data['id'];
+    return $databelanja;
   }
 
   function delete ($id) {
     $waktu = date('Y-m-d H:i:s',time());
+    $reason = 'PEMBATALAN BELANJA';
     $previous = $this->findOne($id);
-    $this->sirkulasiKeuangan('MASUK', 'PEMBATALAN BELANJA', $previous['total'], $id, $waktu);
-    foreach ($this->db->get_where('belanjadetail', array ('belanja' => $id))->result() as $brg)
-      $this->sirkulasiBarang ($waktu, $brg->barang, 'KELUAR', 'PEMBATALAN BELANJA', $brg->id, $brg->qty);
+    $this->sirkulasiKeuangan('MASUK', $reason, $previous['total'], $id, $waktu);
+    $CI =& get_instance();
+    $CI->load->model('belanjadetail');
+    foreach ($this->belanjadetail->find(array('belanja' => $id)) as $delete)
+      $this->belanjadetail->delete($delete->id, $waktu, $reason);
     return parent::delete ($id);
   }
 

@@ -50,7 +50,7 @@ Class my_model extends CI_Model {
     foreach ($this->expandables as &$exp) $exp['subform'] = array();
     if (is_null($id)) return $this->expandables;
     else if (count ($this->expandables == 1) && in_array($this->table . 'detail', $this->db->list_tables()))
-      $this->expandables[0]['subform'] = $this->db->get_where($this->table . 'detail', array($this->table => $id))->result();
+      $this->expandables[0]['subform'] = $this->db->order_by('id', 'DESC')->get_where($this->table . 'detail', array($this->table => $id))->result();
     else {
       foreach ($this->expandables as &$exp) {
         $table = explode('[', $exp['fields'][0][0]);
@@ -80,8 +80,11 @@ Class my_model extends CI_Model {
     }
   }
 
-  function find ($where = array()) {
+  function find ($where = array(), $where_not_in = array()) {
     $this->db->where($where);
+    if (!empty ($where_not_in))
+      foreach ($where_not_in as $field => $values)
+        $this->db->where_not_in($field, $values);
     return $this->db->get($this->table)->result();
   }
 
@@ -94,9 +97,13 @@ Class my_model extends CI_Model {
       $this->db->insert($this->table, $data);
       $data['id'] = $this->db->insert_id();
     } else {
-      return $this->db->where('id', $data['id'])->update($this->table, $data);
+      $this->db->where('id', $data['id'])->update($this->table, $data);
     }
     return $data['id'];
+  }
+
+  function update ($data) {
+    return $this->save($data);
   }
 
   function delete ($id) {

@@ -10,6 +10,8 @@ validate all models, bikin form validation d my_controller, base on my_model
 
 edit mode : 
  + tambah row tidak tersimpan
+ - nambah lebih dari 1 row
+ - gagal validasi, data kembalian kacau
  + kalau saya mau delete row pertama?
 
 pasang autonumeric

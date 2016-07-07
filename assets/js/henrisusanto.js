@@ -22,12 +22,7 @@ $(function () {
       ef.find('select').select2('destroy')
       clone[index] = ef.children('div').clone()
       $('.tambah-item').eq(index).unbind('click').bind('click', function () {
-        clone[index].find('input, select').each(function () {
-          var name = $(this).attr('name')
-          names = name.split('][')
-          name = names[0] + '][]'
-          $(this).attr('name', name).val('')
-        })
+        clone[index].find('input, select').val('').removeAttr('value')
         clone[index].prependTo(ef)
         clone[index] = clone[index].clone()
         ef.find('select').select2()

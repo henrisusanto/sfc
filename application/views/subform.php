@@ -14,8 +14,11 @@
                                     $field = str_replace('[]', '', $sub[0]);
                                     $field = explode('[', $field);
                                     $field = str_replace(']', '', $field[1]);
-                                    $name = str_replace('[]', "[$brg->id]", $sub[0]);
+                                    $name = $sub[0];
                                   ?>
+                                  <?php if ($sub === end ($subfields)): ?>
+                                  <input type="hidden" name="<?= str_replace($field, 'id', $name) ?>" value="<?= $brg->id ?>" />
+                                  <?php endif ?>
                                     <div class="mws-form-col-2-8">
                                         <label class="mws-form-label"><?= $sub[1] ?></label>
                                         <div class="mws-form-item">

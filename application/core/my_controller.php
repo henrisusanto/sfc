@@ -164,7 +164,8 @@ Class my_controller extends CI_Controller {
       if (!is_null($id)) $entity['id'] = $id;
       $valid = $this->$model->validate($entity);
       if ($valid === true) {
-        $this->$model->save($entity);
+        if (isset ($entity['id'])) $this->$model->update($entity);
+        else $this->$model->save($entity);
         redirect($data['tablePage']);
       } else {
         $data['message'] = $valid;
