@@ -11,6 +11,8 @@ Class debitur extends my_model {
     $this->inputFields = array(
       0 => array('nama', 'NAMA DEBITUR')
     );
+    $this->strings = array('nama');
+    $this->required = array('nama');
   }
 
   function find ($where = array()) {

@@ -11,6 +11,8 @@ Class karyawan extends my_model {
     $this->inputFields = array(
       0 => array('nama', 'NAMA KARYAWAN')
     );
+    $this->strings = array('nama');
+    $this->required = array('nama');
   }
 
 }

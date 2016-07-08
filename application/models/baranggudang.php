@@ -16,6 +16,8 @@ Class baranggudang extends my_model {
       2 => array('type', 'GUDANG', 
         array('DEPAN' => 'DEPAN', 'BELAKANG' => 'BELAKANG')),
     );
+    $this->strings = array('nama', 'satuan', 'type');
+    $this->required = array('nama', 'satuan', 'type');
   }
 
 }

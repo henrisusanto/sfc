@@ -6,6 +6,7 @@ Class ayam extends my_model {
     parent::__construct();
     $this->table = 'ayam';
     $this->strings = array('nama');
+    $this->required = array('nama');
     $this->thead = array(
       array('nama','JENIS AYAM'),
       // array('pcs','STOK PCS (EKOR)'),

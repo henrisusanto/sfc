@@ -16,6 +16,8 @@ Class produk extends my_model {
       1 => array('type', 'JENIS PRODUK', array ('ECERAN'=>'ECERAN', 'PAKET'=>'PAKET')),
       2 => array('harga', 'HARGA JUAL'),
     );
+    $this->strings = array('nama', 'type');
+    $this->required = array('nama', 'type', 'harga');
   }
 
   function find ($where = array()) {

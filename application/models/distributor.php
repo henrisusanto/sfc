@@ -11,6 +11,8 @@ Class distributor extends my_model {
     $this->inputFields = array(
       0 => array('nama', 'NAMA DISTRIBUTOR')
     );
+    $this->strings = array('nama');
+    $this->required = array('nama');
   }
 
 }
