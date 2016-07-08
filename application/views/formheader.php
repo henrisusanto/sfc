@@ -11,7 +11,7 @@
                         </span>
                     </a>
 
-                    <?php if (isset($form)): ?>
+                    <?php if (isset($form['id'])): ?>
                     <a class="mws-stat hapus">
                       <span class="mws-stat-icon icol32-cancel"></span>
                         <span class="mws-stat-content">

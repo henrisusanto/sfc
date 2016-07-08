@@ -38,25 +38,30 @@ Class pemotongan extends my_model {
     $this->buildRelation($this->expandables[0]['fields'][0][2], 'ayam');
   }
 
-  function save ($data) {
-    if (!$this->is_ok()) return true;
-    if (isset($data['id'])) $this->delete($data['id']);
-    $ayamhidup = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
-    $atiayam = $this->db->get_where('ayam', array('nama' => 'ATI'))->row_array();
+  function validate ($data) {
+    $syarat = $this->pemotongan->is_ok();
+    if (true !== $syarat) return $syarat;
+    return parent::validate($data);
+  }
 
-    $hasilpcs = 0;
+  function prepare ($data) {
+    $prepared = array();
+    $prepared['ayamhidup'] = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
+    $prepared['atiayam'] = $this->db->get_where('ayam', array('nama' => 'ATI'))->row_array();
+    $hasilpcs= 0;
     $hasilkg = 0;
     $atikg = 0;
+
     foreach ($data['pemotongandetail']['ayam'] as $index => $ayam) {
       if ($ayam == 0) continue;
-      if ($ayam == $atiayam['id']) {
+      if ($ayam == $prepared['atiayam']['id']) {
         $atikg += $data['pemotongandetail']['kg'][$index];
       }else {
         $hasilpcs += $data['pemotongandetail']['pcs'][$index];
         $hasilkg += $data['pemotongandetail']['kg'][$index];        
       }
     }
-    $this->db->insert('pemotongan', array(
+    $prepared['record'] = array(
       'waktu' => $data['waktu'],
       'karyawan' => $data['karyawan'],
       'bahanpcs' => $data['bahanpcs'],
@@ -67,39 +72,101 @@ Class pemotongan extends my_model {
       'per5kg' => $hasilpcs / $hasilkg * 5,
       'susud' => $data['bahankg']  - $hasilkg - $data['kepasar'] - $atikg,
       'kepasar' => $data['kepasar'],
-    ));
-    $pemotongan_id = $this->db->insert_id();
-    $this->sirkulasiAyam ($data['waktu'], $ayamhidup['id'], 'KELUAR', 'PEMOTONGAN', $pemotongan_id, $data['bahanpcs'], $data['bahankg']);
+    );
+    if (isset ($data['id'])) $prepared['record']['id'] = $data['id'];
+    return $prepared;
+  }
+
+  function update ($data) {
+    $reason = 'EDIT PEMOTONGAN';
+    $prepared = $this->prepare($data);
+    $previous = $this->findOne($data['id']);
+    $data['id'] = parent::save($prepared['record']);
+    $waktu = $data['waktu'];
+
+    if ($data['bahanpcs'] > $previous['bahanpcs'] && $data['bahankg'] > $previous['bahankg'])
+      $this->sirkulasiAyam ($waktu, $prepared['ayamhidup']['id'], 'KELUAR', $reason, $data['id'], 
+      $data['bahanpcs'] - $previous['bahanpcs'], $data['bahankg'] - $previous['bahankg']);
+    else if ($data['bahanpcs'] < $previous['bahanpcs'] && $data['bahankg'] < $previous['bahankg'])
+      $this->sirkulasiAyam ($waktu, $prepared['ayamhidup']['id'], 'MASUK', $reason, $data['id'], 
+      $previous['bahanpcs'] - $data['bahanpcs'], $previous['bahankg'] - $data['bahankg']);
+    else {
+      if ($data['bahanpcs'] > $previous['bahanpcs'])
+        $this->sirkulasiAyam ($waktu, $prepared['ayamhidup']['id'], 'KELUAR', $reason, $data['id'], 
+        $data['bahanpcs'] - $previous['bahanpcs'], 0);      
+      if ($data['bahankg'] > $previous['bahankg'])
+        $this->sirkulasiAyam ($waktu, $prepared['ayamhidup']['id'], 'KELUAR', $reason, $data['id'], 
+        0, $data['bahankg'] - $previous['bahankg']);
+      if ($data['bahanpcs'] < $previous['bahanpcs'])
+        $this->sirkulasiAyam ($waktu, $prepared['ayamhidup']['id'], 'MASUK', $reason, $data['id'], 
+        $previous['bahanpcs'] - $data['bahanpcs'], 0);
+      if ($data['bahankg'] < $previous['bahankg'])
+        $this->sirkulasiAyam ($waktu, $prepared['ayamhidup']['id'], 'MASUK', $reason, $data['id'], 
+        0, $previous['bahankg'] - $data['bahankg']);
+    }
+
+    $CI =& get_instance();
+    $CI->load->model('pemotongandetail');
+    $excepted = array();
     foreach ($data['pemotongandetail']['ayam'] as $index => $ayam) {
       if ($ayam == 0) continue;
       $pcs = $data['pemotongandetail']['pcs'][$index];
       $kg = $data['pemotongandetail']['kg'][$index];
-      $this->db->insert('pemotongandetail', array (
+      $detail = array (
+        'pemotongan' => $data['id'],
+        'ayam' => $ayam,
+        'pcs' => $pcs,
+        'kg' => $kg,
+      );
+      if (!empty ($data['pemotongandetail']['id'][$index])) {
+        $detail['id'] = $data['pemotongandetail']['id'][$index];
+        $excepted[] = $this->pemotongandetail->update($detail, $data['waktu'], $reason);
+      } else $excepted[] = $this->pemotongandetail->save($detail, $data['waktu'], $reason);
+    }
+    foreach ($this->pemotongandetail->find(array('pemotongan' => $data['id']), array('id' => $excepted)) as $delete)
+      $this->pemotongandetail->delete($delete->id, $data['waktu'], $reason);
+  }
+
+  function save ($data) {
+    $reason = 'PEMOTONGAN';
+    $prepared = $this->prepare($data);
+    $pemotongan_id = parent::save($prepared['record']);
+    $this->sirkulasiAyam ($data['waktu'], $prepared['ayamhidup']['id'], 'KELUAR', $reason, $pemotongan_id, $data['bahanpcs'], $data['bahankg']);
+
+    $CI =& get_instance();
+    $CI->load->model('pemotongandetail');
+    foreach ($data['pemotongandetail']['ayam'] as $index => $ayam) {
+      if ($ayam == 0) continue;
+      $pcs = $data['pemotongandetail']['pcs'][$index];
+      $kg = $data['pemotongandetail']['kg'][$index];
+      $this->pemotongandetail->save(array (
         'pemotongan' => $pemotongan_id,
         'ayam' => $ayam,
         'pcs' => $pcs,
         'kg' => $kg,
-      ));
-      $pdetail_id = $this->db->insert_id();
-      $this->sirkulasiAyam ($data['waktu'], $ayam, 'MASUK', 'PEMOTONGAN', $pdetail_id, $pcs, $kg);
+      ), $data['waktu'], $reason);
     }
   }
 
   function delete ($pemotongan_id) {
     if (!$this->is_ok()) return true;
+    $reason = 'PEMOTONGAN BATAL';
     $waktu = date('Y-m-d H:i:s',time());
     $ayamhidup = $this->db->get_where('ayam', array('nama' => 'AYAM HIDUP'))->row_array();
     $data = $this->findOne($pemotongan_id);
     $this->sirkulasiAyam (
       $waktu, 
       $ayamhidup['id'], 
-      'MASUK', 'PEMOTONGAN BATAL', 
+      'MASUK', $reason, 
       $pemotongan_id, 
       $data['bahanpcs'], 
       $data['bahankg']
     );
-    foreach ($this->db->get_where('pemotongandetail', array('pemotongan' => $pemotongan_id))->result() as $detail)
-      $this->sirkulasiAyam ($waktu, $detail->ayam, 'KELUAR', 'PEMOTONGAN BATAL', $detail->id, $detail->pcs, $detail->kg);
+
+    $CI =& get_instance();
+    $CI->load->model('pemotongandetail');
+    foreach ($this->pemotongandetail->find(array('pemotongan' => $pemotongan_id)) as $detail)
+      $this->pemotongandetail->delete($detail->id, $waktu, $reason);
     return parent::delete($pemotongan_id);
   }
 
@@ -122,6 +189,7 @@ Class pemotongan extends my_model {
       ->or_where('nama', 'AYAM HIDUP')
       ->get('ayam')
       ->result();
-    return count ($syarat) == 2;
+    return count ($syarat) == 2 ? true : array("PROSES TIDAK DAPAT DILANJUTKAN KARENA 
+    AYAM HIDUP DAN ATAU ATI TIDAK DITEMUKAN DALAM DATA MASTER AYAM MENTAH", 'error');
   }
 }

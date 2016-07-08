@@ -20,3 +20,4 @@ model yg possibly byk record, d ksh filter tanggal, terus d ksh default value
 
 - validasi pesanan, setoran, belanjaayam
 + biar ga delete pas edit
+- tabel sirkulasi masih clickable
