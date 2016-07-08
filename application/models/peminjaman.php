@@ -19,31 +19,46 @@ Class peminjaman extends my_model {
     $this->buildRelation($this->inputFields[1][2], 'debitur');
   }
 
+  function debitur ($debitur, $nominal, $plusminus) {
+    $CI =& get_instance();
+    $CI->load->model('debitur');
+    $debitur = $this->debitur->findOne($debitur);
+    $debitur['saldo'] = $plusminus == '+' ? $debitur['saldo'] + $nominal : $debitur['saldo'] - $nominal;
+    return $this->debitur->save($debitur);
+  }
+
+  function update ($data) {
+    $reason = 'EDIT PEMINJAMAN';
+    $data['type'] = 'PEMINJAMAN';
+    $previous = $this->findOne ($data['id']);
+
+    if ($data['debitur'] != $previous['debitur']) {
+      $this->debitur ($previous['debitur'], $previous['nominal'], '-');
+      $this->debitur ($data['debitur'], $data['nominal'], '+');
+    } else {
+      if ($data['nominal'] > $previous['nominal']) {
+        $this->sirkulasiKeuangan ('MASUK', $reason, $data['nominal'] - $previous['nominal'], $data['id'], $data['waktu']);
+        $this->debitur ($data['debitur'], $data['nominal'] - $previous['nominal'], '+');
+      }
+      if ($data['nominal'] < $previous['nominal']) {
+        $this->sirkulasiKeuangan ('KELUAR', $reason, $previous['nominal'] - $data['nominal'], $data['id'], $data['waktu']);
+        $this->debitur ($data['debitur'], $previous['nominal'] - $data['nominal'], '-');
+      }
+    }
+    return parent::save($data);
+  }
+
   function save ($data) {
     $data['type'] = 'PEMINJAMAN';
-    if (isset($data['id'])) {
-      $record = $this->findOne ($data['id']);
-      $this->sirkulasiKeuangan ('KELUAR','PEMINJAMAN BATAL',$record['nominal'],$record['id'],date('Y-m-d H:i:s',time()));
-      $this->db
-        ->where('id', $data['debitur'])
-        ->set('saldo', 'saldo-'.$record['nominal'],false)
-        ->update('debitur');
-    }
     $data['id'] = parent::save($data);
     $this->sirkulasiKeuangan ('MASUK','PEMINJAMAN',$data['nominal'],$data['id'],$data['waktu']);
-    $this->db
-      ->where('id', $data['debitur'])
-      ->set('saldo', 'saldo+'.$data['nominal'],false)
-      ->update('debitur');
+    $this->debitur ($data['debitur'], $data['nominal'], '+');
   }
 
   function delete ($id) {
     $data = $this->findOne($id);
     $this->sirkulasiKeuangan ('KELUAR','PEMINJAMAN BATAL',$data['nominal'],$data['id'],date('Y-m-d H:i:s',time()));
-    $this->db
-      ->where('id', $data['debitur'])
-      ->set('saldo', 'saldo-'.$data['nominal'],false)
-      ->update('debitur');
+    $this->debitur ($data['debitur'], $data['nominal'], '-');
     return parent::delete($id);
   }
 

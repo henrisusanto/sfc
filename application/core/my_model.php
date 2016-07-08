@@ -24,6 +24,10 @@ Class my_model extends CI_Model {
     return $this->inputFields;
   }
 
+  function getInputStrings () {
+    return isset ($this->strings) ? $this->strings : array();
+  }
+
   function buildFilters ($table, $fkey = null, $label = null) {
     $fkey = is_null($fkey) ? $table : $fkey;
     $label = is_null($label) ? $fkey : $label;
@@ -362,7 +366,8 @@ Class my_model extends CI_Model {
         }
       }
 
-    if (!isset ($this->strings)) $this->strings = array('waktu');
+    if (!isset ($this->strings)) $this->strings = array();
+    $this->strings[] = 'waktu';
     foreach ($this->inputFields as $mainfield) {
       if (isset ($this->required) && in_array ($mainfield[0], $this->required) && empty ($data[$mainfield[0]]))
         return array($mainfield[1] . ' TIDAK BOLEH KOSONG', 'error');

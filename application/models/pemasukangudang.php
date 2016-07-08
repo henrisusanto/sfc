@@ -17,15 +17,22 @@ Class pemasukangudang extends my_model {
       2 => array('item', 'ITEM'),
       3 => array('nominal', 'NOMINAL'),
     );
-
+    $this->strings = array('item');
+    $this->required = array('item', 'nominal');
     $this->buildRelation($this->inputFields[1][2], 'karyawan');
   }
 
+  function update ($data) {
+    $reason = 'PEMASUKAN';
+    $previous = $this->findOne($data['id']);
+    if ($data['nominal'] > $previous['nominal'])
+      $this->sirkulasiKeuangan ('MASUK', $reason, $data['nominal'] - $previous['nominal'], $data['id'], $data['waktu']);
+    if ($data['nominal'] < $previous['nominal'])
+      $this->sirkulasiKeuangan ('KELUAR', $reason, $previous['nominal'] - $data['nominal'], $data['id'], $data['waktu']);
+    return parent::save ($data);    
+  }
+
   function save ($data) {
-    if (isset($data['id'])) {
-      $record = $this->findOne($data['id']);
-      $this->sirkulasiKeuangan ('KELUAR', 'PEMASUKAN BATAL', $record['nominal'], $data['id'], date ('Y-m-d H:i:s', time()));
-    } 
     parent::save ($data);
     $this->sirkulasiKeuangan ('MASUK', 'PEMASUKAN', $data['nominal'], $this->db->insert_id(), $data['waktu']);
   }

@@ -149,6 +149,7 @@ Class my_controller extends CI_Controller {
     } else if ($tpl == 'form') {
       $data['fields'] = $this->$model->getInputFields();
       $data['expandables'] = $this->$model->getExpandables($id);
+      $data['strings'] = $this->$model->getInputStrings();
     }
     $data['tablePage'] = $this->$model->getTablePage($id);
 
