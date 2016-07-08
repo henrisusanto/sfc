@@ -16,4 +16,10 @@ Class debitur extends my_model {
   function find ($where = array()) {
     return parent::find($where);
   }
+
+  function saldo ($debitur, $nominal, $plusminus) {
+    $debitur = $this->findOne($debitur);
+    $debitur['saldo'] = $plusminus == '+' ? $debitur['saldo'] + $nominal : $debitur['saldo'] - $nominal;
+    return $this->save($debitur);
+  }
 }

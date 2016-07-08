@@ -22,9 +22,12 @@ Class peminjaman extends my_model {
   function debitur ($debitur, $nominal, $plusminus) {
     $CI =& get_instance();
     $CI->load->model('debitur');
-    $debitur = $this->debitur->findOne($debitur);
-    $debitur['saldo'] = $plusminus == '+' ? $debitur['saldo'] + $nominal : $debitur['saldo'] - $nominal;
-    return $this->debitur->save($debitur);
+    return $this->debitur->saldo($debitur, $nominal, $plusminus);
+  }
+
+  function validate ($data) {
+    if (0 == $data['debitur']) return array('DEBITUR HARUS DIISI', 'error');
+    return parent::validate($data);
   }
 
   function update ($data) {
