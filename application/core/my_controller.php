@@ -121,17 +121,20 @@ Class my_controller extends CI_Controller {
         $this->load->view('formheader');
         $this->load->view($viewer, $data);
         if (isset($data['expandables']))
-          for ($i=0; $i< count ($data['expandables']); $i++) 
-            $this->load->view('subform', array(
+          for ($i=0; $i< count ($data['expandables']); $i++) {
+            $subform_data = array(
               'subform' => $data['expandables'][$i]['subform'],
               'label' => $data['expandables'][$i]['label'],
               'subfields' => $data['expandables'][$i]['fields'],
-            ));
+            );
+            if (isset ($data['expandables'][$i]['strings']))
+              $subform_data['strings'] = $data['expandables'][$i]['strings'];
+            $this->load->view('subform', $subform_data);
+          }
         $this->load->view('formfooter');
       }
       else $this->load->view($viewer, $data);
     }
-    
     $this->load->view('footer', $data);
   }
 

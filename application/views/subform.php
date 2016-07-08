@@ -15,6 +15,8 @@
                                     $field = explode('[', $field);
                                     $field = str_replace(']', '', $field[1]);
                                     $name = $sub[0];
+                                    $base_field = explode('[', str_replace('][]', '', $sub[0]));
+                                    $base_field = $base_field[1];
                                   ?>
                                   <?php if ($sub === end ($subfields)): ?>
                                   <input type="hidden" name="<?= str_replace($field, 'id', $name) ?>" value="<?= $brg->id ?>" />
@@ -31,10 +33,9 @@
                                               <?php endforeach ?>
                                             </select>
                                           <?php else : ?>
-                                            <input type="text" 
-                                            class="small text-right <?= $sub[0]=='waktu'?'mws-dtpicker':'' ?>" 
-                                            name="<?= $name ?>" 
-                                            value="<?= $brg->$field ?>">
+                                            <input type="text"
+                                            class="small <?= isset ($strings) && in_array($base_field, $strings)?'text-left':'text-right' ?>" 
+                                            name="<?= $name ?>" value="<?= $brg->$field ?>">
                                           <?php endif ?>
                                           <?php if ($sub == end ($subfields)): ?>
                                             <a class="btn btn-danger btn-hapus-subform" onclick="$(this).parent().parent().parent().remove()">HAPUS</a>
@@ -49,6 +50,10 @@
                             <div class="mws-form-row expandable-form">
                                 <div class="mws-form-cols">
                                   <?php foreach ($subfields as $sub):  ?>
+                                    <?php
+                                      $base_field = explode('[', str_replace('][]', '', $sub[0]));
+                                      $base_field = $base_field[1];
+                                    ?>
                                     <div class="mws-form-col-2-8">
                                         <label class="mws-form-label"><?= $sub[1] ?></label>
                                         <div class="mws-form-item">
@@ -61,10 +66,8 @@
                                               <?php endforeach ?>
                                             </select>
                                           <?php else : ?>
-                                            <input type="text" 
-                                            class="small <?= $sub[0]=='waktu'?'mws-dtpicker':'' ?>" 
-                                            name="<?= $sub[0] ?>" 
-                                            value="">
+                                            <input type="text" class="small <?= isset ($strings) && in_array($base_field, $strings)?'text-left':'text-right' ?>" 
+                                            name="<?= $sub[0] ?>" value="">
                                           <?php endif ?>
                                         </div>
                                     </div>

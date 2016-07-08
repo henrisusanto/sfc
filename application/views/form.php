@@ -26,7 +26,7 @@
                                 <label class="mws-form-label"><?= $field[1] ?></label>
                                 <div class="mws-form-item">
                                   <input type="text" 
-                                    class="small <?= $field[0]=='waktu'?'mws-dtpicker':'' ?>" 
+                                    class="small text-right <?= $field[0]=='waktu'?'mws-dtpicker':'' ?>" 
                                     name="<?= $field[0] ?>" 
                                     value="<?= isset($form)?$form[$field[0]]:'' ?>">
                                 </div>
