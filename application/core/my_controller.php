@@ -106,7 +106,7 @@ Class my_controller extends CI_Controller {
     $data['menu'][] = array('SIRKULASI', '#', 'refresh', array(
       // array('KEUANGAN', 'sirkulasi/keuangan'),
       // array('BAHAN GUDANG', 'sirkulasi/barang'),
-      array('AYAM MENTAH', 'sirkulasi/ayam'),
+      array('GUDANG AYAM MENTAH', 'sirkulasi/ayam'),
       array('PRODUK GUDANG', 'sirkulasi/produk'),
       array('KEUANGAN OUTLET', 'sirkulasi/cashflowoutlet'),
       array('BAHAN OUTLET', 'sirkulasi/barangoutlet'),

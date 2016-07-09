@@ -344,18 +344,20 @@ Class my_model extends CI_Model {
   }
 
   function validate ($data) {
-    if (!empty ($this->expandables))
+    if (isset ($this->expandables))
       foreach ($this->expandables as $exp) {
         $detail = $this->getExpDetail($exp);
+        $table = $detail['table'];
+        $fields= $detail['fields'];
         /*  VALIDATE EMPTY SUBFORM  */
-        if (!isset ($data[$detail['table']])) return array($exp['label'] . ' TIDAK BOLEH KOSONG', 'error');
+        if (!isset ($data[$table])) return array($exp['label'] . ' TIDAK BOLEH KOSONG', 'error');
   
         /*  VALIDATE REQUIRED  */
         if (!isset ($exp['required'])) continue;
-        else foreach ($data[$detail['table']][$detail['fields'][0]] as $key => $value) {
+        else foreach ($data[$table][$fields[0]] as $key => $value) {
           foreach ($exp['required'] as $input_name) {
 
-            $user_input = $data[$detail['table']][$input_name][$key];
+            $user_input = $data[$table][$input_name][$key];
             $input_label = strtoupper($input_name);
             if (empty ($user_input)) return array($input_label . ' TIDAK BOLEH KOSONG', 'error');
 

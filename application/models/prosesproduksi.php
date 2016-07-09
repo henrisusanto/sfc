@@ -68,12 +68,12 @@ Class prosesproduksi extends my_model {
     $CI->load->model($this->submodel);
 
     $excepted = array();
-    foreach ($data['produksiproduk']['produk'] as $index => $produk) {
+    foreach ($data['produksiproduk']['produk'] as $key => $produk) {
       if ($produk == 0) continue;
       $produksiproduk = array(
         'produksi' => $data['id'],
         'produk' => $produk,
-        'qty' => $data['produksiproduk']['qty'][$index]
+        'qty' => $data['produksiproduk']['qty'][$key]
       );
       if (!empty ($data['produksiproduk']['id'][$key])) {
         $produksiproduk['id'] = $data['produksiproduk']['id'][$key];
@@ -86,12 +86,12 @@ Class prosesproduksi extends my_model {
         $this->produksiproduk->delete($delete->id, $data['reason'], $data['waktu'], $data['outlet']);
 
     $excepted = array();
-    foreach ($data['produksibarang']['barang'] as $index => $barang) {
+    foreach ($data['produksibarang']['barang'] as $key => $barang) {
       if ($barang == 0) continue;
       $produksibarang = array(
         'produksi' => $data['id'],
         'barang' => $barang,
-        'qty' => $data['produksibarang']['qty'][$index]
+        'qty' => $data['produksibarang']['qty'][$key]
       );
       if (!empty ($data['produksibarang']['id'][$key])) {
         $produksibarang['id'] = $data['produksibarang']['id'][$key];
@@ -104,13 +104,13 @@ Class prosesproduksi extends my_model {
         $this->produksibarang->delete($delete->id, $data['reason'], $data['waktu'], $data['outlet']);
 
     $excepted = array();
-    foreach ($data['produksiayam']['ayam'] as $index => $ayam) {
+    foreach ($data['produksiayam']['ayam'] as $key => $ayam) {
       if ($ayam == 0) continue;
       $produksiayam = array(
         'produksi' => $data['id'],
         'ayam' => $ayam,
-        'pcs' => $data['produksiayam']['pcs'][$index],
-        'kg' => $data['produksiayam']['kg'][$index]
+        'pcs' => $data['produksiayam']['pcs'][$key],
+        'kg' => $data['produksiayam']['kg'][$key]
       );
       if (!empty ($data['produksiayam']['id'][$key])) {
         $produksiayam['id'] = $data['produksiayam']['id'][$key];

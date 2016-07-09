@@ -10,31 +10,55 @@ Class produksiayam extends my_model {
   function update ($data, $waktu, $reason, $outlet) {
     $previous = $this->findOne($data['id']);
     $data['id'] = parent::save($data);
-    if ($data['ekor'] > $previous['ekor'] && $data['kg'] > $previous['kg'])
-      $this->sirkulasiAyam ($data['waktu'], $data['ayam'], 'KELUAR', $reason, $data['id'], 
-      $data['ekor'] - $previous['ekor'], $data['kg'] - $previous['kg']);
-    else if ($data['ekor'] < $previous['ekor'] && $data['kg'] < $previous['kg'])
-      $this->sirkulasiAyam ($data['waktu'], $data['ayam'], 'MASUK', $reason, $data['id'], 
-      $previous['ekor'] - $data['ekor'], $previous['kg'] - $data['kg']);
-    else {
-      if ($data['ekor'] > $previous['ekor'])
-        $this->sirkulasiAyam ($data['waktu'], $data['ayam'], 'KELUAR', $reason, $data['id'], 
-        $data['ekor'] - $previous['ekor'], 0);      
-      if ($data['kg'] > $previous['kg'])
-        $this->sirkulasiAyam ($data['waktu'], $data['ayam'], 'KELUAR', $reason, $data['id'], 
-        0, $data['kg'] - $previous['kg']);
-      if ($data['ekor'] < $previous['ekor'])
-        $this->sirkulasiAyam ($data['waktu'], $data['ayam'], 'MASUK', $reason, $data['id'], 
-        $previous['ekor'] - $data['ekor'], 0);
-      if ($data['kg'] < $previous['kg'])
-        $this->sirkulasiAyam ($data['waktu'], $data['ayam'], 'MASUK', $reason, $data['id'], 
-        0, $previous['kg'] - $data['kg']);
+    if (0 == $outlet) {
+      if ($data['pcs'] > $previous['pcs'] && $data['kg'] > $previous['kg'])
+        $this->sirkulasiAyam ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], 
+        $data['pcs'] - $previous['pcs'], $data['kg'] - $previous['kg']);
+      else if ($data['pcs'] < $previous['pcs'] && $data['kg'] < $previous['kg'])
+        $this->sirkulasiAyam ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], 
+        $previous['pcs'] - $data['pcs'], $previous['kg'] - $data['kg']);
+      else {
+        if ($data['pcs'] > $previous['pcs'])
+          $this->sirkulasiAyam ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], 
+          $data['pcs'] - $previous['pcs'], 0);      
+        if ($data['kg'] > $previous['kg'])
+          $this->sirkulasiAyam ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], 
+          0, $data['kg'] - $previous['kg']);
+        if ($data['pcs'] < $previous['pcs'])
+          $this->sirkulasiAyam ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], 
+          $previous['pcs'] - $data['pcs'], 0);
+        if ($data['kg'] < $previous['kg'])
+          $this->sirkulasiAyam ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], 
+          0, $previous['kg'] - $data['kg']);
+      }
+    } else {
+      if ($data['pcs'] > $previous['pcs'] && $data['kg'] > $previous['kg'])
+        $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], 
+        $data['pcs'] - $previous['pcs'], $data['kg'] - $previous['kg'], $outlet);
+      else if ($data['pcs'] < $previous['pcs'] && $data['kg'] < $previous['kg'])
+        $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], 
+        $previous['pcs'] - $data['pcs'], $previous['kg'] - $data['kg'], $outlet);
+      else {
+        if ($data['pcs'] > $previous['pcs'])
+          $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], 
+          $data['pcs'] - $previous['pcs'], 0, $outlet);      
+        if ($data['kg'] > $previous['kg'])
+          $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], 
+          0, $data['kg'] - $previous['kg'], $outlet);
+        if ($data['pcs'] < $previous['pcs'])
+          $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], 
+          $previous['pcs'] - $data['pcs'], 0, $outlet);
+        if ($data['kg'] < $previous['kg'])
+          $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], 
+          0, $previous['kg'] - $data['kg'], $outlet);
+      }
     }
   }
 
   function save ($data, $waktu, $reason, $outlet) {
-    if ($outlet==0) $this->sirkulasiAyam ($waktu, $ayam, 'KELUAR', $reason, $fkey, $pcs, $kg);
-    else $this->sirkulasiAyamOutlet ($waktu, $ayam, 'KELUAR', $reason, $fkey, $pcs, $kg, $outlet);
+    $data['id'] = parent::save($data);
+    if ($outlet==0) $this->sirkulasiAyam ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], $data['pcs'], $data['kg']);
+    else $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], $data['pcs'], $data['kg'], $outlet);
   }
 
   function delete ($id, $reason, $waktu, $outlet) {

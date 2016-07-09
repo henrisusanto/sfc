@@ -10,7 +10,8 @@
                               <div class="mws-form-row">
                                 <label class="mws-form-label"><?= $field[1] ?></label>
                                 <div class="mws-form-item">
-                                  <select name="<?= $field[0] ?>" class="small">
+                                  <select name="<?= $field[0] ?>" class="small" 
+                                    <?= $field[0]=='outlet'&&isset($form[$field[0]])?'disabled="disabled"':'' ?>>
                                     <?php foreach ($field[2] as $value => $option): ?>
                                       <option value="<?= $value ?>" <?= isset($form)&&$form[$field[0]]==$value?'selected':'' ?>>
                                         <?= $option ?>

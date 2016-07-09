@@ -1,4 +1,5 @@
 function sfcSubmitForm () {
+  $('input, select').removeAttr('disabled')
   $('form').submit()
 }
 

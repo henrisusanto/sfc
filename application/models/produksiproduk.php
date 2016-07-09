@@ -21,6 +21,7 @@ Class produksiproduk extends my_model {
   }
 
   function save ($data, $waktu, $reason, $outlet) {
+    $data['id'] = parent::save($data);
     if ($outlet==0) $this->sirkulasiProduk ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $data['qty']);
     else $this->sirkulasiProdukOutlet ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $data['qty'], $outlet);    
   }

@@ -11,16 +11,18 @@ validate all models, bikin form validation d my_controller, base on my_model
 edit mode : 
  + tambah row tidak tersimpan
  + nambah lebih dari 1 row
- ? gagal validasi, data kembalian kacau
+ + gagal validasi, data kembalian kacau
  + kalau saya mau delete row pertama?
 
 pasang autonumeric
 model yg possibly byk record, d ksh filter tanggal, terus d ksh default value
 + way to validate done, lihat ke model belanja
 
-- validasi pesanan, setoran, belanjaayam
++ validasi pesanan, setoran, belanjaayam
 + biar ga delete pas edit
-- tabel sirkulasi masih clickable
-- edit produksi : ganti outlet (incl. ke gudang)
++ edit produksi : ganti outlet (incl. ke gudang)
 + EDIT MODE : TRANSACTION - GANTI FIELD PERTAMA
   + MATIIN AJA DROPDOWN NYA DARIPADA CAPEK
+
+- tabel sirkulasi masih clickable
+- menu sirkulasi bahan outlet, bikin keluar masuk

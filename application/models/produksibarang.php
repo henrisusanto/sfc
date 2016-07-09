@@ -11,16 +11,17 @@ Class produksibarang extends my_model {
     $previous = $this->findOne($data['id']);
     $data['id'] = parent::save($data);
     if ($data['qty'] > $previous['qty']) {
-      return 0 == $outlet ? $this->sirkulasiBarang ($waktu, $data['barang'], 'KELUAR', $reason, $id, $data['qty'] - $previous['qty']):
-      $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'KELUAR', $reason, $id, $data['qty'] - $previous['qty'], $outlet);
+      return 0 == $outlet ? $this->sirkulasiBarang ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $data['qty'] - $previous['qty']):
+      $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $data['qty'] - $previous['qty'], $outlet);
     }
     if ($data['qty'] < $previous['qty']) {
-      return 0 == $outlet ? $this->sirkulasiBarang ($waktu, $data['barang'], 'MASUK', $reason, $id, $previous['qty'] - $data['qty']):
-      $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'MASUK', $reason, $id, $previous['qty'] - $data['qty'], $outlet);
+      return 0 == $outlet ? $this->sirkulasiBarang ($waktu, $data['barang'], 'MASUK', $reason, $data['id'], $previous['qty'] - $data['qty']):
+      $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'MASUK', $reason, $data['id'], $previous['qty'] - $data['qty'], $outlet);
     }
   }
 
   function save ($data, $waktu, $reason, $outlet) {
+    $data['id'] = parent::save($data);
     if ($outlet==0) $this->sirkulasiBarang ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $data['qty']);
     else $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $data['qty'], $outlet);
   }
