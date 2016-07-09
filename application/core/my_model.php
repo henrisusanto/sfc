@@ -377,26 +377,29 @@ Class my_model extends CI_Model {
     return true;
   }
 
+  /*  KEMBALIKAN ISIAN FORMULIR USER SAAT GAGAL VALIDASI  */
   function prePopulate ($entity, $data) {
-    /*  KEMBALIKAN ISIAN FORMULIR USER SAAT GAGAL VALIDASI  */
-    /*  1. FORM TANPA SUBFORM  */
     $data['form'] = $entity;
 
-    /*  2. FORM DENGAN 1 SUBFORM  */
-    foreach ($entity as $index => $value) {
-      if (is_array ($value)) {
-        foreach ($value as $field => $content) {
-          foreach ($content as $obj => $input) {
-            if (!isset ($data['expandables'][0]['subform'][$obj])) {
-              $data['expandables'][0]['subform'][$obj] = new stdClass();
-              $data['expandables'][0]['subform'][$obj]->id = 0;
-            } 
-            $data['expandables'][0]['subform'][$obj]->$field = $input;
+    if (isset ($this->expandables))
+      foreach ($this->expandables as $exp) {
+        $detail = $this->getExpDetail($exp);
+        $table = $detail['table'];
+  
+        foreach ($data['expandables'] as &$dex) {
+          if ($dex['label'] != $exp['label']) continue;
+          foreach ($entity[$table] as $field => $values) {
+            foreach ($values as $index => $value) {
+              if (!isset ($dex['subform'][$index])) {
+                $dex['subform'][$index] = new stdClass();
+                $dex['subform'][$index]->id = 0;
+              } 
+              $dex['subform'][$index]->$field = $value;            
+            }
           }
         }
       }
-    }
-    /*  3. FORM DENGAN BANYAK SUBFORM  */
+    
     return $data;
   }
 

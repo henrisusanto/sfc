@@ -25,7 +25,8 @@
                                         <label class="mws-form-label"><?= $sub[1] ?></label>
                                         <div class="mws-form-item">
                                           <?php if (isset($sub[2])): ?>
-                                            <select name="<?= $name ?>" class="small">
+                                            <select name="<?= $name ?>" class="small" 
+                                              <?= 0!=$brg->id && $sub==reset($subfields)?'disabled="disabled"':'' ?> >
                                               <?php foreach ($sub[2] as $value => $option): ?>
                                                 <option value="<?= $value ?>" <?= $value == $brg->$field ? 'selected' : '' ?>>
                                                   <?= $option ?>

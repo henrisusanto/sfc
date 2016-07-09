@@ -25,7 +25,8 @@ Class prosesproduksi extends my_model {
       'fields' => array (
         0 => array('produksiproduk[produk][]', 'NAMA PRODUK'),
         1 => array('produksiproduk[qty][]', 'JUMLAH PCS'),
-      )
+      ),
+      'required' => array('produk', 'qty')
     );
     $this->buildRelation($this->expandables[0]['fields'][0][2], 'produk');
 
@@ -34,7 +35,8 @@ Class prosesproduksi extends my_model {
       'fields' => array (
         0 => array('produksibarang[barang][]', 'BAHAN'),
         1 => array('produksibarang[qty][]', 'JUMLAH SATUAN'),
-      )
+      ),
+      'required' => array('barang', 'qty')
     );
     $this->buildRelation($this->expandables[1]['fields'][0][2], 'baranggudang');
 
@@ -47,94 +49,110 @@ Class prosesproduksi extends my_model {
       )
     );
     $this->buildRelation($this->expandables[2]['fields'][0][2], 'ayam');
+    $this->submodel = array('produksibarang', 'produksiayam', 'produksiproduk');
+  }
+
+  function prepare ($data) {
+    $prepared = array();
+    $prepared['record'] = array(
+      'waktu' => $data['waktu'],
+      'karyawan' => $data['karyawan'],
+      'outlet' => $data['outlet']
+    );
+    if (isset ($data['id'])) $prepared['record']['id'] = $data['id'];
+    return $prepared;
+  }
+
+  function submodel ($data) {
+    $CI =& get_instance();
+    $CI->load->model($this->submodel);
+
+    $excepted = array();
+    foreach ($data['produksiproduk']['produk'] as $index => $produk) {
+      if ($produk == 0) continue;
+      $produksiproduk = array(
+        'produksi' => $data['id'],
+        'produk' => $produk,
+        'qty' => $data['produksiproduk']['qty'][$index]
+      );
+      if (!empty ($data['produksiproduk']['id'][$key])) {
+        $produksiproduk['id'] = $data['produksiproduk']['id'][$key];
+        $excepted[] = $this->produksiproduk->update($produksiproduk, $data['waktu'], $data['reason'], $data['outlet']);
+      }
+      else $excepted[] = $this->produksiproduk->save($produksiproduk, $data['waktu'], $data['reason'], $data['outlet']);
+    }
+    if (!empty ($excepted))
+      foreach ($this->produksiproduk->find(array('produksi' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->produksiproduk->delete($delete->id, $data['reason'], $data['waktu'], $data['outlet']);
+
+    $excepted = array();
+    foreach ($data['produksibarang']['barang'] as $index => $barang) {
+      if ($barang == 0) continue;
+      $produksibarang = array(
+        'produksi' => $data['id'],
+        'barang' => $barang,
+        'qty' => $data['produksibarang']['qty'][$index]
+      );
+      if (!empty ($data['produksibarang']['id'][$key])) {
+        $produksibarang['id'] = $data['produksibarang']['id'][$key];
+        $excepted[] = $this->produksibarang->update($produksibarang, $data['waktu'], $data['reason'], $data['outlet']);
+      }
+      else $excepted[] = $this->produksibarang->save($produksibarang, $data['waktu'], $data['reason'], $data['outlet']);
+    }
+    if (!empty ($excepted))
+      foreach ($this->produksibarang->find(array('produksi' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->produksibarang->delete($delete->id, $data['reason'], $data['waktu'], $data['outlet']);
+
+    $excepted = array();
+    foreach ($data['produksiayam']['ayam'] as $index => $ayam) {
+      if ($ayam == 0) continue;
+      $produksiayam = array(
+        'produksi' => $data['id'],
+        'ayam' => $ayam,
+        'pcs' => $data['produksiayam']['pcs'][$index],
+        'kg' => $data['produksiayam']['kg'][$index]
+      );
+      if (!empty ($data['produksiayam']['id'][$key])) {
+        $produksiayam['id'] = $data['produksiayam']['id'][$key];
+        $excepted[] = $this->produksiayam->update($produksiayam, $data['waktu'], $data['reason'], $data['outlet']);
+      }
+      else $excepted[] = $this->produksiayam->save($produksiayam, $data['waktu'], $data['reason'], $data['outlet']);
+    }
+    if (!empty ($excepted))
+      foreach ($this->produksiayam->find(array('produksi' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->produksiayam->delete($delete->id, $data['reason'], $data['waktu'], $data['outlet']);
+
+  }
+
+  function update ($data) {
+    $previous = $this->findOne($data['id']);
+    $prepared = $this->prepare($data);
+    $data['reason'] = 'EDIT PRODUKSI';
+    $data['id'] = parent::save($prepared['record']);
+    $this->submodel($data);
+    return $data['id'];
   }
 
   function save ($data) {
-    $waktu = $data['waktu'];
-    $outlet = $data['outlet'];
-    $record = array(
-      'waktu' => $waktu,
-      'karyawan' => $data['karyawan'],
-      'outlet' => $outlet
-    );
-    if (isset($data['id'])) {
-      $this->delete($data['id']);
-      $record['id'] = $data['id'];
-    }
-    $this->db->insert($this->table, $record);
-    $produksiId = $this->db->insert_id();
-    $transaksi = 'PRODUKSI';
-
-    foreach ($data['produksiproduk']['produk'] as $index => $produk) {
-      if ($produk == 0) continue;
-      $qty = $data['produksiproduk']['qty'][$index];
-      $this->db->insert('produksiproduk', array(
-        'produksi' => $produksiId,
-        'produk' => $produk,
-        'qty' => $qty
-      ));
-      $fkey = $this->db->insert_id();
-      if ($outlet==0) $this->sirkulasiProduk ($waktu, $produk, 'MASUK', $transaksi, $fkey, $qty);
-      else $this->sirkulasiProdukOutlet ($waktu, $produk, 'MASUK', $transaksi, $fkey, $qty, $outlet);
-    }
-
-    foreach ($data['produksibarang']['barang'] as $index => $barang) {
-      if ($barang == 0) continue;
-      $qty = $data['produksibarang']['qty'][$index];
-      $this->db->insert('produksibarang', array(
-        'produksi' => $produksiId,
-        'barang' => $barang,
-        'qty' => $qty
-      ));
-      $fkey = $this->db->insert_id();
-      if ($outlet==0) $this->sirkulasiBarang ($waktu, $barang, 'KELUAR', $transaksi, $fkey, $qty);
-      else $this->sirkulasiBarangOutlet ($waktu, $barang, 'KELUAR', $transaksi, $fkey, $qty, $outlet);
-    }
-
-    foreach ($data['produksiayam']['ayam'] as $index => $ayam) {
-      if ($ayam == 0) continue;
-      $pcs = $data['produksiayam']['pcs'][$index];
-      $kg = $data['produksiayam']['kg'][$index];
-      $this->db->insert('produksiayam', array(
-        'produksi' => $produksiId,
-        'ayam' => $ayam,
-        'pcs' => $pcs,
-        'kg' => $kg
-      ));
-      $fkey = $this->db->insert_id();
-      if ($outlet==0) $this->sirkulasiAyam ($waktu, $ayam, 'KELUAR', $transaksi, $fkey, $pcs, $kg);
-      else $this->sirkulasiAyamOutlet ($waktu, $ayam, 'KELUAR', $transaksi, $fkey, $pcs, $kg, $outlet);
-    }
+    $prepared = $this->prepare($data);
+    $data['reason'] = 'PRODUKSI';
+    $data['id'] = parent::save($prepared['record']);
+    $this->submodel($data);
+    return $data['id'];
   }
 
   function delete ($id) {
-    $transaksi = 'PRODUKSI BATAL';
+    $CI =& get_instance();
+    $CI->load->model($this->submodel);
+
     $data = $this->findOne($id);
-    $waktu = date('Y-m-d H:i:s',time());
-    $pkey = array('produksi' => $id);
-    $outlet = $data['outlet'];
-    $produk = $this->db->get_where('produksiproduk', $pkey)->result();
-    $barang = $this->db->get_where('produksibarang', $pkey)->result();
-    $ayam   = $this->db->get_where('produksiayam', $pkey)->result();
+    foreach ($this->submodel as $submodel) {
+      foreach ($this->$submodel->find(array('produksi' => $id)) as $subrecord) {
+        $this->$submodel->delete ($subrecord->id, 'PRODUKSI BATAL', date('Y-m-d H:i:s',time()), $data['outlet']);
+      }
+    }
 
-    foreach ($produk as $p)
-      $sirprod = strlen($outlet) > 0 ?
-        $this->sirkulasiProduk ($waktu, $p->produk, 'KELUAR', $transaksi, $p->id, $p->qty):
-        $this->sirkulasiProdukOutlet ($waktu, $p->produk, 'KELUAR', $transaksi, $p->id, $p->qty, $outlet);
-
-    foreach ($barang as $b)
-      $sirbar = strlen($outlet) > 0 ?
-        $this->sirkulasiBarang ($waktu, $b->barang, 'MASUK', $transaksi, $b->id, $b->qty):
-        $this->sirkulasiBarangOutlet ($waktu, $b->barang, 'MASUK', $transaksi, $b->id, $b->qty, $outlet);
-
-    foreach ($ayam as $a)
-      $siryam = strlen($outlet) > 0 ?
-        $this->sirkulasiAyam ($waktu, $a->ayam, 'MASUK', $transaksi, $a->id, $a->pcs, $a->kg):
-        $this->sirkulasiAyamOutlet ($waktu, $a->ayam, 'MASUK', $transaksi, $a->id, $a->pcs, $a->kg, $outlet);
-
-    foreach (array('produksiproduk', 'produksibarang', 'produksiayam') as $child)
-      $this->db->where('produksi', $id)->delete($child);
-    return $this->db->where('id', $id)->delete('produksi');
+    return parent::delete($id);
   }
 
   function find ($where = array()) {
