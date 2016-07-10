@@ -25,5 +25,7 @@ model yg possibly byk record, d ksh filter tanggal, terus d ksh default value
   + MATIIN AJA DROPDOWN NYA DARIPADA CAPEK
 
 - tabel sirkulasi masih clickable
+- sirkulasi order asc
 - menu sirkulasi bahan outlet, bikin keluar masuk
-- delete validation
+- validate deletion
+- test bawaan, modal only

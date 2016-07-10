@@ -39,5 +39,6 @@ Class pesananayam extends my_model {
 
   function delete ($data, $waktu, $reason) {
     $this->sirkulasiAyam ($waktu, $data->ayam, 'MASUK', $transaksi, $data->id, $data->pcs, $data->kg);
+    return parent::delete($data->id);
   }
 }

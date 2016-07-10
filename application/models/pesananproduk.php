@@ -24,5 +24,6 @@ Class pesananproduk extends my_model {
   function delete ($data, $waktu, $reason) {
     $this->sirkulasiProduk ($waktu, $data->produk, 'KELUAR', $reason, $data->id, $data->qty);
     $this->sirkulasiProduk ($waktu, $data->produk, 'MASUK', $reason, $data->id, $data->qty);
+    return parent::delete($data->id);
   }
 }
