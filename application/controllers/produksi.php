@@ -19,50 +19,7 @@ class produksi extends my_controller {
   }
 
   public function pesanan ($tpl='table', $id=null) {
-    $this->load->library('session');
-    $model = 'pesanan';
-    $data = array('entity' => $model);
-    $post = $this->input->post();
-    $this->load->model($model);
-
-    if ($tpl == 'table') {
-      $data['thead'] = $this->$model->getTHead();
-      $data['tbody'] = $this->$model->find();
-    } else if ($tpl == 'form') {
-      $data['fields'] = $this->$model->getInputFields();
-      $data['expandables'] = $this->$model->getExpandables($id);
-      $data['strings'] = $this->$model->getInputStrings();
-    }
-    $data['tablePage'] = $this->$model->getTablePage($id);
-
-    if ($tpl == 'delete') {
-      $message = $this->$model->delete($id);
-      if (strlen($message) > 0) $this->session->set_flashdata('message', $message);
-      redirect($data['tablePage']);
-    }
-
-    if ($tpl == 'form' && $post) {
-      $entity = array();
-      foreach ($data['fields'] as $input) {
-        $field = $input[0];
-        $entity[$field] = $post[$field];
-      }
-      if (!empty($data['expandables'])) $entity = $post;
-      $valid = $this->$model->validate($entity);
-      if ($valid === true) {
-        $this->$model->save($entity);
-        redirect($data['tablePage']);
-      } else {
-        $data['message'] = $valid;
-        $data = $this->$model->prePopulate($entity, $data);
-      }
-    }
-
-    if (!is_null($id))  $data['form'] = $this->$model->findOne($id);
-    if ($this->session->flashdata('message'))
-      $data['message'] = array($this->session->flashdata('message'), 'error');
-
-    $this->loadview($tpl, $data);
+    $this->crud ('pesanan', $tpl, $id);
   }
   
 }

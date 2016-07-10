@@ -5,6 +5,7 @@ Class pesanan extends my_model {
   function __construct () {
     parent::__construct();
     $this->table = 'pesanan';
+    $this->submodel = array('pesananbarang', 'pesananproduk', 'pesananayam');
     $this->thead = array(
       array('waktu','TANGGAL'),
       array('outlet','OUTLET'),
@@ -17,12 +18,14 @@ Class pesanan extends my_model {
       1 => array('outlet', 'OUTLET'),
       2 => array('customer', 'NAMA CUSTOMER'),
     );
-
+    $this->required = array('customer', 'outlet');
+    $this->strings = array('customer');
     $this->buildRelation($this->inputFields[1][2], 'outlet');
 
     $this->expandables = array();
     $this->expandables[0] = array(
       'label' => 'DAFTAR PRODUK YANG DIPESAN',
+      'required' => array('produk', 'qty'),
       'fields' => array (
         0 => array('pesananproduk[produk][]', 'NAMA PRODUK'),
         1 => array('pesananproduk[qty][]', 'JUMLAH'),
@@ -32,6 +35,7 @@ Class pesanan extends my_model {
 
     $this->expandables[1] = array(
       'label' => 'DAFTAR BAHAN YANG DIGUNAKAN',
+      'required' => array('barang', 'qty'),
       'fields' => array (
         0 => array('pesananbarang[barang][]', 'NAMA BAHAN'),
         1 => array('pesananbarang[qty][]', 'JUMLAH'),
@@ -41,6 +45,7 @@ Class pesanan extends my_model {
 
     $this->expandables[2] = array(
       'label' => 'DAFTAR AYAM YANG DIPAKAI',
+      'required' => array('ayam', 'pcs', 'kg'),
       'fields' => array (
         0 => array('pesananayam[ayam][]', 'AYAM'),
         1 => array('pesananayam[pcs][]', 'JUMLAH'),
@@ -50,7 +55,7 @@ Class pesanan extends my_model {
     $this->buildRelation($this->expandables[2]['fields'][0][2], 'ayam', array('nama <>' => 'AYAM HIDUP'));
   }
 
-  function save ($data) {
+  function prepare ($data) {
     $total = 0;
     $waktu = $data['waktu'];
     $transaksi = 'PESANAN';
@@ -65,63 +70,88 @@ Class pesanan extends my_model {
       'customer' => $data['customer'],
       'total' => $total
     );
-    if (isset($data['id'])) {
-      $message = $this->delete($data['id']);
-      if (strlen($message) > 0) return $message;
-      $record['id'] = $data['id'];
-    }
-    $this->db->insert('pesanan', $record);
-    $pid = $this->db->insert_id();
+    if (isset ($data['id'])) $record['id'] = $data['id'];
+    return $record;
+  }
 
+  function submodel ($data) {
+    $CI =& get_instance();
+    foreach ($this->submodel as $submodel) $CI->load->model($submodel);
+
+    $excepted = array();
     foreach ($data['pesananproduk']['produk'] as $index => $produk) {
-      $qty = $data['pesananproduk']['qty'][$index];
-      $this->db->insert('pesananproduk', array(
-        'pesanan' => $pid,
+      $record = array(
+        'pesanan' => $data['id'],
         'produk' => $produk,
-        'qty' => $qty
-      ));
-      $fkey = $this->db->insert_id();
-      $this->sirkulasiProduk ($waktu, $produk, 'MASUK', $transaksi, $fkey, $qty);
-      $this->sirkulasiProduk ($waktu, $produk, 'KELUAR', $transaksi, $fkey, $qty);
+        'qty' => $data['pesananproduk']['qty'][$index]
+      );
+      if (!empty ($data['pesananproduk']['id'][$index])) {
+        $record['id'] = $data['pesananproduk']['id'][$index];
+        $excepted[] = $this->pesananproduk->update($record, $data['waktu'], $data['reason']);
+      } else $excepted[] = $this->pesananproduk->save($record, $data['waktu'], $data['reason']);
     }
+    foreach ($this->pesananproduk->find(array('pesanan' => $data['id']), array('id' => $excepted)) as $delete)
+      $this->pesananproduk->delete($delete, $data['waktu'], $data['reason']);
 
+    $excepted = array();
     foreach ($data['pesananbarang']['barang'] as $index => $barang) {
-      $qty = $data['pesananbarang']['qty'][$index];
-      $this->db->insert('pesananbarang', array(
-        'pesanan' => $pid,
+      $record = array(
+        'pesanan' => $data['id'],
         'barang' => $barang,
-        'qty' => $qty
-      ));
-      $this->sirkulasiBarang ($waktu, $barang, 'KELUAR', $transaksi, $this->db->insert_id(), $qty);
+        'qty' => $data['pesananbarang']['qty'][$index]
+      );
+      if (!empty ($data['pesananbarang']['id'][$index])) {
+        $record['id'] = $data['pesananbarang']['id'][$index];
+        $excepted[] = $this->pesananbarang->update($record, $data['waktu'], $data['reason']);
+      } else $excepted[] = $this->pesananbarang->save($record, $data['waktu'], $data['reason']);
     }
+    foreach ($this->pesananbarang->find(array('pesanan' => $data['id']), array('id' => $excepted)) as $delete)
+      $this->pesananbarang->delete($delete, $data['waktu'], $data['reason']);
 
+    $excepted = array();
     foreach ($data['pesananayam']['ayam'] as $index => $ayam) {
-      $pcs = $data['pesananayam']['pcs'][$index];
-      $kg = $data['pesananayam']['kg'][$index];
-      $this->db->insert('pesananayam', array(
-        'pesanan' => $pid,
+      $record = array(
+        'pesanan' => $data['id'],
         'ayam' => $ayam,
-        'pcs' => $pcs,
-        'kg' => $kg
-      ));
-      $this->sirkulasiAyam ($waktu, $ayam, 'KELUAR', $transaksi, $this->db->insert_id(), $pcs, $kg);
+        'pcs' => $data['pesananayam']['pcs'][$index],
+        'kg' => $data['pesananayam']['kg'][$index]
+      );
+      if (!empty ($data['pesananayam']['id'][$index])) {
+        $record['id'] = $data['pesananayam']['id'][$index];
+        $excepted[] = $this->pesananayam->update($record, $data['waktu'], $data['reason']);
+      } else $excepted[] = $this->pesananayam->save($record, $data['waktu'], $data['reason']);
     }
+    foreach ($this->pesananayam->find(array('pesanan' => $data['id']), array('id' => $excepted)) as $delete)
+      $this->pesananayam->delete($delete, $data['waktu'], $data['reason']);
+  }
+
+  function update ($data) {
+    $data['reason'] = 'EDIT PESANAN';
+    $record = $this->prepare($data);
+    $data['id'] = parent::save($record);
+    $this->submodel($data);
+  }
+
+  function save ($data) {
+    $data['reason'] = 'PESANAN';
+    $record = $this->prepare($data);
+    $data['id'] = parent::save($record);
+    $this->submodel($data);
   }
 
   function delete ($id) {
     $dibayar = $this->db->get_where('pesananbayar', array('pesanan' => $id))->result();
     if (count ($dibayar) > 0) return 'UNTUK MENJAGA KONSISTENSI DATA, PESANAN YANG TELAH DIBAYAR TIDAK DAPAT DIHAPUS ATAU DI-EDIT';
-    $transaksi = 'PESANAN BATAL';
+
+    $reason = 'PESANAN BATAL';
     $waktu = date('Y-m-d H:i:s',time());
-    $fkey = $id;
-    foreach ($this->db->get_where('pesananproduk', array('pesanan' => $id))->result() as $child) {
-      $this->sirkulasiProduk ($waktu, $child->produk, 'KELUAR', $transaksi, $fkey, $child->qty);
-      $this->sirkulasiProduk ($waktu, $child->produk, 'MASUK', $transaksi, $fkey, $child->qty);
+    $CI =& get_instance();
+    foreach ($this->submodel as $submodel) {
+      $CI->load->model($submodel);
+      foreach ($this->$submodel->find(array('pesanan' => $id)) as $delete)
+        $this->$submodel->delete($delete, $waktu, $reason);
     }
-    foreach ($this->db->get_where('pesananbarang', array('pesanan' => $id))->result() as $child)
-      $this->sirkulasiBarang ($waktu, $child->barang, 'MASUK', $transaksi, $fkey, $child->qty);
-    foreach ($this->db->get_where('pesananayam', array('pesanan' => $id))->result() as $child)
-      $this->sirkulasiAyam ($waktu, $child->ayam, 'MASUK', $transaksi, $fkey, $child->pcs, $child->kg);
+
     parent::delete($id);
     return '';
   }
