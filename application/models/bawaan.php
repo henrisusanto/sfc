@@ -48,6 +48,23 @@ Class bawaan extends my_model {
     $this->buildRelation($this->expandables[2]['fields'][0][2], 'produk');
   }
 
+  function validate ($data) {
+    if (empty ($data['outlet'])) return array ('OUTLET TIDAK BOLEH KOSONG', 'error');
+    if (empty ($data['modal'])) $data['modal'] = 0;
+    else {
+      $modal_only = false;
+      foreach ($this->expandables as $exp) {
+        $exp = $this->getExpDetail($exp);
+        $table = $exp['table'];
+        $field1= $exp['fields'][0];
+        $modal_only = count ($data[$table][$field1]) == 1 && empty ($data[$table][$field1][0]) && empty ($data[$table][$field1][1]);
+      }
+      if ($modal_only) return true;
+      else return parent::validate($data);      
+    }
+    return parent::validate($data);
+  }
+
   function submodel ($data) {
     $CI =& get_instance();
     foreach ($this->submodel as $submodel) $CI->load->model($submodel);
@@ -65,8 +82,9 @@ Class bawaan extends my_model {
         $excepted[] = $this->bawaanbarang->update($record, $data['waktu'], $data['reason'], $data['outlet']);
       } else $excepted[] = $this->bawaanbarang->save($record, $data['waktu'], $data['reason'], $data['outlet']);
     }
-    foreach ($this->bawaanbarang->find(array('bawaan' => $data['id']), array('id' => $excepted)) as $delete)
-      $this->bawaanbarang->delete($delete->id, $data['waktu'], $data['reason'], $data['outlet']);
+    if (!empty ($excepted))
+      foreach ($this->bawaanbarang->find(array('bawaan' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->bawaanbarang->delete($delete->id, $data['waktu'], $data['reason'], $data['outlet']);
 
     $excepted = array();
     foreach ($data['bawaanayam']['ayam'] as $index => $ayam) {
@@ -82,8 +100,9 @@ Class bawaan extends my_model {
         $excepted[] = $this->bawaanayam->update($record, $data['waktu'], $data['reason'], $data['outlet']);
       } else $excepted[] = $this->bawaanayam->save($record, $data['waktu'], $data['reason'], $data['outlet']);
     }
-    foreach ($this->bawaanayam->find(array('bawaan' => $data['id']), array('id' => $excepted)) as $delete)
-      $this->bawaanayam->delete($delete->id, $data['waktu'], $data['reason'], $data['outlet']);
+    if (!empty ($excepted))
+      foreach ($this->bawaanayam->find(array('bawaan' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->bawaanayam->delete($delete->id, $data['waktu'], $data['reason'], $data['outlet']);
 
     $excepted = array();
     foreach ($data['bawaanproduk']['produk'] as $index => $produk) {
@@ -98,8 +117,9 @@ Class bawaan extends my_model {
         $excepted[] = $this->bawaanproduk->update($record, $data['waktu'], $data['reason'], $data['outlet']);
       } else $excepted[] = $this->bawaanproduk->save($record, $data['waktu'], $data['reason'], $data['outlet']);
     }
-    foreach ($this->bawaanproduk->find(array('bawaan' => $data['id']), array('id' => $excepted)) as $delete)
-      $this->bawaanproduk->delete($delete->id, $data['waktu'], $data['reason'], $data['outlet']); 
+    if (!empty ($excepted))
+      foreach ($this->bawaanproduk->find(array('bawaan' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->bawaanproduk->delete($delete->id, $data['waktu'], $data['reason'], $data['outlet']); 
   }
 
   function bawaanmodal ($data) {

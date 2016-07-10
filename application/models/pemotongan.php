@@ -123,8 +123,9 @@ Class pemotongan extends my_model {
         $excepted[] = $this->pemotongandetail->update($detail, $data['waktu'], $reason);
       } else $excepted[] = $this->pemotongandetail->save($detail, $data['waktu'], $reason);
     }
-    foreach ($this->pemotongandetail->find(array('pemotongan' => $data['id']), array('id' => $excepted)) as $delete)
-      $this->pemotongandetail->delete($delete->id, $data['waktu'], $reason);
+    if (!empty ($excepted))
+      foreach ($this->pemotongandetail->find(array('pemotongan' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->pemotongandetail->delete($delete->id, $data['waktu'], $reason);
   }
 
   function save ($data) {

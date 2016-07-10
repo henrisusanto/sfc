@@ -90,8 +90,9 @@ Class pesanan extends my_model {
         $excepted[] = $this->pesananproduk->update($record, $data['waktu'], $data['reason']);
       } else $excepted[] = $this->pesananproduk->save($record, $data['waktu'], $data['reason']);
     }
-    foreach ($this->pesananproduk->find(array('pesanan' => $data['id']), array('id' => $excepted)) as $delete)
-      $this->pesananproduk->delete($delete, $data['waktu'], $data['reason']);
+    if (!empty ($excepted))
+      foreach ($this->pesananproduk->find(array('pesanan' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->pesananproduk->delete($delete, $data['waktu'], $data['reason']);
 
     $excepted = array();
     foreach ($data['pesananbarang']['barang'] as $index => $barang) {
@@ -105,8 +106,9 @@ Class pesanan extends my_model {
         $excepted[] = $this->pesananbarang->update($record, $data['waktu'], $data['reason']);
       } else $excepted[] = $this->pesananbarang->save($record, $data['waktu'], $data['reason']);
     }
-    foreach ($this->pesananbarang->find(array('pesanan' => $data['id']), array('id' => $excepted)) as $delete)
-      $this->pesananbarang->delete($delete, $data['waktu'], $data['reason']);
+    if (!empty ($excepted))
+      foreach ($this->pesananbarang->find(array('pesanan' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->pesananbarang->delete($delete, $data['waktu'], $data['reason']);
 
     $excepted = array();
     foreach ($data['pesananayam']['ayam'] as $index => $ayam) {
@@ -121,8 +123,9 @@ Class pesanan extends my_model {
         $excepted[] = $this->pesananayam->update($record, $data['waktu'], $data['reason']);
       } else $excepted[] = $this->pesananayam->save($record, $data['waktu'], $data['reason']);
     }
-    foreach ($this->pesananayam->find(array('pesanan' => $data['id']), array('id' => $excepted)) as $delete)
-      $this->pesananayam->delete($delete, $data['waktu'], $data['reason']);
+    if (!empty ($excepted))
+      foreach ($this->pesananayam->find(array('pesanan' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->pesananayam->delete($delete, $data['waktu'], $data['reason']);
   }
 
   function update ($data) {

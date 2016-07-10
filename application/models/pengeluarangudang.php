@@ -59,8 +59,9 @@ Class pengeluarangudang extends my_model {
       if (!empty ($data['pengeluarandetail']['id'][$key])) $detail['id'] = $data['pengeluarandetail']['id'][$key];
       $excepted[] = $this->pengeluarandetail->save($detail, $data['waktu'], $reason);
     }
-    foreach ($this->pengeluarandetail->find(array('pengeluaran' => $data['id']), array('id' => $excepted)) as $delete)
-      $this->pengeluarandetail->delete($delete->id, $data['waktu'], $reason);
+    if (!empty ($excepted))
+      foreach ($this->pengeluarandetail->find(array('pengeluaran' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->pengeluarandetail->delete($delete->id, $data['waktu'], $reason);
 
     if ($record['total'] > $previous['total'])
       $this->sirkulasiKeuangan ('KELUAR', $reason, $record['total'] - $previous['total'], $data['id'], $data['waktu']);

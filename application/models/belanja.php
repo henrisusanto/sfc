@@ -53,8 +53,9 @@ Class belanja extends my_model {
       if (!empty ($data['belanjadetail']['id'][$key])) $record['id'] = $data['belanjadetail']['id'][$key];
       $excepted[] = $this->belanjadetail->save($record, $data['waktu'], $reason);
     }
-    foreach ($this->belanjadetail->find(array('belanja' => $data['id']), array('id' => $excepted)) as $delete)
-      $this->belanjadetail->delete($delete->id, $data['waktu'], $reason);
+    if (!empty ($excepted))
+      foreach ($this->belanjadetail->find(array('belanja' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->belanjadetail->delete($delete->id, $data['waktu'], $reason);
 
     if ($oldbelanja['total'] > $databelanja['total'])
       $this->sirkulasiKeuangan ('MASUK', $reason, $oldbelanja['total'] - $databelanja['total'], $data['id'], $data['waktu']);
