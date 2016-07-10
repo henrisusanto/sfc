@@ -5,6 +5,7 @@ Class transaksiinternal extends my_model {
   function __construct () {
     parent::__construct();
     $this->table = 'internal';
+    $this->submodel = array('internalbarang', 'internalproduk', 'internalayam');
     $this->thead = array(
       array('waktu','TANGGAL'),
       array('source','OUTLET ASAL'),
@@ -16,12 +17,14 @@ Class transaksiinternal extends my_model {
       2 => array('destination', 'OUTLET TUJUAN'),
       3 => array('receh', 'RECEH ( JIKA ADA )'),
     );
+    $this->required = array('source', 'destination');
     $this->buildRelation($this->inputFields[1][2], 'outlet');
     $this->buildRelation($this->inputFields[2][2], 'outlet');
 
     $this->expandables = array();
     $this->expandables[0] = array(
       'label' => 'BAHAN YANG DIKIRIM',
+      'required' => array('barang', 'qty'),
       'fields' => array (
         0 => array('internalbarang[barang][]', 'NAMA BARANG'),
         1 => array('internalbarang[qty][]', 'JUMLAH'),
@@ -31,6 +34,7 @@ Class transaksiinternal extends my_model {
 
     $this->expandables[1] = array(
       'label' => 'AYAM YANG DIKIRIM',
+      'required' => array('ayam', 'pcs', 'kg'),
       'fields' => array (
         0 => array('internalayam[ayam][]', 'AYAM'),
         1 => array('internalayam[pcs][]', 'JUMLAH'),
@@ -41,6 +45,7 @@ Class transaksiinternal extends my_model {
 
     $this->expandables[2] = array(
       'label' => 'PRODUK YANG DIKIRIM',
+      'required' => array('produk', 'qty'),
       'fields' => array (
         0 => array('internalproduk[produk][]', 'NAMA PRODUK'),
         1 => array('internalproduk[qty][]', 'JUMLAH'),
@@ -49,7 +54,83 @@ Class transaksiinternal extends my_model {
     $this->buildRelation($this->expandables[2]['fields'][0][2], 'produk');
   }
 
-  function save ($data) {
+  function validate ($data) {
+    if (empty ($data['receh'])) $data['receh'] = 0;
+    return parent::validate($data);
+  }
+
+  function internalreceh ($data) {
+    if (empty ($data['receh'])) return true;
+    if (!isset ($data['previous'])) {
+      $this->sirkulasiKeuanganOutlet ('KELUAR', $data['reason'], $data['receh'], $data['id'], $data['waktu'], $data['source']);
+      $this->sirkulasiKeuanganOutlet ('MASUK', $data['reason'], $data['receh'], $data['id'], $data['waktu'], $data['destination']);      
+    } else {
+      if ($data['modal'] > $data['previous']['modal']) {
+        $this->sirkulasiKeuanganOutlet ('KELUAR', $data['reason'], $data['modal'] - $data['previous']['modal'], $data['id'], $data['waktu'], $data['source']);
+        $this->sirkulasiKeuanganOutlet ('MASUK', $data['reason'], $data['modal'] - $data['previous']['modal'], $data['id'], $data['waktu'], $data['destination']);        
+      }
+      if ($data['modal'] < $data['previous']['modal']) {
+        $this->sirkulasiKeuanganOutlet ('MASUK', $data['reason'], $data['previous']['modal'] - $data['modal'], $data['id'], $data['waktu'], $data['source']);
+        $this->sirkulasiKeuanganOutlet ('KELUAR', $data['reason'], $data['previous']['modal'] - $data['modal'], $data['id'], $data['waktu'], $data['destination']);        
+      }      
+    }
+  }
+
+  function submodel ($data) {
+    $excepted = array();
+    foreach ($data['internalbarang']['barang'] as $index => $barang) {
+      if ($barang == 0) continue;
+      $internalbarang = array(
+        'internal' => $data['id'],
+        'barang' => $barang,
+        'qty' => $data['internalbarang']['qty'][$index]
+      );
+      if (!empty ($data['internalbarang']['id'][$key])) {
+        $internalbarang['id'] = $data['internalbarang']['id'][$key];
+        $excepted[] = $this->internalbarang->update($internalbarang, $data['waktu'], $data['reason'], $data['source'], $data['destination']);
+      } else $excepted[] = $this->internalbarang->save($internalbarang, $data['waktu'], $data['reason'], $data['source'], $data['destination']);
+    }
+    if (!empty ($excepted))
+      foreach ($this->internalbarang->find(array('internal' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->internalbarang->delete($delete, $data['reason'], $data['waktu'], $data['source'], $data['destination']);
+
+    $excepted = array();
+    foreach ($data['internalayam']['ayam'] as $index => $ayam) {
+      if ($ayam == 0) continue;
+      $internalayam = array(
+        'internal' => $data['id'],
+        'ayam' => $ayam,
+        'pcs' => $data['internalayam']['pcs'][$index],
+        'kg' => $data['internalayam']['kg'][$index]
+      );
+      if (!empty ($data['internalayam']['id'][$key])) {
+        $internalayam['id'] = $data['internalayam']['id'][$key];
+        $excepted[] = $this->internalayam->update($internalayam, $data['waktu'], $data['reason'], $data['source'], $data['destination']);
+      } else $excepted[] = $this->internalayam->save($internalayam, $data['waktu'], $data['reason'], $data['source'], $data['destination']);
+    }
+    if (!empty ($excepted))
+      foreach ($this->internalayam->find(array('internal' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->internalayam->delete($delete, $data['reason'], $data['waktu'], $data['source'], $data['destination']);
+
+    $excepted = array();
+    foreach ($data['internalproduk']['produk'] as $index => $produk) {
+      if ($produk == 0) continue;
+      $internalproduk = array(
+        'internal' => $data['id'],
+        'produk' => $produk,
+        'qty' => $data['internalproduk']['qty'][$index]
+      );
+      if (!empty ($data['internalproduk']['id'][$key])) {
+        $internalproduk['id'] = $data['internalproduk']['id'][$key];
+        $excepted[] = $this->internalproduk->update($internalproduk, $data['waktu'], $data['reason'], $data['source'], $data['destination']);
+      } else $excepted[] = $this->internalproduk->save($internalproduk, $data['waktu'], $data['reason'], $data['source'], $data['destination']);
+    }
+    if (!empty ($excepted))
+      foreach ($this->internalproduk->find(array('internal' => $data['id']), array('id' => $excepted)) as $delete)
+        $this->internalproduk->delete($delete, $data['reason'], $data['waktu'], $data['source'], $data['destination']);
+  }
+
+  function prepare ($data) {
     $waktu = $data['waktu'];
     $source = $data['source'];
     $destination = $data['destination'];
@@ -60,82 +141,44 @@ Class transaksiinternal extends my_model {
       'destination' => $destination,
       'receh' => $receh
     );
-    if (isset($data['id'])) {
-     $this->delete($data['id']);
-     $record['id'] = $data['id']; 
-    }
-    $internalId = parent::save($record);
-    $transaksi = 'ANTAR OUTLET';
-    if ($receh > 0) {
-      $this->sirkulasiKeuanganOutlet ('KELUAR', $transaksi, $receh, $internalId, $waktu, $source);
-      $this->sirkulasiKeuanganOutlet ('MASUK', $transaksi, $receh, $internalId, $waktu, $destination);
-    }
+    if (isset ($data['id'])) $record['id'] = $data['id'];
+    return $record;
+  }
 
-    foreach ($data['internalbarang']['barang'] as $index => $barang) {
-      if ($barang == 0) continue;
-      $qty = $data['internalbarang']['qty'][$index];
-      $fkey = $this->db->insert('internalbarang', array(
-        'internal' => $internalId,
-        'barang' => $barang,
-        'qty' => $qty
-      ));
-      $this->sirkulasiBarangOutlet ($waktu, $barang, 'KELUAR', $transaksi, $fkey, $qty, $source);
-      $this->sirkulasiBarangOutlet ($waktu, $barang, 'MASUK', $transaksi, $fkey, $qty, $destination);
-    }
+  function update ($data) {
+    $data['reason'] = 'EDIT TRANSAKSI ANTAR OUTLET';
+    $record = $this->prepare($data);
+    $data['previous'] = $this->findOne($data['id']);
+    $data['id'] = parent::save($record);
+    $this->internalreceh($data);
+    $this->submodel($data);
+  }
 
-    foreach ($data['internalayam']['ayam'] as $index => $ayam) {
-      if ($ayam == 0) continue;
-      $pcs = $data['internalayam']['pcs'][$index];
-      $kg = $data['internalayam']['kg'][$index];
-      $fkey = $this->db->insert('internalayam', array(
-        'internal' => $internalId,
-        'ayam' => $ayam,
-        'pcs' => $pcs,
-        'kg' => $kg
-      ));
-      $this->sirkulasiAyamOutlet ($waktu, $ayam, 'KELUAR', $transaksi, $fkey, $pcs, $kg, $source);
-      $this->sirkulasiAyamOutlet ($waktu, $ayam, 'MASUK', $transaksi, $fkey, $pcs, $kg, $destination);
-    }
-
-    foreach ($data['internalproduk']['produk'] as $index => $produk) {
-      if ($produk == 0) continue;
-      $qty = $data['internalproduk']['qty'][$index];
-      $fkey = $this->db->insert('internalproduk', array(
-        'internal' => $internalId,
-        'produk' => $produk,
-        'qty' => $qty
-      ));
-      $this->sirkulasiProdukOutlet ($waktu, $produk, 'KELUAR', $transaksi, $fkey, $qty, $source);
-      $this->sirkulasiprodukOutlet ($waktu, $produk, 'MASUK', $transaksi, $fkey, $qty, $destination);
-    }
+  function save ($data) {
+    $data['reason'] = 'TRANSAKSI ANTAR OUTLET';
+    $record = $this->prepare($data);
+    $data['id'] = parent::save($record);
+    $this->internalreceh($data);
+    $this->submodel($data);
   }
 
   function delete ($id) {
-    $transaksi = 'INTERNAL BATAL';
+    $reason = 'INTERNAL BATAL';
     $record = parent::findOne($id);
     $receh = $record['receh'];
-    $internalId = $record['id'];
+    $data['id'] = $record['id'];
     $waktu = date('Y-m-d H:i:s',time());
     $source = $record['source'];
     $destination = $record['destination'];
-    $barang = $this->db->get_where('internalbarang', array('internal' => $internalId))->result();
-    $ayam = $this->db->get_where('internalayam', array('internal' => $internalId))->result();
-    $produk = $this->db->get_where('internalproduk', array('internal' => $internalId))->result();
     if ($receh > 0) {
-      $this->sirkulasiKeuanganOutlet ('MASUK', $transaksi, $receh, $internalId, $waktu, $source);
-      $this->sirkulasiKeuanganOutlet ('KELUAR', $transaksi, $receh, $internalId, $waktu, $destination);
+      $this->sirkulasiKeuanganOutlet ('MASUK', $reason, $receh, $data['id'], $waktu, $source);
+      $this->sirkulasiKeuanganOutlet ('KELUAR', $reason, $receh, $data['id'], $waktu, $destination);
     }
-    foreach ($barang as $b) {
-      $this->sirkulasiBarangOutlet ($waktu, $b->barang, 'MASUK', $transaksi, $b->id, $b->qty, $source);
-      $this->sirkulasiBarangOutlet ($waktu, $b->barang, 'KELUAR', $transaksi, $b->id, $b->qty, $destination);
-    }
-    foreach ($ayam as $a) {
-      $this->sirkulasiAyamOutlet ($waktu, $a->ayam, 'MASUK', $transaksi, $a->id, $a->pcs, $a->kg, $source);
-      $this->sirkulasiAyamOutlet ($waktu, $a->ayam, 'KELUAR', $transaksi, $a->id, $a->pcs, $a->kg, $destination);
-    }
-    foreach ($produk as $p) {
-      $this->sirkulasiProdukOutlet ($waktu, $p->produk, 'MASUK', $transaksi, $p->id, $p->qty, $source);
-      $this->sirkulasiprodukOutlet ($waktu, $p->produk, 'KELUAR', $transaksi, $p->id, $p->qty, $destination);
+    $CI =& get_instance();
+    $CI->load->model($this->submodel);
+    foreach ($this->submodel as $submodel) {
+      foreach ($this->$submodel->find(array ('internal' => $data['id'])) as $delete)
+        $this->$submodel->delete($delete, $reason, $waktu, $source, $destination);      
     }
     return parent::delete($id);
   }

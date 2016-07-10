@@ -28,4 +28,5 @@ model yg possibly byk record, d ksh filter tanggal, terus d ksh default value
 - sirkulasi order asc
 - menu sirkulasi bahan outlet, bikin keluar masuk
 - validate deletion
-- test bawaan, modal only
++ test bawaan, modal only
+- edit mode, delete all rows
