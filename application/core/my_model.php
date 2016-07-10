@@ -349,12 +349,22 @@ Class my_model extends CI_Model {
         $detail = $this->getExpDetail($exp);
         $table = $detail['table'];
         $fields= $detail['fields'];
-        /*  VALIDATE EMPTY SUBFORM  */
-        if (!isset ($data[$table])) return array($exp['label'] . ' TIDAK BOLEH KOSONG', 'error');
+
+        if (count ($this->expandables) > 1) {
+          /*  set default value for empty subform  */
+          if (!isset ($data[$table])) {
+            $data[$table] = array();
+            foreach ($fields as $subfield) $data[$table][$subfield] = array(0);
+          }
   
+          /* pass empty subform */
+          if (1 == count ($data[$table][$fields[0]]) 
+          && empty ($data[$table][$fields[0]][0])) continue;
+        }
+
         /*  VALIDATE REQUIRED  */
-        if (!isset ($exp['required'])) continue;
-        else foreach ($data[$table][$fields[0]] as $key => $value) {
+        $exp['required'] = isset ($exp['required']) ? $exp['required'] : array();
+        foreach ($data[$table][$fields[0]] as $key => $value) {
           foreach ($exp['required'] as $input_name) {
 
             $user_input = $data[$table][$input_name][$key];
@@ -387,6 +397,12 @@ Class my_model extends CI_Model {
       foreach ($this->expandables as $exp) {
         $detail = $this->getExpDetail($exp);
         $table = $detail['table'];
+        $fields= $detail['fields'];
+
+        if (!isset ($entity[$table])) {
+          $entity[$table] = array();
+          foreach ($fields as $subfield) $entity[$table][$subfield] = array(0);
+        }
   
         foreach ($data['expandables'] as &$dex) {
           if ($dex['label'] != $exp['label']) continue;
@@ -410,7 +426,8 @@ Class my_model extends CI_Model {
     $field0 = $exp['fields'][0][0];
     $split = explode('[', $field0);
     $detail['table'] = $split[0];
-    foreach ($exp['fields'][0] as $field) {
+    foreach ($exp['fields'] as $field) {
+      $field = $field[0];
       $f = str_replace($detail['table'] . '[', '', $field);
       $f = str_replace('][]', '', $f);
       $detail['fields'][] = $f;

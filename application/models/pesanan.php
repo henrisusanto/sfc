@@ -55,6 +55,15 @@ Class pesanan extends my_model {
     $this->buildRelation($this->expandables[2]['fields'][0][2], 'ayam', array('nama <>' => 'AYAM HIDUP'));
   }
 
+  function validate (&$data) {
+    if (!isset ($data['pesananproduk']))
+      return array('PRODUK YANG DIPESAN TIDAK BOLEH KOSONG', 'error');
+    if (1 == count ($data['pesananproduk']['produk']) 
+    && empty ($data['pesananproduk']['produk'][0]))
+      return array('PRODUK YANG DIPESAN TIDAK BOLEH KOSONG', 'error');
+    return parent::validate($data);
+  }
+
   function prepare ($data) {
     $total = 0;
     $waktu = $data['waktu'];

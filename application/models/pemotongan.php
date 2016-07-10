@@ -21,12 +21,13 @@ Class pemotongan extends my_model {
       3 => array('bahankg', 'BERAT TOTAL'),
       4 => array('kepasar', 'KE PASAR (KG)'),
     );
-
+    $this->required = array('karyawan', 'bahanpcs', 'bahankg', 'kepasar');
     $this->buildRelation($this->inputFields[1][2], 'karyawan');
 
     $this->expandables = array();
     $this->expandables[0] = array(
       'label' => 'HASIL PEMOTONGAN AYAM',
+      'required' => array('ayam', 'pcs', 'kg'),
       'fields' => array (
         0 => array('pemotongandetail[ayam][]', 'JENIS POTONGAN AYAM'),
         1 => array('pemotongandetail[pcs][]', 'PCs'),

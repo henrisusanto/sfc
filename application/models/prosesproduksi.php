@@ -52,6 +52,15 @@ Class prosesproduksi extends my_model {
     $this->submodel = array('produksibarang', 'produksiayam', 'produksiproduk');
   }
 
+  function validate (&$data) {
+    if (!isset ($data['produksiproduk']))
+      return array('PRODUK YANG DIHASILKAN TIDAK BOLEH KOSONG', 'error');
+    if (1 == count ($data['produksiproduk']['produk']) 
+    && empty ($data['produksiproduk']['produk'][0]))
+      return array('PRODUK YANG DIHASILKAN TIDAK BOLEH KOSONG', 'error');
+    return parent::validate($data);
+  }
+
   function prepare ($data) {
     $prepared = array();
     $prepared['record'] = array(

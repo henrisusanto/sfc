@@ -49,19 +49,7 @@ Class bawaan extends my_model {
   }
 
   function validate ($data) {
-    if (empty ($data['outlet'])) return array ('OUTLET TIDAK BOLEH KOSONG', 'error');
     if (empty ($data['modal'])) $data['modal'] = 0;
-    else {
-      $modal_only = false;
-      foreach ($this->expandables as $exp) {
-        $exp = $this->getExpDetail($exp);
-        $table = $exp['table'];
-        $field1= $exp['fields'][0];
-        $modal_only = count ($data[$table][$field1]) == 1 && empty ($data[$table][$field1][0]) && empty ($data[$table][$field1][1]);
-      }
-      if ($modal_only) return true;
-      else return parent::validate($data);      
-    }
     return parent::validate($data);
   }
 
