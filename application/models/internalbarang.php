@@ -19,12 +19,14 @@ Class internalbarang extends my_model {
       $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'MASUK', $reason, $data['id'], $previous['qty'] - $data['qty'], $source);
       $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $previous['qty'] - $data['qty'], $destination);
     }
+    return $data['id'];
   }
 
   function save ($data, $waktu, $reason, $source, $destination) {
     $data['id'] = parent::save($data);
     $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $data['qty'], $source);
     $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'MASUK', $reason, $data['id'], $data['qty'], $destination);
+    return $data['id'];
   }
 
   function delete ($data, $waktu, $reason, $source, $destination) {

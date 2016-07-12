@@ -15,11 +15,14 @@ Class pesananbarang extends my_model {
       $this->sirkulasiBarang ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $data['qty'] - $previous['qty']);
     if ($data['qty'] < $previous['qty'])
       $this->sirkulasiBarang ($waktu, $data['barang'], 'MASUK', $reason, $data['id'], $previous['qty'] - $data['qty']);
+
+    return $data['id'];
   }
 
   function save ($data, $waktu, $reason) {
     $data['id'] = parent::save($data);
     $this->sirkulasiBarang ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $data['qty']);
+    return $data['id'];
   }
 
   function delete ($data, $waktu, $reason) {

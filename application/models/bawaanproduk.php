@@ -18,16 +18,19 @@ Class bawaanproduk extends my_model {
       $this->sirkulasiProduk ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $previous['qty'] - $data['qty']);
       $this->sirkulasiProdukOutlet ($waktu, $data['produk'], 'KELUAR', $reason, $data['id'], $previous['qty'] - $data['qty'], $outlet);
     }
+    return $data['id'];
   }
 
   function save ($data, $waktu, $reason, $outlet) {
     $data['id'] = parent::save($data);
     $this->sirkulasiProduk ($waktu, $data['produk'], 'KELUAR', $reason, $data['id'], $data['qty']);
     $this->sirkulasiProdukOutlet ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $data['qty'], $outlet);
+    return $data['id'];
   }
 
   function delete ($data, $waktu, $reason, $outlet) {
     $this->sirkulasiProduk ($waktu, $data->produk, 'MASUK', $reason, $data->id, $data->qty);
     $this->sirkulasiProdukOutlet ($waktu, $data->produk, 'KELUAR', $reason, $data->id, $data->qty, $outlet);
+    return parent::delete($data->id);
   }
 }

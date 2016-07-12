@@ -37,16 +37,19 @@ Class bawaanayam extends my_model {
         $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], 0, $previous['kg'] - $data['kg'], $outlet);
       }
     }
+    return $data['id'];
   }
 
   function save ($data, $waktu, $reason, $outlet) {
     $data['id'] = parent::save($data);
     $this->sirkulasiAyam ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], $data['pcs'], $data['kg']);
     $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], $data['pcs'], $data['kg'], $outlet);
+    return $data['id'];
   }
 
   function delete ($data, $waktu, $reason, $outlet) {
     $this->sirkulasiAyam ($waktu, $data->ayam, 'MASUK', $reason, $data->id, $data->pcs, $data->kg);
     $this->sirkulasiAyamOutlet ($waktu, $data->ayam, 'KELUAR', $reason, $data->id, $data->pcs, $data->kg, $outlet);
+    return parent::delete($data->id);
   }
 }

@@ -30,11 +30,13 @@ Class pesananayam extends my_model {
         $this->sirkulasiAyam ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], 
         0, $previous['kg'] - $data['kg']);
     }
+    return $data['id'];
   }
 
   function save ($data, $waktu, $reason) {
     $data['id'] = parent::save($data);
     $this->sirkulasiAyam ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], $data['pcs'], $data['kg']);
+    return $data['id'];
   }
 
   function delete ($data, $waktu, $reason) {

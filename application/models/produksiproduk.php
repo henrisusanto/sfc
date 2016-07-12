@@ -18,12 +18,14 @@ Class produksiproduk extends my_model {
       return 0 == $outlet ? $this->sirkulasiProduk ($waktu, $data['produk'], 'KELUAR', $reason, $data['id'], $previous['qty'] - $data['qty']):
       $this->sirkulasiProdukOutlet ($waktu, $data['produk'], 'KELUAR', $reason, $data['id'], $previous['qty'] - $data['qty'], $outlet);
     }
+    return $data['id'];
   }
 
   function save ($data, $waktu, $reason, $outlet) {
     $data['id'] = parent::save($data);
     if ($outlet==0) $this->sirkulasiProduk ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $data['qty']);
-    else $this->sirkulasiProdukOutlet ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $data['qty'], $outlet);    
+    else $this->sirkulasiProdukOutlet ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $data['qty'], $outlet);
+    return $data['id'];    
   }
 
   function delete ($id, $reason, $waktu, $outlet) {

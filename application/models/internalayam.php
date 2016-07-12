@@ -36,18 +36,20 @@ Class internalayam extends my_model {
           $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], 0, $previous['kg'] - $data['kg'], $destination);
         }
       }
+      return $data['id'];
   }
 
   function save ($data, $waktu, $reason, $source, $destination) {
     $data['id'] = parent::save($data);
     $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], $data['pcs'], $data['kg'], $source);
     $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'MASUK', $reason, $data['id'], $data['pcs'], $data['kg'], $destination);
+    return $data['id'];
   }
 
   function delete ($data, $reason, $waktu, $source, $destination) {
     $this->sirkulasiAyamOutlet ($waktu, $data->ayam, 'MASUK', $reason, $data->id, $data->pcs, $data->kg, $source);
     $this->sirkulasiAyamOutlet ($waktu, $data->ayam, 'KELUAR', $reason, $data->id, $data->pcs, $data->kg, $destination);
-    return parent::delete($id);    
+    return parent::delete($data->id);
   }
 
 }

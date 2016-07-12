@@ -53,12 +53,14 @@ Class produksiayam extends my_model {
           0, $previous['kg'] - $data['kg'], $outlet);
       }
     }
+    return $data['id'];
   }
 
   function save ($data, $waktu, $reason, $outlet) {
     $data['id'] = parent::save($data);
     if ($outlet==0) $this->sirkulasiAyam ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], $data['pcs'], $data['kg']);
     else $this->sirkulasiAyamOutlet ($waktu, $data['ayam'], 'KELUAR', $reason, $data['id'], $data['pcs'], $data['kg'], $outlet);
+    return $data['id'];
   }
 
   function delete ($id, $reason, $waktu, $outlet) {

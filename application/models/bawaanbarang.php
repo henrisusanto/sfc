@@ -19,12 +19,14 @@ Class bawaanbarang extends my_model {
       $this->sirkulasiBarang ($waktu, $data['barang'], 'MASUK', $reason, $data['id'], $previous['qty'] - $data['qty']);
       $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $previous['qty'] - $data['qty'], $outlet);
     }
+    return $data['id'];
   }
 
   function save ($data, $waktu, $reason, $outlet) {
     $data['id'] = parent::save($data);
     $this->sirkulasiBarang ($waktu, $data['barang'], 'KELUAR', $reason, $data['id'], $data['qty']);
     $this->sirkulasiBarangOutlet ($waktu, $data['barang'], 'MASUK', $reason, $data['id'], $data['qty'], $outlet);
+    return $data['id'];
   }
 
   function delete ($data, $waktu, $reason, $outlet) {

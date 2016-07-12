@@ -65,25 +65,29 @@ Class transaksiinternal extends my_model {
       $this->sirkulasiKeuanganOutlet ('KELUAR', $data['reason'], $data['receh'], $data['id'], $data['waktu'], $data['source']);
       $this->sirkulasiKeuanganOutlet ('MASUK', $data['reason'], $data['receh'], $data['id'], $data['waktu'], $data['destination']);      
     } else {
-      if ($data['modal'] > $data['previous']['modal']) {
-        $this->sirkulasiKeuanganOutlet ('KELUAR', $data['reason'], $data['modal'] - $data['previous']['modal'], $data['id'], $data['waktu'], $data['source']);
-        $this->sirkulasiKeuanganOutlet ('MASUK', $data['reason'], $data['modal'] - $data['previous']['modal'], $data['id'], $data['waktu'], $data['destination']);        
+      if ($data['receh'] > $data['previous']['receh']) {
+        $this->sirkulasiKeuanganOutlet ('KELUAR', $data['reason'], $data['receh'] - $data['previous']['receh'], $data['id'], $data['waktu'], $data['source']);
+        $this->sirkulasiKeuanganOutlet ('MASUK', $data['reason'], $data['receh'] - $data['previous']['receh'], $data['id'], $data['waktu'], $data['destination']);        
       }
-      if ($data['modal'] < $data['previous']['modal']) {
-        $this->sirkulasiKeuanganOutlet ('MASUK', $data['reason'], $data['previous']['modal'] - $data['modal'], $data['id'], $data['waktu'], $data['source']);
-        $this->sirkulasiKeuanganOutlet ('KELUAR', $data['reason'], $data['previous']['modal'] - $data['modal'], $data['id'], $data['waktu'], $data['destination']);        
+      if ($data['receh'] < $data['previous']['receh']) {
+        $this->sirkulasiKeuanganOutlet ('MASUK', $data['reason'], $data['previous']['receh'] - $data['receh'], $data['id'], $data['waktu'], $data['source']);
+        $this->sirkulasiKeuanganOutlet ('KELUAR', $data['reason'], $data['previous']['receh'] - $data['receh'], $data['id'], $data['waktu'], $data['destination']);        
       }      
     }
   }
 
   function submodel ($data) {
+    $CI =& get_instance();
+    $CI->load->model($this->submodel);
     $excepted = array();
-    foreach ($data['internalbarang']['barang'] as $index => $barang) {
+
+    $excepted = array();
+    foreach ($data['internalbarang']['barang'] as $key => $barang) {
       if ($barang == 0) continue;
       $internalbarang = array(
         'internal' => $data['id'],
         'barang' => $barang,
-        'qty' => $data['internalbarang']['qty'][$index]
+        'qty' => $data['internalbarang']['qty'][$key]
       );
       if (!empty ($data['internalbarang']['id'][$key])) {
         $internalbarang['id'] = $data['internalbarang']['id'][$key];
@@ -95,13 +99,13 @@ Class transaksiinternal extends my_model {
         $this->internalbarang->delete($delete, $data['reason'], $data['waktu'], $data['source'], $data['destination']);
 
     $excepted = array();
-    foreach ($data['internalayam']['ayam'] as $index => $ayam) {
+    foreach ($data['internalayam']['ayam'] as $key => $ayam) {
       if ($ayam == 0) continue;
       $internalayam = array(
         'internal' => $data['id'],
         'ayam' => $ayam,
-        'pcs' => $data['internalayam']['pcs'][$index],
-        'kg' => $data['internalayam']['kg'][$index]
+        'pcs' => $data['internalayam']['pcs'][$key],
+        'kg' => $data['internalayam']['kg'][$key]
       );
       if (!empty ($data['internalayam']['id'][$key])) {
         $internalayam['id'] = $data['internalayam']['id'][$key];
@@ -113,12 +117,12 @@ Class transaksiinternal extends my_model {
         $this->internalayam->delete($delete, $data['reason'], $data['waktu'], $data['source'], $data['destination']);
 
     $excepted = array();
-    foreach ($data['internalproduk']['produk'] as $index => $produk) {
+    foreach ($data['internalproduk']['produk'] as $key => $produk) {
       if ($produk == 0) continue;
       $internalproduk = array(
         'internal' => $data['id'],
         'produk' => $produk,
-        'qty' => $data['internalproduk']['qty'][$index]
+        'qty' => $data['internalproduk']['qty'][$key]
       );
       if (!empty ($data['internalproduk']['id'][$key])) {
         $internalproduk['id'] = $data['internalproduk']['id'][$key];

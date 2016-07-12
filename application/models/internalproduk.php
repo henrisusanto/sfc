@@ -17,13 +17,15 @@ Class internalproduk extends my_model {
     if ($previous['qty'] > $data['qty']) {
       $this->sirkulasiProdukOutlet ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $previous['qty'] - $data['qty'], $source);
       $this->sirkulasiprodukOutlet ($waktu, $data['produk'], 'KELUAR', $reason, $data['id'], $previous['qty'] - $data['qty'], $destination);      
-    }      
+    }
+    return $data['id'];
   }
 
   function save ($data, $waktu, $reason, $source, $destination) {
     $data['id'] = parent::save($data);
     $this->sirkulasiProdukOutlet ($waktu, $data['produk'], 'KELUAR', $reason, $data['id'], $data['qty'], $source);
     $this->sirkulasiprodukOutlet ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $data['qty'], $destination);
+    return $data['id'];
   }
 
   function delete ($data, $waktu, $reason, $source, $destination) {

@@ -12,13 +12,15 @@ Class pesananproduk extends my_model {
     $data['id'] = parent::save($data);
     $qty = $data['qty'] > $previous['qty'] ? $data['qty'] - $previous['qty'] : $previous['qty'] - $data['qty'];
     $this->sirkulasiProduk ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $data['qty']);
-    $this->sirkulasiProduk ($waktu, $data['produk'], 'KELUAR', $reason, $data['id'], $data['qty']);      
+    $this->sirkulasiProduk ($waktu, $data['produk'], 'KELUAR', $reason, $data['id'], $data['qty']);
+    return $data['id'];      
   }
 
   function save ($data, $waktu, $reason) {
     $data['id'] = parent::save($data);
     $this->sirkulasiProduk ($waktu, $data['produk'], 'MASUK', $reason, $data['id'], $data['qty']);
     $this->sirkulasiProduk ($waktu, $data['produk'], 'KELUAR', $reason, $data['id'], $data['qty']);
+    return $data['id'];
   }
 
   function delete ($data, $waktu, $reason) {
