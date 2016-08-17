@@ -30,3 +30,6 @@ model yg possibly byk record, d ksh filter tanggal, terus d ksh default value
 - validate deletion
 + test bawaan, modal only
 - edit mode, delete all rows
+- di setoran, bikin kalkulasi proses produksi, produksiproduk = produkterjual - stock produk outlet + setoran sisa produk
+  so do with produksibarang & produksiayam (tp yg ini katanya semua kepake)
+  nek angel, produksine rasah d etung
